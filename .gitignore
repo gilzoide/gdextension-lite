@@ -1,0 +1,13 @@
+# Generated files
+generated/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Python virtual env
+.env/
+.venv/
+env/
+venv/
