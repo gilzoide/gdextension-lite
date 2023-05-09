@@ -13,7 +13,7 @@ class HeaderWriter:
 
     def write_header(self, header_name: str, contents: str):
         filename = self.base_dir.joinpath(header_name + ".h")
-        define = f"__GDEXTENSION_C_GENERATED_{header_name.upper()}_H__"
+        define = f"__GDEXTENSION_LITE_GENERATED_{header_name.upper()}_H__"
         lines = (
             "// This file was automatically generated",
             "// Do not modify this file",

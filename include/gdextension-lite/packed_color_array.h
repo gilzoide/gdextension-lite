@@ -1,8 +1,8 @@
 /** @file
  * packed_color_array.h -- Godot PackedColorArray type
  */
-#ifndef __GDEXTENSION_C_PACKED_COLOR_ARRAY_H__
-#define __GDEXTENSION_C_PACKED_COLOR_ARRAY_H__
+#ifndef __GDEXTENSION_LITE_PACKED_COLOR_ARRAY_H__
+#define __GDEXTENSION_LITE_PACKED_COLOR_ARRAY_H__
 
 #include <stdint.h>
 

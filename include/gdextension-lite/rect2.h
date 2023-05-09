@@ -1,8 +1,8 @@
 /** @file
  * rect2.h -- Godot Rect2 type
  */
-#ifndef __GDEXTENSION_C_RECT2_H__
-#define __GDEXTENSION_C_RECT2_H__
+#ifndef __GDEXTENSION_LITE_RECT2_H__
+#define __GDEXTENSION_LITE_RECT2_H__
 
 #include "float.h"
 #include "vector2.h"

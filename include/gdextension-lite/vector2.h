@@ -1,8 +1,8 @@
 /** @file
  * vector2.h -- Godot Vector2 type
  */
-#ifndef __GDEXTENSION_C_VECTOR2_H__
-#define __GDEXTENSION_C_VECTOR2_H__
+#ifndef __GDEXTENSION_LITE_VECTOR2_H__
+#define __GDEXTENSION_LITE_VECTOR2_H__
 
 #include "float.h"
 

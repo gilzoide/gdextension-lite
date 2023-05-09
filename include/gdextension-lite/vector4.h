@@ -1,8 +1,8 @@
 /** @file
  * vector4.h -- Godot Vector4 type
  */
-#ifndef __GDEXTENSION_C_VECTOR4_H__
-#define __GDEXTENSION_C_VECTOR4_H__
+#ifndef __GDEXTENSION_LITE_VECTOR4_H__
+#define __GDEXTENSION_LITE_VECTOR4_H__
 
 #include "float.h"
 #include "vector2.h"

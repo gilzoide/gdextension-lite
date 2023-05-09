@@ -1,8 +1,8 @@
 /** @file
  * variant.h -- Godot Variant type
  */
-#ifndef __GDEXTENSION_C_VARIANT_H__
-#define __GDEXTENSION_C_VARIANT_H__
+#ifndef __GDEXTENSION_LITE_VARIANT_H__
+#define __GDEXTENSION_LITE_VARIANT_H__
 
 #include <stdint.h>
 

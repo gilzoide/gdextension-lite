@@ -1,8 +1,8 @@
 /** @file
  * node_path.h -- Godot NodePath type
  */
-#ifndef __GDEXTENSION_C_NODE_PATH_H__
-#define __GDEXTENSION_C_NODE_PATH_H__
+#ifndef __GDEXTENSION_LITE_NODE_PATH_H__
+#define __GDEXTENSION_LITE_NODE_PATH_H__
 
 #include <stdint.h>
 

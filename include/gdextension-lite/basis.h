@@ -1,8 +1,8 @@
 /** @file
  * basis.h -- Godot Basis type
  */
-#ifndef __GDEXTENSION_C_BASIS_H__
-#define __GDEXTENSION_C_BASIS_H__
+#ifndef __GDEXTENSION_LITE_BASIS_H__
+#define __GDEXTENSION_LITE_BASIS_H__
 
 #include "vector3.h"
 

@@ -1,8 +1,8 @@
 /** @file
  * vector3i.h -- Godot Vector3i type
  */
-#ifndef __GDEXTENSION_C_VECTOR3I_H__
-#define __GDEXTENSION_C_VECTOR3I_H__
+#ifndef __GDEXTENSION_LITE_VECTOR3I_H__
+#define __GDEXTENSION_LITE_VECTOR3I_H__
 
 #include <stdint.h>
 

@@ -1,8 +1,8 @@
 /** @file
  * dictionary.h -- Godot Dictionary type
  */
-#ifndef __GDEXTENSION_C_DICTIONARY_H__
-#define __GDEXTENSION_C_DICTIONARY_H__
+#ifndef __GDEXTENSION_LITE_DICTIONARY_H__
+#define __GDEXTENSION_LITE_DICTIONARY_H__
 
 #include <stdint.h>
 

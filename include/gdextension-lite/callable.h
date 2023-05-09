@@ -1,8 +1,8 @@
 /** @file
  * callable.h -- Godot Callable type
  */
-#ifndef __GDEXTENSION_C_CALLABLE_H__
-#define __GDEXTENSION_C_CALLABLE_H__
+#ifndef __GDEXTENSION_LITE_CALLABLE_H__
+#define __GDEXTENSION_LITE_CALLABLE_H__
 
 #include <stdint.h>
 

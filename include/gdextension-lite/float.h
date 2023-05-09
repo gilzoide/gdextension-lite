@@ -1,8 +1,8 @@
 /** @file
  * float.h -- Godot float type
  */
-#ifndef __GDEXTENSION_C_FLOAT_H__
-#define __GDEXTENSION_C_FLOAT_H__
+#ifndef __GDEXTENSION_LITE_FLOAT_H__
+#define __GDEXTENSION_LITE_FLOAT_H__
 
 typedef double godot_float;
 

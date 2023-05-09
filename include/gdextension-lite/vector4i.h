@@ -1,8 +1,8 @@
 /** @file
  * vector4i.h -- Godot Vector4i type
  */
-#ifndef __GDEXTENSION_C_VECTOR4I_H__
-#define __GDEXTENSION_C_VECTOR4I_H__
+#ifndef __GDEXTENSION_LITE_VECTOR4I_H__
+#define __GDEXTENSION_LITE_VECTOR4I_H__
 
 #include <stdint.h>
 

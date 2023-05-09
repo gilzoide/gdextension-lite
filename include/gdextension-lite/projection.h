@@ -1,8 +1,8 @@
 /** @file
  * projection.h -- Godot Projection type
  */
-#ifndef __GDEXTENSION_C_PROJECTION_H__
-#define __GDEXTENSION_C_PROJECTION_H__
+#ifndef __GDEXTENSION_LITE_PROJECTION_H__
+#define __GDEXTENSION_LITE_PROJECTION_H__
 
 #include "float.h"
 #include "vector4.h"

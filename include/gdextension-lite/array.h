@@ -1,8 +1,8 @@
 /** @file
  * array.h -- Godot Array type
  */
-#ifndef __GDEXTENSION_C_ARRAY_H__
-#define __GDEXTENSION_C_ARRAY_H__
+#ifndef __GDEXTENSION_LITE_ARRAY_H__
+#define __GDEXTENSION_LITE_ARRAY_H__
 
 #include <stdint.h>
 

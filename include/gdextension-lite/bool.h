@@ -1,8 +1,8 @@
 /** @file
  * bool.h -- Godot bool type
  */
-#ifndef __GDEXTENSION_C_BOOL_H__
-#define __GDEXTENSION_C_BOOL_H__
+#ifndef __GDEXTENSION_LITE_BOOL_H__
+#define __GDEXTENSION_LITE_BOOL_H__
 
 #if defined(__cplusplus)
 	typedef bool godot_bool;

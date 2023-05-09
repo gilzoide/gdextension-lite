@@ -1,8 +1,8 @@
 /** @file
  * vector3.h -- Godot Vector3 type
  */
-#ifndef __GDEXTENSION_C_VECTOR3_H__
-#define __GDEXTENSION_C_VECTOR3_H__
+#ifndef __GDEXTENSION_LITE_VECTOR3_H__
+#define __GDEXTENSION_LITE_VECTOR3_H__
 
 #include "float.h"
 #include "vector2.h"

@@ -1,8 +1,8 @@
 /** @file
  * packed_vector3_array.h -- Godot PackedVector3Array type
  */
-#ifndef __GDEXTENSION_C_PACKED_VECTOR3_ARRAY_H__
-#define __GDEXTENSION_C_PACKED_VECTOR3_ARRAY_H__
+#ifndef __GDEXTENSION_LITE_PACKED_VECTOR3_ARRAY_H__
+#define __GDEXTENSION_LITE_PACKED_VECTOR3_ARRAY_H__
 
 #include <stdint.h>
 

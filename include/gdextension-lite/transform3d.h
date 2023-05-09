@@ -1,8 +1,8 @@
 /** @file
  * transform3d.h -- Godot Transform3D type
  */
-#ifndef __GDEXTENSION_C_TRANSFORM3D_H__
-#define __GDEXTENSION_C_TRANSFORM3D_H__
+#ifndef __GDEXTENSION_LITE_TRANSFORM3D_H__
+#define __GDEXTENSION_LITE_TRANSFORM3D_H__
 
 #include "basis.h"
 #include "vector3.h"

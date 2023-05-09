@@ -1,8 +1,8 @@
 /** @file
  * signal.h -- Godot Signal type
  */
-#ifndef __GDEXTENSION_C_SIGNAL_H__
-#define __GDEXTENSION_C_SIGNAL_H__
+#ifndef __GDEXTENSION_LITE_SIGNAL_H__
+#define __GDEXTENSION_LITE_SIGNAL_H__
 
 #include <stdint.h>
 

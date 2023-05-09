@@ -1,8 +1,8 @@
 /** @file
  * rect2i.h -- Godot Rect2i type
  */
-#ifndef __GDEXTENSION_C_RECT2I_H__
-#define __GDEXTENSION_C_RECT2I_H__
+#ifndef __GDEXTENSION_LITE_RECT2I_H__
+#define __GDEXTENSION_LITE_RECT2I_H__
 
 #include <stdint.h>
 

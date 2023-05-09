@@ -1,8 +1,8 @@
 /** @file
  * packed_vector2_array.h -- Godot PackedVector2Array type
  */
-#ifndef __GDEXTENSION_C_PACKED_VECTOR2_ARRAY_H__
-#define __GDEXTENSION_C_PACKED_VECTOR2_ARRAY_H__
+#ifndef __GDEXTENSION_LITE_PACKED_VECTOR2_ARRAY_H__
+#define __GDEXTENSION_LITE_PACKED_VECTOR2_ARRAY_H__
 
 #include <stdint.h>
 

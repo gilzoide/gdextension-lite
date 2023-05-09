@@ -1,8 +1,8 @@
 /** @file
  * quaternion.h -- Godot Quaternion type
  */
-#ifndef __GDEXTENSION_C_QUATERNION_H__
-#define __GDEXTENSION_C_QUATERNION_H__
+#ifndef __GDEXTENSION_LITE_QUATERNION_H__
+#define __GDEXTENSION_LITE_QUATERNION_H__
 
 #include "float.h"
 #include "vector2.h"

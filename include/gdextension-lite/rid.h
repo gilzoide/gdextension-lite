@@ -1,8 +1,8 @@
 /** @file
  * rid.h -- Godot RID type
  */
-#ifndef __GDEXTENSION_C_RID_H__
-#define __GDEXTENSION_C_RID_H__
+#ifndef __GDEXTENSION_LITE_RID_H__
+#define __GDEXTENSION_LITE_RID_H__
 
 #include <stdint.h>
 
