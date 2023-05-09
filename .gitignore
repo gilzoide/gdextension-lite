@@ -1,5 +1,7 @@
 # Generated files
 generated/
+*.zip
+build/
 
 # Python cache
 __pycache__/
