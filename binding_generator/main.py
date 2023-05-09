@@ -12,8 +12,10 @@ Usage:
 import json
 import sys
 
+from builtin_classes import generate_builtin_class
 from enums import generate_all_enums
 from header import HeaderWriter
+from json_types import ExtensionApi
 
 
 def main():
@@ -25,12 +27,12 @@ def main():
     output_dir = sys.argv[2]
 
     with open(extension_api_path, 'r') as file:
-        extension_api = json.load(file)
+        extension_api: ExtensionApi = json.load(file)
 
     header_writer = HeaderWriter(*output_dir.split("/"))
     header_writer.write_header(
+        generate_all_enums(extension_api['global_enums']),
         "global_enums",
-        generate_all_enums(extension_api['global_enums'])
     )
 
 

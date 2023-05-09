@@ -2,20 +2,10 @@
 Generates C enum bindings for GDExtension
 """
 
-from typing import TypedDict
+from json_types import GlobalEnumOrEnum
 
 
-class EnumValue(TypedDict):
-    name: str
-    value: int
-
-
-class EnumType(TypedDict):
-    name: str
-    values: list[EnumValue]
-
-
-def generate_enum(enum: EnumType) -> str:
+def generate_enum(enum: GlobalEnumOrEnum) -> str:
     lines = ["typedef enum {"]
     for value in enum['values']:
         lines.append(f"\t{value['name']} = {value['value']},")
@@ -23,5 +13,5 @@ def generate_enum(enum: EnumType) -> str:
     return '\n'.join(lines)
 
 
-def generate_all_enums(enums: list[EnumType]) -> str:
+def generate_all_enums(enums: list[GlobalEnumOrEnum]) -> str:
     return '\n\n'.join(generate_enum(e) for e in enums)
