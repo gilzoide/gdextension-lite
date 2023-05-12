@@ -39,8 +39,10 @@ def main():
         if builtin_class["name"] == 'Nil':
             continue
 
-        header_writer.write_header(generate_builtin_class(builtin_class),
-                                   "variant", builtin_class['name'].lower())
+        contents, implementation = generate_builtin_class(builtin_class)
+        header_writer.write_header(contents,
+                                   "variant", builtin_class['name'].lower(),
+                                   implementation=implementation)
 
 
 if __name__ == "__main__":
