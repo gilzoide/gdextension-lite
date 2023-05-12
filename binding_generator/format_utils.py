@@ -91,3 +91,13 @@ def format_method_pointer(type_name: str, method: BuiltinClassMethod) -> str:
         method["name"],
         ";",
     ])
+
+
+def format_type_from_variant(type_name: str) -> str:
+    return ("GDExtensionTypeFromVariantConstructorFunc"
+            f" godot_ptr_{type_name}_from_Variant;")
+
+
+def format_variant_from_type(type_name: str) -> str:
+    return ("GDExtensionVariantFromTypeConstructorFunc"
+            f" godot_ptr_Variant_from_{type_name};")

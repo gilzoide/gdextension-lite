@@ -6,6 +6,8 @@ from format_utils import (format_constructor_pointer,
                           format_destructor_pointer,
                           format_method_pointer,
                           format_operator_pointer,
+                          format_type_from_variant,
+                          format_variant_from_type,
                           should_generate_constructor,
                           should_generate_operator)
 from json_types import BuiltinClass
@@ -30,6 +32,13 @@ def generate_constructors(builtin_class: BuiltinClass) -> list[str]:
     ]
 
 
+def generate_variant_from_to(builtin_class: BuiltinClass) -> list[str]:
+    return [
+        format_type_from_variant(builtin_class["name"]),
+        format_variant_from_type(builtin_class["name"]),
+    ]
+
+
 def generate_destructor(builtin_class: BuiltinClass) -> list[str]:
     return ([format_destructor_pointer(builtin_class["name"])]
             if builtin_class["has_destructor"]
@@ -48,5 +57,6 @@ def generate_methods(builtin_class: BuiltinClass) -> list[str]:
 def generate_variant_function_pointers(builtin_class: BuiltinClass) -> list[str]:
     return (generate_constructors(builtin_class)
             + generate_destructor(builtin_class)
+            + generate_variant_from_to(builtin_class)
             + generate_operators(builtin_class)
             + generate_methods(builtin_class))
