@@ -81,3 +81,13 @@ def format_constructor_pointer(type_name: str, ctor: Constructor) -> str:
 
 def format_destructor_pointer(type_name: str) -> str:
     return f"GDExtensionPtrDestructor godot_ptr_destroy_{type_name};"
+
+
+def format_method_pointer(type_name: str, method: BuiltinClassMethod) -> str:
+    return "".join([
+        "GDExtensionPtrBuiltInMethod godot_ptr_",
+        type_name,
+        "_",
+        method["name"],
+        ";",
+    ])

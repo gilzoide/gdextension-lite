@@ -4,6 +4,7 @@ Generate the cached bindings' function pointers
 
 from format_utils import (format_constructor_pointer,
                           format_destructor_pointer,
+                          format_method_pointer,
                           format_operator_pointer,
                           should_generate_constructor,
                           should_generate_operator)
@@ -35,7 +36,17 @@ def generate_destructor(builtin_class: BuiltinClass) -> list[str]:
             else [])
 
 
+def generate_methods(builtin_class: BuiltinClass) -> list[str]:
+    methods = builtin_class.get("methods")
+    if methods:
+        return [format_method_pointer(builtin_class["name"], method)
+                for method in methods]
+    else:
+        return []
+
+
 def generate_variant_function_pointers(builtin_class: BuiltinClass) -> list[str]:
     return (generate_constructors(builtin_class)
             + generate_destructor(builtin_class)
-            + generate_operators(builtin_class))
+            + generate_operators(builtin_class)
+            + generate_methods(builtin_class))
