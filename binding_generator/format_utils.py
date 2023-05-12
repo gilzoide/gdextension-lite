@@ -13,22 +13,26 @@ NON_STRUCT_TYPES = (
 
 
 OPERATOR_TO_C = {
-    '+': 'plus',
-    '-': 'minus',
-    'unary+': 'unary_plus',
-    'unary-': 'unary_minus',
+    '+': 'add',
+    '-': 'subtract',
+    'unary+': 'positive',
+    'unary-': 'negate',
     '*': 'multiply',
     '/': 'divide',
     '**': 'power',
-    '~': 'bit_not',
-    '%': 'modulo',
-    '==': 'is_equal_to',
-    '!=': 'is_not_equal_to',
-    '<': 'is_less_than',
-    '<=': 'is_less_than_or_equal_to',
-    '>': 'is_greater_than',
-    '>=': 'is_greater_than_or_equal_to',
-    'in': 'is_in',
+    '<<': 'bit_shift_left',
+    '>>': 'bit_shift_right',
+    '&': 'bit_and',
+    '|': 'bit_or',
+    '^': 'bit_xor',
+    '~': 'bit_negate',
+    '%': 'module',
+    '==': 'equal',
+    '!=': 'not_equal',
+    '<': 'less',
+    '<=': 'less_equal',
+    '>': 'greater',
+    '>=': 'greater_equal',
 }
 
 
@@ -46,18 +50,14 @@ def should_generate_constructor(type_name: str, ctor: Constructor) -> bool:
         return should_generate_operator(type_name, None)
 
 
-def format_operator_name(operator_name: str) -> str:
-    return OPERATOR_TO_C.get(operator_name, operator_name)
-
-
 def format_operator_pointer(operator_name: str,
                             type_name: str,
                             right_type: str | None) -> str:
     code = [
         "GDExtensionPtrOperatorEvaluator godot_ptr_",
         type_name,
-        "_",
-        format_operator_name(operator_name)
+        "_op_",
+        OPERATOR_TO_C.get(operator_name, operator_name),
     ]
     if right_type:
         code.append("_")
