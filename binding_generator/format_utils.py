@@ -2,6 +2,7 @@
 Internal utilities for Godot types
 """
 
+from textwrap import dedent
 from typing import Tuple
 
 from json_types import *
@@ -38,13 +39,24 @@ OPERATOR_TO_C = {
 }
 
 
-def should_generate_operator(type_name: str, arg_type: str | None) -> bool:
+IDENTIFIER_OVERRIDES = {
+    'default': 'default_value',
+}
+
+
+def should_generate_operator(
+    type_name: str,
+    arg_type: str | None,
+) -> bool:
     return (type_name != 'Nil'
             and (type_name not in NON_STRUCT_TYPES
                  or (arg_type or 'Nil') not in NON_STRUCT_TYPES))
 
 
-def should_generate_constructor(type_name: str, ctor: Constructor) -> bool:
+def should_generate_constructor(
+    type_name: str,
+    ctor: Constructor,
+) -> bool:
     arguments = ctor.get("arguments")
     if arguments:
         return should_generate_operator(type_name, arguments[0]["type"])
@@ -73,27 +85,39 @@ def format_constructor_pointer(
         proto_arguments = ""
 
     # prototype
-    proto_ptr = f"extern GDExtensionPtrConstructor godot_ptr_{func_name};"
-    proto_typed = f"godot_{type_name} godot_{func_name}({proto_arguments});"
+    proto_ptr = f"GDExtensionPtrConstructor godot_ptr_{func_name}"
+    proto_typed = f"godot_{type_name} godot_{func_name}({proto_arguments})"
 
-    impl_ptr = f"GDExtensionPtrConstructor godot_ptr_{func_name};"
+    impl = dedent(f"""
+    {proto_typed} {{
+    \tgodot_{type_name} self;
+    \t{format_arguments_array('args', arguments)};
+    \tgodot_ptr_{func_name}(&self, args);
+    \treturn self;
+    }}
+    """).strip()
 
     return (
-        f"{proto_ptr}\n{proto_typed}",
-        impl_ptr,
+        f"extern {proto_ptr};\n{proto_typed};",
+        f"{proto_ptr};\n{impl}",
     )
 
 
-def format_destructor_pointer(type_name: str) -> Tuple[str, str]:
+def format_destructor_pointer(
+    type_name: str,
+) -> Tuple[str, str]:
     proto_ptr = f"GDExtensionPtrDestructor godot_ptr_destroy_{type_name};"
-    proto_typed = f"void godot_destroy_{type_name}({format_parameter(type_name, 'self')});"
+    proto_typed = (f"void godot_destroy_{type_name}("
+                   f"{format_parameter(type_name, 'self')});")
     return (
         f"extern {proto_ptr}\n{proto_typed}",
         proto_ptr,
     )
 
 
-def format_type_from_to_variant(type_name: str) -> Tuple[str, str]:
+def format_type_from_to_variant(
+    type_name: str,
+) -> Tuple[str, str]:
     proto_type_ptr = ("GDExtensionTypeFromVariantConstructorFunc"
                       f" godot_ptr_{type_name}_from_Variant;")
     proto_type_typed = (f"godot_{type_name}"
@@ -105,7 +129,12 @@ def format_type_from_to_variant(type_name: str) -> Tuple[str, str]:
                            f" godot_Variant_from_{type_name}("
                            f"{format_parameter_const(type_name, 'value')});")
     return (
-        f"extern {proto_type_ptr}\n{proto_type_typed}\nextern {proto_variant_ptr}\n{proto_variant_typed}",
+        "\n".join([
+            f"extern {proto_type_ptr}",
+            proto_type_typed,
+            f"extern {proto_variant_ptr}",
+            proto_variant_typed,
+        ]),
         f"{proto_type_ptr}\n{proto_variant_ptr}",
     )
 
@@ -227,6 +256,7 @@ def format_parameter(
     parameter_name: str,
     is_const: bool = False,
 ) -> str:
+    parameter_name = IDENTIFIER_OVERRIDES.get(parameter_name, parameter_name)
     if type_name in NON_STRUCT_TYPES:
         return f"godot_{type_name} {parameter_name}"
     elif is_const:
@@ -235,5 +265,34 @@ def format_parameter(
         return f"godot_{type_name} *{parameter_name or ''}"
 
 
-def format_parameter_const(type_name: str, parameter_name: str) -> str:
+def format_parameter_const(
+    type_name: str,
+    parameter_name: str,
+) -> str:
     return format_parameter(type_name, parameter_name, is_const=True)
+
+
+def format_value_to_ptr(
+    type_name: str,
+    parameter_name: str,
+) -> str:
+    parameter_name = IDENTIFIER_OVERRIDES.get(parameter_name, parameter_name)
+    if type_name in NON_STRUCT_TYPES:
+        return "&" + parameter_name
+    else:
+        return parameter_name
+
+
+def format_arguments_array(
+    array_name: str,
+    args: list[ArgumentOrSingletonOrMember] | None,
+) -> str:
+    if args:
+        values = (" "
+                  + ", ".join(format_value_to_ptr(arg["type"], arg["name"])
+                              for arg in args)
+                  + " ")
+
+    else:
+        values = ""
+    return f"const GDExtensionConstTypePtr {array_name}[] = {{{values}}}"

@@ -16,7 +16,9 @@ from format_utils import (format_constructor_pointer,
 from json_types import BuiltinClass
 
 
-def generate_operators(builtin_class: BuiltinClass) -> list[Tuple[str, str]]:
+def generate_operators(
+    builtin_class: BuiltinClass,
+) -> list[Tuple[str, str]]:
     type_name = builtin_class["name"]
     return [
         format_operator_pointer(type_name, op)
@@ -25,7 +27,9 @@ def generate_operators(builtin_class: BuiltinClass) -> list[Tuple[str, str]]:
     ]
 
 
-def generate_constructors(builtin_class: BuiltinClass) -> list[Tuple[str, str]]:
+def generate_constructors(
+    builtin_class: BuiltinClass,
+) -> list[Tuple[str, str]]:
     return [
         format_constructor_pointer(builtin_class["name"], ctor)
         for ctor in builtin_class["constructors"]
@@ -33,18 +37,24 @@ def generate_constructors(builtin_class: BuiltinClass) -> list[Tuple[str, str]]:
     ]
 
 
-def generate_variant_from_to(builtin_class: BuiltinClass) -> list[Tuple[str, str]]:
+def generate_variant_from_to(
+    builtin_class: BuiltinClass,
+) -> list[Tuple[str, str]]:
     return [format_type_from_to_variant(builtin_class["name"])]
 
 
-def generate_destructor(builtin_class: BuiltinClass) -> list[Tuple[str, str]]:
+def generate_destructor(
+    builtin_class: BuiltinClass,
+) -> list[Tuple[str, str]]:
     if builtin_class["has_destructor"]:
         return [format_destructor_pointer(builtin_class["name"])]
     else:
         return []
 
 
-def generate_members(builtin_class: BuiltinClass) -> list[Tuple[str, str]]:
+def generate_members(
+    builtin_class: BuiltinClass,
+) -> list[Tuple[str, str]]:
     members = builtin_class.get("members")
     if members:
         return [format_member_pointers(builtin_class["name"], member)
@@ -53,7 +63,9 @@ def generate_members(builtin_class: BuiltinClass) -> list[Tuple[str, str]]:
         return []
 
 
-def generate_indexing(builtin_class: BuiltinClass) -> list[Tuple[str, str]]:
+def generate_indexing(
+    builtin_class: BuiltinClass,
+) -> list[Tuple[str, str]]:
     indexing_return_type = builtin_class.get("indexing_return_type")
     if indexing_return_type:
         return [format_indexing_pointers(builtin_class["name"],
@@ -63,8 +75,9 @@ def generate_indexing(builtin_class: BuiltinClass) -> list[Tuple[str, str]]:
         return []
 
 
-
-def generate_methods(builtin_class: BuiltinClass) -> list[Tuple[str, str]]:
+def generate_methods(
+    builtin_class: BuiltinClass,
+) -> list[Tuple[str, str]]:
     methods = builtin_class.get("methods")
     if methods:
         return [format_method_pointer(builtin_class["name"], method)
@@ -73,7 +86,9 @@ def generate_methods(builtin_class: BuiltinClass) -> list[Tuple[str, str]]:
         return []
 
 
-def generate_builtin_class(builtin_class: BuiltinClass) -> Tuple[str, str]:
+def generate_builtin_class(
+    builtin_class: BuiltinClass,
+) -> Tuple[str, str]:
     header_content = [
         '#include "../../gdextension/gdextension_interface.h"',
         '#include "../../variant/all.h"',
@@ -89,7 +104,7 @@ def generate_builtin_class(builtin_class: BuiltinClass) -> Tuple[str, str]:
                    + generate_methods(builtin_class))
 
     prototypes, implementation = zip(*definitions)
-    
+
     header_content.extend(prototypes)
 
     return ('\n'.join(header_content), '\n'.join(implementation))
