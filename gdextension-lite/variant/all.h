@@ -1,0 +1,46 @@
+/** @file
+ * all.h -- Header that imports all variant headers
+ */
+#ifndef __GDEXTENSION_LITE_VARIANT_ALL_H__
+#define __GDEXTENSION_LITE_VARIANT_ALL_H__
+
+#include "aabb.h"
+#include "array.h"
+#include "basis.h"
+#include "bool.h"
+#include "callable.h"
+#include "color.h"
+#include "dictionary.h"
+#include "float.h"
+#include "int.h"
+#include "node_path.h"
+#include "object.h"
+#include "packed_byte_array.h"
+#include "packed_color_array.h"
+#include "packed_int32_array.h"
+#include "packed_int64_array.h"
+#include "packed_float32_array.h"
+#include "packed_float64_array.h"
+#include "packed_string_array.h"
+#include "packed_vector2_array.h"
+#include "packed_vector3_array.h"
+#include "plane.h"
+#include "projection.h"
+#include "quaternion.h"
+#include "rect2.h"
+#include "rect2i.h"
+#include "rid.h"
+#include "signal.h"
+#include "string.h"
+#include "string_name.h"
+#include "transform2d.h"
+#include "transform3d.h"
+#include "variant.h"
+#include "vector2.h"
+#include "vector2i.h"
+#include "vector3.h"
+#include "vector3i.h"
+#include "vector4.h"
+#include "vector4i.h"
+
+#endif
