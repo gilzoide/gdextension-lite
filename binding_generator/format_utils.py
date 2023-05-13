@@ -44,6 +44,10 @@ IDENTIFIER_OVERRIDES = {
 }
 
 
+def code_block(code: str) -> str:
+    return dedent(code).strip()
+
+
 def should_generate_operator(
     type_name: str,
     arg_type: str | None,
@@ -74,8 +78,7 @@ def format_constructor_pointer(
     func_name = f"new_{type_name}"
     arguments = ctor.get("arguments")
     if arguments:
-        func_name += "_from"
-        func_name += "".join(f"_{arg['type']}" for arg in arguments)
+        func_name += "_from" + "".join(f"_{arg['type']}" for arg in arguments)
 
         proto_arguments = ", ".join(
             format_parameter_const(arg["type"], arg["name"])
@@ -83,35 +86,43 @@ def format_constructor_pointer(
         )
     else:
         proto_arguments = ""
-
-    # prototype
     proto_ptr = f"GDExtensionPtrConstructor godot_ptr_{func_name}"
     proto_typed = f"godot_{type_name} godot_{func_name}({proto_arguments})"
-
-    impl = dedent(f"""
-    {proto_typed} {{
-    \tgodot_{type_name} self;
-    \t{format_arguments_array('args', arguments)};
-    \tgodot_ptr_{func_name}(&self, args);
-    \treturn self;
-    }}
-    """).strip()
-
     return (
-        f"extern {proto_ptr};\n{proto_typed};",
-        f"{proto_ptr};\n{impl}",
+        code_block(f"""
+            extern {proto_ptr};
+            {proto_typed};
+        """),
+        code_block(f"""
+            {proto_ptr};
+            {proto_typed} {{
+            \tgodot_{type_name} self;
+            \t{format_arguments_array('args', arguments)};
+            \tgodot_ptr_{func_name}(&self, args);
+            \treturn self;
+            }}
+        """),
     )
 
 
 def format_destructor_pointer(
     type_name: str,
 ) -> Tuple[str, str]:
-    proto_ptr = f"GDExtensionPtrDestructor godot_ptr_destroy_{type_name};"
-    proto_typed = (f"void godot_destroy_{type_name}("
-                   f"{format_parameter(type_name, 'self')});")
+    function_name = f"destroy_{type_name}"
+    proto_ptr = f"GDExtensionPtrDestructor godot_ptr_{function_name}"
+    proto_typed = (f"void godot_{function_name}("
+                   f"{format_parameter(type_name, 'self')})")
     return (
-        f"extern {proto_ptr}\n{proto_typed}",
-        proto_ptr,
+        code_block(f"""
+            extern {proto_ptr};
+            {proto_typed};
+        """),
+        code_block(f"""
+            {proto_ptr};
+            {proto_typed} {{
+            \tgodot_ptr_{function_name}(self);
+            }}
+        """),
     )
 
 
@@ -119,23 +130,40 @@ def format_type_from_to_variant(
     type_name: str,
 ) -> Tuple[str, str]:
     proto_type_ptr = ("GDExtensionTypeFromVariantConstructorFunc"
-                      f" godot_ptr_{type_name}_from_Variant;")
+                      f" godot_ptr_{type_name}_from_Variant")
     proto_type_typed = (f"godot_{type_name}"
                         f" godot_{type_name}_from_Variant("
-                        f"{format_parameter_const('Variant', 'value')});")
+                        f"{format_parameter('Variant', 'value')})")
     proto_variant_ptr = ("GDExtensionVariantFromTypeConstructorFunc"
-                         f" godot_ptr_Variant_from_{type_name};")
+                         f" godot_ptr_Variant_from_{type_name}")
     proto_variant_typed = (f"godot_Variant"
                            f" godot_Variant_from_{type_name}("
-                           f"{format_parameter_const(type_name, 'value')});")
+                           f"{format_parameter(type_name, 'value')})")
     return (
-        "\n".join([
-            f"extern {proto_type_ptr}",
-            proto_type_typed,
-            f"extern {proto_variant_ptr}",
-            proto_variant_typed,
-        ]),
-        f"{proto_type_ptr}\n{proto_variant_ptr}",
+        code_block(f"""
+            extern {proto_type_ptr};
+            {proto_type_typed};
+
+            extern {proto_variant_ptr};
+            {proto_variant_typed};
+        """),
+        code_block(f"""
+            {proto_type_ptr};
+            {proto_type_typed} {{
+            \tgodot_{type_name} self;
+            \tgodot_ptr_{type_name}_from_Variant(&self, value);
+            \treturn self;
+            }}
+
+            {proto_variant_ptr};
+            {proto_variant_typed} {{
+            \tgodot_Variant self;
+            \tgodot_ptr_Variant_from_{type_name}(&self, {
+                format_value_to_ptr(type_name, 'value')
+            });
+            \treturn self;
+            }}
+        """),
     )
 
 
@@ -145,16 +173,36 @@ def format_member_pointers(
 ) -> Tuple[str, str]:
     name = member['name']
     type = member['type']
-    set_ptr = f"GDExtensionPtrSetter godot_ptr_{type_name}_set_{name};"
-    set_typed = (f"void godot_{type_name}_set_{name}("
-                 f"{format_parameter_const(type_name, 'self')}, "
-                 f"{format_parameter_const(type, 'value')});")
-    get_ptr = f"GDExtensionPtrGetter godot_ptr_{type_name}_get_{name};"
-    get_typed = (f"godot_{type} godot_{type_name}_get_{name}("
-                 f"{format_parameter_const(type_name, 'self')});")
+    set_name = f"{type_name}_set_{name}"
+    set_ptr = f"GDExtensionPtrSetter godot_ptr_{set_name}"
+    set_typed = (f"void godot_{set_name}("
+                 f"{format_parameter(type_name, 'self')}, "
+                 f"{format_parameter_const(type, 'value')})")
+    get_name = f"{type_name}_get_{name}"
+    get_ptr = f"GDExtensionPtrGetter godot_ptr_{get_name}"
+    get_typed = (f"godot_{type} godot_{get_name}("
+                 f"{format_parameter_const(type_name, 'self')})")
     return (
-        f"extern {set_ptr}\n{set_typed}\nextern {get_ptr}\n{get_typed}",
-        f"{set_ptr}\n{get_ptr}",
+        code_block(f"""
+            extern {set_ptr};
+            {set_typed};
+
+            extern {get_ptr};
+            {get_typed};
+        """),
+        code_block(f"""
+            {set_ptr};
+            {set_typed} {{
+            \tgodot_ptr_{set_name}(self, {format_value_to_ptr(type, 'value')});
+            }}
+
+            {get_ptr};
+            {get_typed} {{
+            \tgodot_{type} value;
+            \tgodot_ptr_{get_name}(self, &value);
+            \treturn value;
+            }}
+        """),
     )
 
 
@@ -164,31 +212,52 @@ def format_indexing_pointers(
     return_type: str,
 ) -> Tuple[str, str]:
     if is_keyed:
-        set_ptr = ("GDExtensionPtrKeyedSetter"
-                   f" godot_ptr_{type_name}_keyed_set;")
-        set_typed = (f"void godot_{type_name}_keyed_set("
+        set_name = f"{type_name}_keyed_set"
+        set_ptr = f"GDExtensionPtrKeyedSetter godot_ptr_{set_name}"
+        set_typed = (f"void godot_{set_name}("
                      f"{format_parameter(type_name, 'self')}, "
-                     f"{format_parameter('Variant', 'key')}, "
-                     f"{format_parameter_const(return_type, 'value')});")
-        get_ptr = ("GDExtensionPtrKeyedGetter"
-                   f" godot_ptr_{type_name}_keyed_get;")
-        get_typed = (f"godot_{return_type} godot_{type_name}_keyed_get("
+                     f"{format_parameter_const('Variant', 'key')}, "
+                     f"{format_parameter_const(return_type, 'value')})")
+        get_name = f"{type_name}_keyed_get"
+        get_ptr = f"GDExtensionPtrKeyedGetter godot_ptr_{get_name}"
+        get_typed = (f"godot_{return_type} godot_{get_name}("
                      f"{format_parameter_const(type_name, 'self')}, "
-                     f"{format_parameter('Variant', 'key')});")
+                     f"{format_parameter_const('Variant', 'key')})")
     else:
-        set_ptr = ("GDExtensionPtrIndexedSetter"
-                   f" godot_ptr_{type_name}_indexed_set;")
-        set_typed = (f"void godot_{type_name}_indexed_set("
+        set_name = f"{type_name}_indexed_set"
+        set_ptr = f"GDExtensionPtrIndexedSetter godot_ptr_{set_name}"
+        set_typed = (f"void godot_{set_name}("
                      f"{format_parameter(type_name, 'self')}, "
-                     f"{format_parameter('int', 'index')});")
-        get_ptr = ("GDExtensionPtrIndexedGetter"
-                   f" godot_ptr_{type_name}_indexed_get;")
-        get_typed = (f"godot_{return_type} godot_{type_name}_indexed_get("
+                     f"{format_parameter_const('int', 'key')}, "
+                     f"{format_parameter_const(return_type, 'value')})")
+        get_name = f"{type_name}_indexed_get"
+        get_ptr = f"GDExtensionPtrIndexedGetter godot_ptr_{get_name}"
+        get_typed = (f"godot_{return_type} godot_{get_name}("
                      f"{format_parameter_const(type_name, 'self')}, "
-                     f"{format_parameter('int', 'index')});")
+                     f"{format_parameter_const('int', 'key')})")
     return (
-        f"extern {set_ptr}\n{set_typed}\nextern {get_ptr}\n{get_typed}",
-        f"{set_ptr}\n{get_ptr}",
+        code_block(f"""
+            extern {set_ptr};
+            {set_typed};
+
+            extern {get_ptr};
+            {get_typed};
+        """),
+        code_block(f"""
+            {set_ptr};
+            {set_typed} {{
+            \tgodot_ptr_{set_name}(self, key, {
+                format_value_to_ptr(return_type, 'value')
+            });
+            }}
+
+            {get_ptr};
+            {get_typed} {{
+            \tgodot_{return_type} value;
+            \tgodot_ptr_{get_name}(self, key, &value);
+            \treturn value;
+            }}
+        """),
     )
 
 
@@ -198,6 +267,7 @@ def format_operator_pointer(
 ) -> Tuple[str, str]:
     operator_name = OPERATOR_TO_C.get(operator["name"], operator["name"])
     function_name = f"{type_name}_op_{operator_name}"
+    return_type = operator["return_type"]
     right_type = operator.get("right_type")
     if right_type:
         function_name += "_" + right_type
@@ -205,14 +275,29 @@ def format_operator_pointer(
     else:
         right_parameter = ""
 
-    proto_ptr = f"GDExtensionPtrOperatorEvaluator godot_ptr_{function_name};"
-    proto_typed = (f"godot_{operator['return_type']} godot_{function_name}("
+    proto_ptr = f"GDExtensionPtrOperatorEvaluator godot_ptr_{function_name}"
+    proto_typed = (f"godot_{return_type} godot_{function_name}("
                    f"{format_parameter_const(type_name, 'a')}"
-                   f"{right_parameter});")
-
+                   f"{right_parameter})")
     return (
-        f"extern {proto_ptr}\n{proto_typed}",
-        proto_ptr,
+        code_block(f"""
+            extern {proto_ptr};
+            {proto_typed};
+        """),
+        code_block(f"""
+            {proto_ptr};
+            {proto_typed} {{
+            \tgodot_{return_type} result;
+            \tgodot_ptr_{function_name}({
+                format_value_to_ptr(type_name, 'a')
+            }, {
+                format_value_to_ptr(right_type, 'b')
+                if right_type
+                else "NULL"
+            }, &result);
+            \treturn result;
+            }}
+        """),
     )
 
 
@@ -221,30 +306,54 @@ def format_method_pointer(
     method: BuiltinClassMethod
 ) -> Tuple[str, str]:
     return_type = method.get("return_type")
-    return_type = f"godot_{return_type}" if return_type else "void"
+    proto_return_type = f"godot_{return_type}" if return_type else "void"
 
-    proto_arguments = []
-    if not method.get("is_static"):
+    proto_args = []
+    is_static = method.get("is_static", False)
+    if not is_static:
         is_const = method.get("is_const", False)
-        proto_arguments.append(format_parameter(type_name,
-                                                "self",
-                                                is_const=is_const))
+        proto_args.append(format_parameter(type_name,
+                                           "self",
+                                           is_const=is_const))
     arguments = method.get("arguments")
     if arguments:
-        proto_arguments.extend(
+        proto_args.extend(
             format_parameter_const(arg["type"], arg["name"])
             for arg in arguments
         )
 
-    proto_arguments = ", ".join(proto_arguments)
+    proto_args = ", ".join(proto_args)
 
     function_name = f"{type_name}_{method['name']}"
-    proto_ptr = f"GDExtensionPtrBuiltInMethod godot_ptr_{function_name};"
-    proto_typed = f"{return_type} godot_{function_name}({proto_arguments});"
+    proto_ptr = f"GDExtensionPtrBuiltInMethod godot_ptr_{function_name}"
+    proto_typed = f"{proto_return_type} godot_{function_name}({proto_args})"
 
     return (
-        f"extern {proto_ptr}\n{proto_typed}",
-        proto_ptr,
+        code_block(f"""
+            extern {proto_ptr};
+            {proto_typed};
+        """),
+        code_block(f"""
+            {proto_ptr};
+            {proto_typed} {{
+            \t{proto_return_type + " result;" if return_type else ""}
+            \t{format_arguments_array('args', arguments)};
+            \tgodot_ptr_{function_name}({
+                "NULL"
+                if is_static
+                else "(GDExtensionTypePtr) self"
+            }, args, {
+                "&result"
+                if return_type
+                else "NULL"
+            }, {
+                len(arguments)
+                if arguments
+                else 0
+            });
+            \t{"return result;" if return_type else ""}
+            }}
+        """),
     )
 
 
@@ -285,7 +394,7 @@ def format_value_to_ptr(
 
 def format_arguments_array(
     array_name: str,
-    args: list[ArgumentOrSingletonOrMember] | None,
+    args: list[ArgumentOrSingletonOrMember] | list[Argument] | None,
 ) -> str:
     if args:
         values = (" "
