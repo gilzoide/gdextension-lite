@@ -19,9 +19,7 @@ from json_types import BuiltinClass
 def generate_operators(builtin_class: BuiltinClass) -> list[Tuple[str, str]]:
     type_name = builtin_class["name"]
     return [
-        format_operator_pointer(type_name=type_name,
-                                operator_name=op["name"],
-                                right_type=op.get("right_type"))
+        format_operator_pointer(type_name, op)
         for op in builtin_class["operators"]
         if should_generate_operator(type_name, op.get("right_type"))
     ]

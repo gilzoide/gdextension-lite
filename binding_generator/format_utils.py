@@ -164,23 +164,26 @@ def format_indexing_pointers(
 
 
 def format_operator_pointer(
-    operator_name: str,
     type_name: str,
-    right_type: str | None
+    operator: Operator,
 ) -> Tuple[str, str]:
-    code = [
-        "GDExtensionPtrOperatorEvaluator godot_ptr_",
-        type_name,
-        "_op_",
-        OPERATOR_TO_C.get(operator_name, operator_name),
-    ]
+    operator_name = OPERATOR_TO_C.get(operator["name"], operator["name"])
+    function_name = f"{type_name}_op_{operator_name}"
+    right_type = operator.get("right_type")
     if right_type:
-        code.append("_")
-        code.append(right_type)
-    code.append(";")
+        function_name += "_" + right_type
+        right_parameter = ", " + format_parameter_const(right_type, "b")
+    else:
+        right_parameter = ""
+
+    proto_ptr = f"GDExtensionPtrOperatorEvaluator godot_ptr_{function_name};"
+    proto_typed = (f"godot_{operator['return_type']} godot_{function_name}("
+                   f"{format_parameter_const(type_name, 'a')}"
+                   f"{right_parameter});")
+
     return (
-        "extern " + "".join(code),
-        "".join(code),
+        f"extern {proto_ptr}\n{proto_typed}",
+        proto_ptr,
     )
 
 
@@ -188,23 +191,49 @@ def format_method_pointer(
     type_name: str,
     method: BuiltinClassMethod
 ) -> Tuple[str, str]:
-    proto = ("GDExtensionPtrBuiltInMethod"
-             f" godot_ptr_{type_name}_{method['name']};")
-    return ("extern " + proto, proto)
+    return_type = method.get("return_type")
+    return_type = f"godot_{return_type}" if return_type else "void"
+
+    proto_arguments = []
+    if not method.get("is_static"):
+        is_const = method.get("is_const", False)
+        proto_arguments.append(format_parameter(type_name,
+                                                "self",
+                                                is_const=is_const))
+    arguments = method.get("arguments")
+    if arguments:
+        proto_arguments.extend(
+            format_parameter_const(arg["type"], arg["name"])
+            for arg in arguments
+        )
+
+    proto_arguments = ", ".join(proto_arguments)
+
+    function_name = f"{type_name}_{method['name']}"
+    proto_ptr = f"GDExtensionPtrBuiltInMethod godot_ptr_{function_name};"
+    proto_typed = f"{return_type} godot_{function_name}({proto_arguments});"
+
+    return (
+        f"extern {proto_ptr}\n{proto_typed}",
+        proto_ptr,
+    )
 
 
 ############################################################
 # Parameter helpers
 ############################################################
-def format_parameter(type_name: str, parameter_name: str) -> str:
+def format_parameter(
+    type_name: str,
+    parameter_name: str,
+    is_const: bool = False,
+) -> str:
     if type_name in NON_STRUCT_TYPES:
         return f"godot_{type_name} {parameter_name}"
+    elif is_const:
+        return f"const godot_{type_name} *{parameter_name or ''}"
     else:
         return f"godot_{type_name} *{parameter_name or ''}"
 
 
 def format_parameter_const(type_name: str, parameter_name: str) -> str:
-    if type_name in NON_STRUCT_TYPES:
-        return f"godot_{type_name} {parameter_name}"
-    else:
-        return f"const godot_{type_name} *{parameter_name or ''}"
+    return format_parameter(type_name, parameter_name, is_const=True)
