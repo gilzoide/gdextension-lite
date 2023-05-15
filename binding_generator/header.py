@@ -30,10 +30,14 @@ class HeaderWriter:
         ]
 
         if implementation:
-            lines.append("")
-            lines.append("#ifdef GDEXTENSION_LITE_IMPLEMENTATION")
-            lines.append(implementation)
-            lines.append("#endif  // GDEXTENSION_LITE_IMPLEMENTATION")
+            lines.extend([
+                "",
+                "#ifdef GDEXTENSION_LITE_IMPLEMENTATION",
+                "",
+                implementation,
+                "",
+                "#endif  // GDEXTENSION_LITE_IMPLEMENTATION",
+            ])
         filename = self.base_dir.joinpath(header_name).with_suffix(".h")
         filename.parent.mkdir(exist_ok=True)
         with open(filename, 'w') as file:

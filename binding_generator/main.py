@@ -31,7 +31,7 @@ def main():
 
     header_writer = HeaderWriter(*output_dir.split("/"))
     header_writer.write_header(
-        generate_all_enums(extension_api['global_enums']),
+        generate_all_enums(extension_api["global_enums"]),
         "global_enums",
     )
 
@@ -41,7 +41,7 @@ def main():
 
         contents, implementation = generate_builtin_class(builtin_class)
         header_writer.write_header(contents,
-                                   "variant", builtin_class['name'].lower(),
+                                   "variant", builtin_class["name"].lower(),
                                    implementation=implementation)
 
 
