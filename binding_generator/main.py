@@ -14,6 +14,7 @@ import sys
 
 from builtin_classes import generate_builtin_class
 from enums import generate_all_enums
+from format_utils import format_type_snake_case
 from header import HeaderWriter
 from json_types import ExtensionApi
 
@@ -41,7 +42,7 @@ def main():
 
         contents, implementation = generate_builtin_class(builtin_class)
         header_writer.write_header(contents,
-                                   "variant", builtin_class["name"].lower(),
+                                   "variant", format_type_snake_case(builtin_class["name"]).lower(),
                                    implementation=implementation)
 
 
