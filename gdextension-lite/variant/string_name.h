@@ -35,6 +35,8 @@ void godot_destroy_StringName(godot_StringName *self);
 #endif  // __GDEXTENSION_LITE_STRING_NAME_H__
 
 #ifdef GDEXTENSION_LITE_IMPLEMENTATION
+#ifndef __GDEXTENSION_LITE_STRING_NAME_H_IMPLEMENTATION__
+#define __GDEXTENSION_LITE_STRING_NAME_H_IMPLEMENTATION__
 
 void godot_destroy_String(godot_String *self);
 godot_StringName godot_new_StringName_from_String(const godot_String *from);
@@ -109,4 +111,5 @@ godot_StringName godot_new_StringName_from_wide_chars_and_len(const wchar_t *p_c
 	return self;
 }
 
-#endif
+#endif  // __GDEXTENSION_LITE_STRING_NAME_H_IMPLEMENTATION__
+#endif  // GDEXTENSION_LITE_IMPLEMENTATION

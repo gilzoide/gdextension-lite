@@ -11,7 +11,10 @@ extern const GDExtensionInterface *godot_interface;
 #endif
 
 #ifdef GDEXTENSION_LITE_IMPLEMENTATION
+#ifndef __GDEXTENSION_LITE_INTERFACE_H_IMPLEMENTATION__
+#define __GDEXTENSION_LITE_INTERFACE_H_IMPLEMENTATION__
 
 const GDExtensionInterface *godot_interface;
 
-#endif
+#endif  // __GDEXTENSION_LITE_INTERFACE_H_IMPLEMENTATION__
+#endif  // GDEXTENSION_LITE_IMPLEMENTATION

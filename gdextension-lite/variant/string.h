@@ -27,6 +27,8 @@ godot_String godot_new_String_from_wide_chars_and_len(const wchar_t *p_contents,
 #endif  // __GDEXTENSION_LITE_STRING_H__
 
 #ifdef GDEXTENSION_LITE_IMPLEMENTATION
+#ifndef __GDEXTENSION_LITE_STRING_H_IMPLEMENTATION__
+#define __GDEXTENSION_LITE_STRING_H_IMPLEMENTATION__
 
 godot_String godot_new_String_from_latin1_chars(const char *p_contents) {
 	godot_String self;
@@ -88,4 +90,5 @@ godot_String godot_new_String_from_wide_chars_and_len(const wchar_t *p_contents,
 	return self;
 }
 
-#endif
+#endif  // __GDEXTENSION_LITE_STRING_H_IMPLEMENTATION__
+#endif  // GDEXTENSION_LITE_IMPLEMENTATION

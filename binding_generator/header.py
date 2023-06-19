@@ -30,12 +30,16 @@ class HeaderWriter:
         ]
 
         if implementation:
+            define = f"__GDEXTENSION_LITE_GENERATED_{guard_name}_H_IMPLEMENTATION__"
             lines.extend([
                 "",
                 "#ifdef GDEXTENSION_LITE_IMPLEMENTATION",
+                f"#ifndef {define}",
+                f"#define {define}",
                 "",
                 implementation,
                 "",
+                f"#endif  // {define}",
                 "#endif  // GDEXTENSION_LITE_IMPLEMENTATION",
             ])
         filename = self.base_dir.joinpath(header_name).with_suffix(".h")
