@@ -3,6 +3,7 @@ Generates bindings for Godot's builtin classes (a.k.a. Variants)
 """
 
 from typing import Tuple
+from textwrap import indent
 
 from format_utils import (BindingCode,
                           code_block,
@@ -14,6 +15,7 @@ from format_utils import (BindingCode,
                           format_method_pointer,
                           format_operator_pointer,
                           format_type_from_to_variant,
+                          format_type_snake_case,
                           should_generate_constructor,
                           should_generate_method,
                           should_generate_operator)
@@ -120,4 +122,31 @@ def generate_builtin_class(
     return (
         "\n".join(includes) + "\n\n" + binders.prototype + "\n\n" + merged.prototype,
         merged.implementation + "\n\n" + binders.implementation,
+    )
+
+
+def generate_initialize_all(
+    builtin_classes: list[BuiltinClass],
+) -> Tuple[str, str]:
+    class_names = [cls["name"] for cls in builtin_classes]
+    includes = "\n".join(f'#include "{format_type_snake_case(name)}.h"'
+                         for name in class_names)
+    prototype = ("void gdextension_lite_initialize_generated("
+                 "const GDExtensionInterface *interface)")
+    calls = "\n".join(f"gdextension_lite_initialize_{name}(interface);"
+                      for name in class_names
+                      if name != "StringName")
+    return (
+        code_block(f"""
+            #include "../../gdextension/gdextension_interface.h"
+
+{indent(includes, "            ")}
+
+            {prototype};
+        """),
+        code_block(f"""
+            {prototype} {{
+{indent(calls, "            	")}
+            }}
+        """),
     )

@@ -12,7 +12,7 @@ Usage:
 import json
 import sys
 
-from builtin_classes import generate_builtin_class
+from builtin_classes import generate_builtin_class, generate_initialize_all
 from enums import generate_all_enums
 from format_utils import format_type_snake_case
 from header import HeaderWriter
@@ -36,14 +36,20 @@ def main():
         "global_enums",
     )
 
-    for builtin_class in extension_api["builtin_classes"]:
-        if builtin_class["name"] == 'Nil':
-            continue
-
+    builtin_classes = [
+        cls
+        for cls in extension_api["builtin_classes"]
+        if cls["name"] != "Nil"
+    ]
+    for builtin_class in builtin_classes:
         contents, implementation = generate_builtin_class(builtin_class)
         header_writer.write_header(contents,
-                                   "variant", format_type_snake_case(builtin_class["name"]).lower(),
+                                   "variant", format_type_snake_case(builtin_class["name"]),
                                    implementation=implementation)
+    contents, implementation = generate_initialize_all(builtin_classes)
+    header_writer.write_header(contents,
+                               "variant", "all",
+                               implementation=implementation)
 
 
 if __name__ == "__main__":

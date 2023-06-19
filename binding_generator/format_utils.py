@@ -525,7 +525,7 @@ def format_arguments_array(
 def format_type_snake_case(
     type_name: str,
 ) -> str:
-    return re.sub("([a-z])([A-Z])|([0-9])(A)", r"\1\3_\2\4", type_name)
+    return re.sub("([a-z])([A-Z])|([0-9])(A)", r"\1\3_\2\4", type_name).lower()
 
 
 def format_type_to_variant_enum(
