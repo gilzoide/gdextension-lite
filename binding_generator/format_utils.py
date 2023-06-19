@@ -395,7 +395,7 @@ def format_method_pointer(
     method: BuiltinClassMethod
 ) -> BindingCode:
     return_type = method.get("return_type")
-    proto_return_type = f"godot_{return_type}" if return_type else "void"
+    proto_return_type = format_return_type(return_type) if return_type else "void"
 
     proto_args = []
     is_static = method.get("is_static", False)
@@ -458,7 +458,7 @@ def format_binders(
     type_name: str,
     merged_binder_code: str,
 ) -> BindingCode:
-    prototype = (f"void godot_register_{type_name}("
+    prototype = (f"void gdextension_lite_initialize_{type_name}("
                  f"const GDExtensionInterface *{INTERFACE_PARAMETER_NAME})")
     return BindingCode(
         code_block(f"""
@@ -494,6 +494,15 @@ def format_parameter_const(
     parameter_name: str,
 ) -> str:
     return format_parameter(type_name, parameter_name, is_const=True)
+
+
+def format_return_type(
+    type_name: str,
+) -> str:
+    if type_name == "Object":
+        return f"godot_{type_name} *"
+    else:
+        return f"godot_{type_name}"
 
 
 def format_value_to_ptr(
