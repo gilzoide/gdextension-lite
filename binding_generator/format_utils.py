@@ -286,11 +286,13 @@ def format_indexing_pointers(
                      f"{format_parameter(type_name, 'self')}, "
                      f"{format_parameter_const('Variant', 'key')}, "
                      f"{format_parameter_const(return_type, 'value')})")
+        set_fetch_func = "variant_get_ptr_keyed_setter"
         get_name = f"{type_name}_keyed_get"
         get_ptr = f"GDExtensionPtrKeyedGetter godot_ptr_{get_name}"
         get_typed = (f"godot_{return_type} godot_{get_name}("
                      f"{format_parameter_const(type_name, 'self')}, "
                      f"{format_parameter_const('Variant', 'key')})")
+        get_fetch_func = "variant_get_ptr_keyed_getter"
     else:
         set_name = f"{type_name}_indexed_set"
         set_ptr = f"GDExtensionPtrIndexedSetter godot_ptr_{set_name}"
@@ -298,11 +300,13 @@ def format_indexing_pointers(
                      f"{format_parameter(type_name, 'self')}, "
                      f"{format_parameter_const('int', 'key')}, "
                      f"{format_parameter_const(return_type, 'value')})")
+        set_fetch_func = "variant_get_ptr_indexed_setter"
         get_name = f"{type_name}_indexed_get"
         get_ptr = f"GDExtensionPtrIndexedGetter godot_ptr_{get_name}"
         get_typed = (f"godot_{return_type} godot_{get_name}("
                      f"{format_parameter_const(type_name, 'self')}, "
                      f"{format_parameter_const('int', 'key')})")
+        get_fetch_func = "variant_get_ptr_indexed_getter"
     return BindingCode(
         code_block(f"""
             extern {set_ptr};
@@ -327,10 +331,10 @@ def format_indexing_pointers(
             }}
         """),
         code_block(f"""
-            godot_ptr_{set_name} = {INTERFACE_PARAMETER_NAME}->variant_get_ptr_indexed_setter({
+            godot_ptr_{set_name} = {INTERFACE_PARAMETER_NAME}->{set_fetch_func}({
                 format_type_to_variant_enum(type_name)
             });
-            godot_ptr_{get_name} = {INTERFACE_PARAMETER_NAME}->variant_get_ptr_indexed_getter({
+            godot_ptr_{get_name} = {INTERFACE_PARAMETER_NAME}->{get_fetch_func}({
                 format_type_to_variant_enum(type_name)
             });
         """),
