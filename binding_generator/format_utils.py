@@ -74,6 +74,17 @@ def should_generate_constructor(
         return should_generate_operator(type_name, None)
 
 
+def should_generate_method(
+    method: BuiltinClassMethod,
+    members: list[ArgumentOrSingletonOrMember],
+) -> bool:
+    method_name = method["name"]
+    if method_name.startswith("get_") or method_name.startswith("set_"):
+        return method_name[4:] not in (member["name"] for member in members)
+    else:
+        return True
+
+
 class BindingCode:
     """Object that contains the code necessary for each function binding"""
     def __init__(self, prototype: str, implementation: str, bind: str = ""):

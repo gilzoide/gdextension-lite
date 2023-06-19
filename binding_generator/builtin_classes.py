@@ -15,6 +15,7 @@ from format_utils import (BindingCode,
                           format_operator_pointer,
                           format_type_from_to_variant,
                           should_generate_constructor,
+                          should_generate_method,
                           should_generate_operator)
 from json_types import BuiltinClass
 
@@ -90,8 +91,10 @@ def generate_indexing(
 def generate_methods(
     builtin_class: BuiltinClass,
 ) -> list[BindingCode]:
+    members = builtin_class.get("members", [])
     methods = [format_method_pointer(builtin_class["name"], method)
-               for method in builtin_class.get("methods", [])]
+               for method in builtin_class.get("methods", [])
+               if should_generate_method(method, members)]
     if methods:
         methods[0].prepend_section_comment("Methods")
     return methods
