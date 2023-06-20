@@ -16,4 +16,19 @@ typedef struct godot_Variant {
 	uint8_t _[GODOT_VARIANT_SIZE];
 } godot_Variant;
 
+void godot_destroy_Variant(godot_Variant *self);
+
 #endif
+
+#ifdef GDEXTENSION_LITE_IMPLEMENTATION
+#ifndef __GDEXTENSION_LITE_VARIANT_H_IMPLEMENTATION__
+#define __GDEXTENSION_LITE_VARIANT_H_IMPLEMENTATION__
+
+#include "../gdextension-interface.h"
+
+void godot_destroy_Variant(godot_Variant *self) {
+	godot_interface->variant_destroy(self);
+}
+
+#endif  // __GDEXTENSION_LITE_VARIANT_H_IMPLEMENTATION__
+#endif  // GDEXTENSION_LITE_IMPLEMENTATION

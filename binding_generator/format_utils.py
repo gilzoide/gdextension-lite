@@ -262,13 +262,13 @@ def format_member_pointers(
             }}
         """),
         code_block(f"""
-            GDEXTENSION_LITE_WITH_STRING_NAME({name}, {{
+            GDEXTENSION_LITE_WITH_STRING_NAME({name}, name, {{
             \tgodot_ptr_{set_name} = {INTERFACE_PARAMETER_NAME}->variant_get_ptr_setter({
                 format_type_to_variant_enum(type_name)
-            }, &{name});
+            }, &name);
             \tgodot_ptr_{get_name} = {INTERFACE_PARAMETER_NAME}->variant_get_ptr_getter({
                 format_type_to_variant_enum(type_name)
-            }, &{name});
+            }, &name);
             }})
         """),
     )
@@ -445,10 +445,60 @@ def format_method_pointer(
             }}
         """),
         code_block(f"""
-            GDEXTENSION_LITE_WITH_STRING_NAME({method_name}, {{
+            GDEXTENSION_LITE_WITH_STRING_NAME({method_name}, name, {{
             \tgodot_ptr_{function_name} = {INTERFACE_PARAMETER_NAME}->variant_get_ptr_builtin_method({
                 format_type_to_variant_enum(type_name)
-            }, &{method_name}, {method['hash']});
+            }, &name, {method['hash']});
+            }})
+        """),
+    )
+
+
+def format_utility_function(
+    function: UtilityFunction
+) -> BindingCode:
+    return_type = function.get("return_type")
+    proto_return_type = format_return_type(return_type) if return_type else "void"
+
+    proto_args = []
+    arguments = function.get("arguments")
+    if arguments:
+        proto_args.extend(
+            format_parameter_const(arg["type"], arg["name"])
+            for arg in arguments
+        )
+
+    proto_args = ", ".join(proto_args)
+
+    function_name = function['name']
+    proto_ptr = f"GDExtensionPtrUtilityFunction godot_ptr_{function_name}"
+    proto_typed = f"{proto_return_type} godot_{function_name}({proto_args})"
+
+    return BindingCode(
+        code_block(f"""
+            extern {proto_ptr};
+            {proto_typed};
+        """),
+        code_block(f"""
+            {proto_ptr};
+            {proto_typed} {{
+            \t{proto_return_type + " result;" if return_type else ""}
+            \t{format_arguments_array('args', arguments)};
+            \tgodot_ptr_{function_name}({
+                "&result"
+                if return_type
+                else "NULL"
+            }, args, {
+                len(arguments)
+                if arguments
+                else 0
+            });
+            \t{"return result;" if return_type else ""}
+            }}
+        """),
+        code_block(f"""
+            GDEXTENSION_LITE_WITH_STRING_NAME({function_name}, name, {{
+            \tgodot_ptr_{function_name} = {INTERFACE_PARAMETER_NAME}->variant_get_ptr_utility_function(&name, {function['hash']});
             }})
         """),
     )

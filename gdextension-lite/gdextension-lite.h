@@ -6,6 +6,7 @@
 
 #include "gdextension-interface.h"
 #include "generated/global_enums.h"
+#include "generated/utility_functions.h"
 #include "generated/variant/all.h"
 #include "variant/all.h"
 
@@ -22,6 +23,7 @@ void gdextension_lite_initialize(const GDExtensionInterface *interface) {
 	godot_ptr_destroy_String = interface->variant_get_ptr_destructor(GDEXTENSION_VARIANT_TYPE_STRING);
 	gdextension_lite_initialize_StringName(interface);
 	gdextension_lite_initialize_generated(interface);
+	gdextension_lite_initialize_utility_functions(interface);
 }
 
 #endif  // __GDEXTENSION_LITE_H_IMPLEMENTATION__

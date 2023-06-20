@@ -17,6 +17,7 @@ from enums import generate_all_enums
 from format_utils import format_type_snake_case
 from header import HeaderWriter
 from json_types import ExtensionApi
+from utility_functions import generate_utility_functions
 
 
 def main():
@@ -49,6 +50,11 @@ def main():
     contents, implementation = generate_initialize_all(builtin_classes)
     header_writer.write_header(contents,
                                "variant", "all",
+                               implementation=implementation)
+
+    contents, implementation = generate_utility_functions(extension_api["utility_functions"])
+    header_writer.write_header(contents,
+                               "utility_functions",
                                implementation=implementation)
 
 
