@@ -13,3 +13,13 @@ __pycache__/
 .venv/
 env/
 venv/
+
+# Sample build files
+.scons*
+*.a
+*.o
+*.os
+*.lib
+*.so
+*.dll
+*.dylib
