@@ -50,8 +50,14 @@ IDENTIFIER_OVERRIDES = {
 INTERFACE_PARAMETER_NAME = "interface"
 
 
-def code_block(code: str) -> str:
-    return dedent(code).strip()
+def code_block(
+    code: str,
+    remove_empty_lines: bool = True,
+) -> str:
+    code = dedent(code).strip()
+    if remove_empty_lines:
+        code = "\n".join(line for line in code.splitlines() if line.strip())
+    return code
 
 
 def should_generate_operator(
