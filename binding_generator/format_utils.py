@@ -417,6 +417,12 @@ def format_method_pointer(
             for arg in arguments
         )
 
+    non_vararg_argc = len(proto_args)
+    is_vararg = method.get("is_vararg")
+    if is_vararg:
+        proto_args.append("godot_int argc")
+        proto_args.append("const godot_Variant **argv")
+
     proto_args = ", ".join(proto_args)
 
     method_name = method['name']
@@ -428,12 +434,13 @@ def format_method_pointer(
         code_block(f"""
             extern {proto_ptr};
             {proto_typed};
+            {format_vararg_macro(function_name, non_vararg_argc) if is_vararg else ""}
         """),
         code_block(f"""
             {proto_ptr};
             {proto_typed} {{
             \t{proto_return_type + " result;" if return_type else ""}
-            \t{format_arguments_array('args', arguments)};
+{indent(format_arguments_array('args', arguments, is_vararg), '            	')}
             \tgodot_ptr_{function_name}({
                 "NULL"
                 if is_static
@@ -442,11 +449,7 @@ def format_method_pointer(
                 "&result"
                 if return_type
                 else "NULL"
-            }, {
-                len(arguments)
-                if arguments
-                else 0
-            });
+            }, {format_arguments_count(arguments, is_vararg)});
             \t{"return result;" if return_type else ""}
             }}
         """),
@@ -474,9 +477,15 @@ def format_utility_function(
             for arg in arguments
         )
 
+    non_vararg_argc = len(proto_args)
+    is_vararg = function.get("is_vararg")
+    if is_vararg:
+        proto_args.append("godot_int argc")
+        proto_args.append("const godot_Variant **argv")
+
     proto_args = ", ".join(proto_args)
 
-    function_name = function['name']
+    function_name = function["name"]
     proto_ptr = f"GDExtensionPtrUtilityFunction godot_ptr_{function_name}"
     proto_typed = f"{proto_return_type} godot_{function_name}({proto_args})"
 
@@ -484,21 +493,18 @@ def format_utility_function(
         code_block(f"""
             extern {proto_ptr};
             {proto_typed};
+            {format_vararg_macro(function_name, non_vararg_argc) if is_vararg else ""}
         """),
         code_block(f"""
             {proto_ptr};
             {proto_typed} {{
             \t{proto_return_type + " result;" if return_type else ""}
-            \t{format_arguments_array('args', arguments)};
+{indent(format_arguments_array('args', arguments, is_vararg), '            	')}
             \tgodot_ptr_{function_name}({
                 "&result"
                 if return_type
                 else "NULL"
-            }, args, {
-                len(arguments)
-                if arguments
-                else 0
-            });
+            }, args, {format_arguments_count(arguments, is_vararg)});
             \t{"return result;" if return_type else ""}
             }}
         """),
@@ -572,19 +578,31 @@ def format_value_to_ptr(
         return parameter_name
 
 
+def format_arguments_count(
+    args: list[ArgumentOrSingletonOrMember] | list[Argument] | None,
+    is_vararg: bool = False,
+) -> str:
+    argc = len(args or "")
+    return f"{argc} + argc" if is_vararg else str(argc)
+
+
 def format_arguments_array(
     array_name: str,
     args: list[ArgumentOrSingletonOrMember] | list[Argument] | None,
+    is_vararg: bool = False,
 ) -> str:
-    if args:
-        values = (" "
-                  + ", ".join(format_value_to_ptr(arg["type"], arg["name"])
-                              for arg in args)
-                  + " ")
-
-    else:
-        values = ""
-    return f"const GDExtensionConstTypePtr {array_name}[] = {{{values}}}"
+    args = args or []
+    args_len = len(args)
+    array_size = f"{args_len} + argc" if is_vararg else str(args_len)
+    lines = [
+        f"GDExtensionConstTypePtr {array_name}[{array_size}];",
+    ]
+    for i, arg in enumerate(args):
+        to_ptr = format_value_to_ptr(arg['type'], arg['name'])
+        lines.append(f"{array_name}[{i}] = {to_ptr};")
+    if is_vararg:
+        lines.append(f"if (argc > 0) memcpy({array_name} + {args_len}, argv, argc * sizeof(const godot_Variant *));")
+    return "\n".join(lines)
 
 
 def format_type_snake_case(
@@ -606,3 +624,13 @@ def format_operator_to_enum(
     name: str,
 ) -> str:
     return "GDEXTENSION_VARIANT_OP_" + OPERATOR_TO_C.get(name, name).upper()
+
+
+def format_vararg_macro(
+    name: str,
+    non_vararg_arg_count: int,
+) -> str:
+    args = ", ".join(f"arg{i}" for i in range(non_vararg_arg_count))
+    argv = "(const godot_Variant *[]){ __VA_ARGS__ }"
+    argc = f"sizeof({argv}) / sizeof(const godot_Variant *)"
+    return f"#define godot_{name}_v({args}, ...) godot_{name}({args}, {argc}, {argv})"

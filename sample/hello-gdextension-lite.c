@@ -8,7 +8,7 @@ void initialize(void *userdata, GDExtensionInitializationLevel p_level) {
 	godot_String msg = godot_new_String_from_latin1_chars("Hello from GDExtension Lite!");
 	godot_Variant msg_var = godot_Variant_from_String(&msg);
 	godot_destroy_String(&msg);
-	godot_print(&msg_var);
+	godot_prints_v(&msg_var, &msg_var, &msg_var);
 	godot_destroy_Variant(&msg_var);
 }
 

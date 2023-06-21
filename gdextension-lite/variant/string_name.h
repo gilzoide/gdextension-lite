@@ -25,6 +25,7 @@ godot_StringName godot_new_StringName_from_utf32_chars_and_len(const char32_t *p
 godot_StringName godot_new_StringName_from_wide_chars_and_len(const wchar_t *p_contents, GDExtensionInt p_size);
 
 void godot_destroy_StringName(godot_StringName *self);
+
 #define GDEXTENSION_LITE_WITH_STRING_NAME(name, variable_name, body) \
 	{ \
 		godot_StringName variable_name = godot_new_StringName_from_latin1_chars(#name); \

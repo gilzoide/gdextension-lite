@@ -16,6 +16,8 @@ def generate_utility_functions(
     merged = BindingCode.merge(definitions)
     binders = format_binders("utility_functions", merged.bind)
     includes = [
+        '#include <string.h>',
+        '',
         '#include "../gdextension/gdextension_interface.h"',
         '#include "../variant/all.h"',
     ]
