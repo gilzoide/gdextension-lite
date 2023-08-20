@@ -13,7 +13,7 @@ import json
 import sys
 
 from builtin_classes import generate_builtin_class, generate_initialize_all_builtin_classes
-from classes import generate_class, generate_initialize_all_classes, generate_all_class_stubs
+from classes import generate_class_stub_header, generate_all_class_stubs, generate_class_method_header, generate_initialize_all_classes
 from enums import generate_all_enums
 from format_utils import format_type_snake_case
 from header import HeaderWriter
@@ -38,6 +38,7 @@ def main():
         "global_enums",
     )
 
+    # Builtin Classes (a.k.a Variants)
     builtin_classes = [
         cls
         for cls in extension_api["builtin_classes"]
@@ -58,18 +59,23 @@ def main():
                                "utility_functions",
                                implementation=implementation)
 
+    # Classes
     for cls in extension_api["classes"]:
-        contents, implementation = generate_class(cls)
+        contents, implementation = generate_class_stub_header(cls)
         header_writer.write_header(contents,
-                                   "class", format_type_snake_case(cls["name"]),
+                                   "class-stubs", format_type_snake_case(cls["name"]),
+                                   implementation=implementation)
+        contents, implementation = generate_class_method_header(cls)
+        header_writer.write_header(contents,
+                                   "class-methods", format_type_snake_case(cls["name"]),
                                    implementation=implementation)
     contents, implementation = generate_all_class_stubs(extension_api["classes"])
     header_writer.write_header(contents,
-                               "class", "all-stubs",
+                               "class-stubs", "all",
                                implementation=implementation)
     contents, implementation = generate_initialize_all_classes(extension_api["classes"])
     header_writer.write_header(contents,
-                               "class", "all",
+                               "class-methods", "all",
                                implementation=implementation)
 
 

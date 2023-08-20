@@ -25,6 +25,32 @@ def generate_class_enums(
     return enums
 
 
+def generate_class_stub(
+    cls: Class,
+) -> list[BindingCode]:
+    return ([format_class_struct(cls["name"])]
+            + generate_class_enums(cls))
+
+
+def generate_class_stub_header(
+    cls: Class,
+) -> Tuple[str, str]:
+    merged = BindingCode.merge(generate_class_stub(cls))
+    return (
+        merged.prototype,
+        "",
+    )
+
+
+def generate_all_class_stubs(
+    classes: list[Class],
+) -> Tuple[str, str]:
+    includes = (f'#include "{format_type_snake_case(cls["name"])}.h"'
+                for cls in classes)
+    return (
+        "\n".join(includes),
+        ""
+    )
 
 def generate_class_methods(
     cls: Class,
@@ -36,32 +62,21 @@ def generate_class_methods(
     return methods
 
 
-def generate_class(
+def generate_class_method_header(
     cls: Class,
 ) -> Tuple[str, str]:
-    definitions = (generate_class_enums(cls)
-                   + generate_class_methods(cls))
+    definitions = (generate_class_methods(cls))
     merged = BindingCode.merge(definitions)
     binders = format_binders(cls["name"], merged.bind, type_stringname_var=True)
     includes = [
-        '#include "all-stubs.h"',
+        '#include "../global_enums.h"',
+        '#include "../class-stubs/all.h"',
         '#include "../../gdextension/gdextension_interface.h"',
         '#include "../../variant/all.h"',
     ]
     return (
         "\n".join(includes) + "\n\n" + binders.prototype + "\n\n" + merged.prototype,
         merged.implementation + "\n\n" + binders.implementation,
-    )
-
-
-def generate_all_class_stubs(
-    classes: list[Class],
-) -> Tuple[str, str]:
-    stubs = (format_class_struct(cls["name"])
-             for cls in classes)
-    return (
-        "\n".join(stubs),
-        "",
     )
 
 

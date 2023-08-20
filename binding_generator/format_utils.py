@@ -83,8 +83,11 @@ OPERATOR_TO_C = {
 
 
 IDENTIFIER_OVERRIDES = {
-    'default': 'default_value',
     'char': 'chr',
+    'class': 'cls',
+    'default': 'default_value',
+    'enum': 'enumeration',
+    'operator': 'op',
 }
 
 
@@ -562,8 +565,11 @@ def format_utility_function(
 
 def format_class_struct(
     class_name: str,
-) -> str:
-    return f"typedef struct godot_{class_name} godot_{class_name};"
+) -> BindingCode:
+    return BindingCode(
+        f"typedef struct godot_{class_name} godot_{class_name};",
+        ""
+    )
 
 
 def format_class_enum(
@@ -571,7 +577,7 @@ def format_class_enum(
     enum: Enum,
 ) -> BindingCode:
     enum_name = f"godot_{class_name}_{enum['name']}"
-    values = ",\n".join(f"{value['name']} = {value['value']}"
+    values = ",\n".join(f"godot_{class_name}_{value['name']} = {value['value']}"
                         for value in enum["values"])
     return BindingCode(
         code_block(f"""
@@ -687,7 +693,14 @@ def format_parameter(
         return f"godot_{type_name} {parameter_name}"
     elif type_name.startswith("enum::"):
         return f"godot_{type_name[6:].replace('.', '_')} {parameter_name}"
-    elif is_const:
+    elif type_name.endswith("*"):
+        return f"{type_name} {parameter_name}"
+    
+    if type_name.startswith("typedarray::"):
+        type_name = f"TypedArray(godot_{type_name[len('typedarray::'):]})"
+    if type_name.startswith("bitfield::"):
+        type_name = type_name[len("bitfield::"):].replace('.', '_')
+    if is_const:
         return f"const godot_{type_name} *{parameter_name or ''}"
     else:
         return f"godot_{type_name} *{parameter_name or ''}"
@@ -704,7 +717,13 @@ def format_return_type(
     type_name: str,
 ) -> str:
     if type_name.startswith("enum::"):
-        return f"godot_{type_name[6:].replace('.', '_')}"
+        return f"godot_{type_name[len('enum::'):].replace('.', '_')}"
+    elif type_name.startswith("typedarray::"):
+        return f"godot_TypedArray(godot_{type_name[len('typedarray::'):]})"
+    elif type_name.startswith("bitfield::"):
+        return f"godot_{type_name[len('bitfield::'):].replace('.', '_')}"
+    elif type_name.endswith("*"):
+        return type_name
     elif type_name not in VARIANT_TYPES:
         return f"godot_{type_name} *"
     else:

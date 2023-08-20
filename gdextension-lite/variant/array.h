@@ -10,4 +10,6 @@ typedef struct godot_Array {
 	uint8_t _[sizeof(void *)];
 } godot_Array;
 
+#define godot_TypedArray(type)  godot_Array
+
 #endif

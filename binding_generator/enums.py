@@ -9,7 +9,7 @@ def generate_enum(enum: GlobalEnumOrEnum) -> str:
     lines = ["typedef enum {"]
     for value in enum['values']:
         lines.append(f"\t{value['name']} = {value['value']},")
-    lines.append(f"}} godot_{enum['name'].replace('.', '')};")
+    lines.append(f"}} godot_{enum['name'].replace('.', '_')};")
     return '\n'.join(lines)
 
 
