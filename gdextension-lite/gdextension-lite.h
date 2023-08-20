@@ -10,7 +10,7 @@
 #include "generated/variant/all.h"
 #include "variant/all.h"
 
-void gdextension_lite_initialize(const GDExtensionInterface *interface);
+void gdextension_lite_initialize(const GDExtensionInterfaceGetProcAddress get_proc_address);
 
 #endif
 
@@ -18,12 +18,12 @@ void gdextension_lite_initialize(const GDExtensionInterface *interface);
 #ifndef __GDEXTENSION_LITE_H_IMPLEMENTATION__
 #define __GDEXTENSION_LITE_H_IMPLEMENTATION__
 
-void gdextension_lite_initialize(const GDExtensionInterface *interface) {
-	godot_interface = interface;
-	godot_ptr_destroy_String = interface->variant_get_ptr_destructor(GDEXTENSION_VARIANT_TYPE_STRING);
-	gdextension_lite_initialize_StringName(interface);
-	gdextension_lite_initialize_generated(interface);
-	gdextension_lite_initialize_utility_functions(interface);
+void gdextension_lite_initialize(const GDExtensionInterfaceGetProcAddress get_proc_address) {
+	gdextension_lite_initialize_interface(get_proc_address);
+	godot_ptr_destroy_String = godot_variant_get_ptr_destructor(GDEXTENSION_VARIANT_TYPE_STRING);
+	gdextension_lite_initialize_StringName();
+	gdextension_lite_initialize_generated();
+	gdextension_lite_initialize_utility_functions();
 }
 
 #endif  // __GDEXTENSION_LITE_H_IMPLEMENTATION__

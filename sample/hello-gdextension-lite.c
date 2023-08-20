@@ -19,12 +19,12 @@ void deinitialize(void *userdata, GDExtensionInitializationLevel p_level) {
 }
 
 GDExtensionBool gdextension_entry(
-    const GDExtensionInterface *p_interface,
+    const GDExtensionInterfaceGetProcAddress p_get_proc_address,
     GDExtensionClassLibraryPtr p_library,
     GDExtensionInitialization *r_initialization
 ) {
     r_initialization->initialize = &initialize;
     r_initialization->deinitialize = &deinitialize;
-	gdextension_lite_initialize(p_interface);
+	gdextension_lite_initialize(p_get_proc_address);
     return 1;
 }

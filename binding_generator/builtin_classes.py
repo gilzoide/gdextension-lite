@@ -131,9 +131,8 @@ def generate_initialize_all(
     class_names = [cls["name"] for cls in builtin_classes]
     includes = "\n".join(f'#include "{format_type_snake_case(name)}.h"'
                          for name in class_names)
-    prototype = ("void gdextension_lite_initialize_generated("
-                 "const GDExtensionInterface *interface)")
-    calls = "\n".join(f"gdextension_lite_initialize_{name}(interface);"
+    prototype = ("void gdextension_lite_initialize_generated()")
+    calls = "\n".join(f"gdextension_lite_initialize_{name}();"
                       for name in class_names
                       if name != "StringName")
     return (

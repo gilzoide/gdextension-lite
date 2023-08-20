@@ -147,7 +147,7 @@ def format_constructor_pointer(
             }}
         """),
         code_block(f"""
-            godot_ptr_{func_name} = {INTERFACE_PARAMETER_NAME}->variant_get_ptr_constructor({
+            godot_ptr_{func_name} = godot_variant_get_ptr_constructor({
                 format_type_to_variant_enum(type_name)
             }, {ctor["index"]});
         """),
@@ -173,7 +173,7 @@ def format_destructor_pointer(
             }}
         """),
         code_block(f"""
-            godot_ptr_{function_name} = {INTERFACE_PARAMETER_NAME}->variant_get_ptr_destructor({
+            godot_ptr_{function_name} = godot_variant_get_ptr_destructor({
                 format_type_to_variant_enum(type_name)
             });
         """),
@@ -221,10 +221,10 @@ def format_type_from_to_variant(
             }}
         """),
         code_block(f"""
-            {type_ptr_name} = {INTERFACE_PARAMETER_NAME}->get_variant_to_type_constructor({
+            {type_ptr_name} = godot_get_variant_to_type_constructor({
                 format_type_to_variant_enum(type_name)
             });
-            {variant_ptr_name} = {INTERFACE_PARAMETER_NAME}->get_variant_from_type_constructor({
+            {variant_ptr_name} = godot_get_variant_from_type_constructor({
                 format_type_to_variant_enum(type_name)
             });
         """),
@@ -269,10 +269,10 @@ def format_member_pointers(
         """),
         code_block(f"""
             GDEXTENSION_LITE_WITH_STRING_NAME({name}, name, {{
-            \tgodot_ptr_{set_name} = {INTERFACE_PARAMETER_NAME}->variant_get_ptr_setter({
+            \tgodot_ptr_{set_name} = godot_variant_get_ptr_setter({
                 format_type_to_variant_enum(type_name)
             }, &name);
-            \tgodot_ptr_{get_name} = {INTERFACE_PARAMETER_NAME}->variant_get_ptr_getter({
+            \tgodot_ptr_{get_name} = godot_variant_get_ptr_getter({
                 format_type_to_variant_enum(type_name)
             }, &name);
             }})
@@ -337,10 +337,10 @@ def format_indexing_pointers(
             }}
         """),
         code_block(f"""
-            godot_ptr_{set_name} = {INTERFACE_PARAMETER_NAME}->{set_fetch_func}({
+            godot_ptr_{set_name} = godot_{set_fetch_func}({
                 format_type_to_variant_enum(type_name)
             });
-            godot_ptr_{get_name} = {INTERFACE_PARAMETER_NAME}->{get_fetch_func}({
+            godot_ptr_{get_name} = godot_{get_fetch_func}({
                 format_type_to_variant_enum(type_name)
             });
         """),
@@ -385,7 +385,7 @@ def format_operator_pointer(
             }}
         """),
         code_block(f"""
-            godot_ptr_{function_name} = {INTERFACE_PARAMETER_NAME}->variant_get_ptr_operator_evaluator({
+            godot_ptr_{function_name} = godot_variant_get_ptr_operator_evaluator({
                 format_operator_to_enum(operator_name)
             }, {
                 format_type_to_variant_enum(type_name)
@@ -425,7 +425,7 @@ def format_method_pointer(
 
     proto_args = ", ".join(proto_args)
 
-    method_name = method['name']
+    method_name = method["name"]
     function_name = f"{type_name}_{method_name}"
     proto_ptr = f"GDExtensionPtrBuiltInMethod godot_ptr_{function_name}"
     proto_typed = f"{proto_return_type} godot_{function_name}({proto_args})"
@@ -455,7 +455,7 @@ def format_method_pointer(
         """),
         code_block(f"""
             GDEXTENSION_LITE_WITH_STRING_NAME({method_name}, name, {{
-            \tgodot_ptr_{function_name} = {INTERFACE_PARAMETER_NAME}->variant_get_ptr_builtin_method({
+            \tgodot_ptr_{function_name} = godot_variant_get_ptr_builtin_method({
                 format_type_to_variant_enum(type_name)
             }, &name, {method['hash']});
             }})
@@ -510,7 +510,7 @@ def format_utility_function(
         """),
         code_block(f"""
             GDEXTENSION_LITE_WITH_STRING_NAME({function_name}, name, {{
-            \tgodot_ptr_{function_name} = {INTERFACE_PARAMETER_NAME}->variant_get_ptr_utility_function(&name, {function['hash']});
+            \tgodot_ptr_{function_name} = godot_variant_get_ptr_utility_function(&name, {function['hash']});
             }})
         """),
     )
@@ -520,8 +520,7 @@ def format_binders(
     type_name: str,
     merged_binder_code: str,
 ) -> BindingCode:
-    prototype = (f"void gdextension_lite_initialize_{type_name}("
-                 f"const GDExtensionInterface *{INTERFACE_PARAMETER_NAME})")
+    prototype = (f"void gdextension_lite_initialize_{type_name}()")
     return BindingCode(
         code_block(f"""
             {prototype};
