@@ -34,14 +34,14 @@ VARIANT_TYPES = (
     'Vector4i',
     'Plane',
     'Quaternion',
-    'Aabb',
+    'AABB',
     'Basis',
     'Transform3d',
     'Projection',
     'Color',
     'StringName',
     'NodePath',
-    'Rid',
+    'RID',
     'Callable',
     'Signal',
     'Dictionary',
@@ -83,11 +83,13 @@ OPERATOR_TO_C = {
 
 
 IDENTIFIER_OVERRIDES = {
+    'bool': 'b',
     'char': 'chr',
     'class': 'cls',
     'default': 'default_value',
     'enum': 'enumeration',
     'operator': 'op',
+    'template': 'tmplt',
 }
 
 
@@ -694,7 +696,10 @@ def format_parameter(
     elif type_name.startswith("enum::"):
         return f"godot_{type_name[6:].replace('.', '_')} {parameter_name}"
     elif type_name.endswith("*"):
-        return f"{type_name} {parameter_name}"
+        if 'void' in type_name or '_t' in type_name:
+            return f"{type_name} {parameter_name}"
+        else:
+            return f"godot_{type_name} {parameter_name}"
     
     if type_name.startswith("typedarray::"):
         type_name = f"TypedArray(godot_{type_name[len('typedarray::'):]})"
@@ -723,11 +728,22 @@ def format_return_type(
     elif type_name.startswith("bitfield::"):
         return f"godot_{type_name[len('bitfield::'):].replace('.', '_')}"
     elif type_name.endswith("*"):
-        return type_name
+        return type_name.replace('Glyph', 'godot_Glyph')
     elif type_name not in VARIANT_TYPES:
         return f"godot_{type_name} *"
     else:
         return f"godot_{type_name}"
+
+
+def format_native_struct_field(
+    field_declaration: str,
+) -> str:
+    if "::" in field_declaration:
+        return f"godot_{field_declaration.replace('::', '_').replace('.', '_')}"
+    elif field_declaration.startswith('int') or field_declaration.startswith('float') or field_declaration.startswith('uint'):
+        return field_declaration
+    else:
+        return f"godot_{field_declaration}"
 
 
 def format_value_to_ptr(

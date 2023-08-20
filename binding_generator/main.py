@@ -18,6 +18,7 @@ from enums import generate_all_enums
 from format_utils import format_type_snake_case
 from header import HeaderWriter
 from json_types import ExtensionApi
+from native_structures import generate_all_native_structures
 from utility_functions import generate_utility_functions
 
 
@@ -58,6 +59,10 @@ def main():
     header_writer.write_header(contents,
                                "utility_functions",
                                implementation=implementation)
+
+    # Native Structures
+    contents = generate_all_native_structures(extension_api["native_structures"])
+    header_writer.write_header(contents, "native_structures")
 
     # Classes
     for cls in extension_api["classes"]:

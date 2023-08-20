@@ -70,6 +70,7 @@ def generate_class_method_header(
     binders = format_binders(cls["name"], merged.bind, type_stringname_var=True)
     includes = [
         '#include "../global_enums.h"',
+        '#include "../native_structures.h"',
         '#include "../class-stubs/all.h"',
         '#include "../../gdextension/gdextension_interface.h"',
         '#include "../../variant/all.h"',
