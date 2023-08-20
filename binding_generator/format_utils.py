@@ -141,7 +141,7 @@ def format_constructor_pointer(
             {proto_ptr};
             {proto_typed} {{
             \tgodot_{type_name} self;
-            \t{format_arguments_array('args', arguments)};
+{indent(format_arguments_array("args", arguments), "            	")}
             \tgodot_ptr_{func_name}(&self, args);
             \treturn self;
             }}
