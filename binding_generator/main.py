@@ -15,6 +15,7 @@ import sys
 from builtin_classes import generate_builtin_class, generate_initialize_all_builtin_classes
 from classes import generate_class_stub_header, generate_all_class_stubs, generate_class_method_header, generate_initialize_all_classes
 from enums import generate_all_enums
+from extension_interface import generate_all_extension_bindings
 from format_utils import format_type_snake_case
 from header import HeaderWriter
 from json_types import ExtensionApi
@@ -32,11 +33,20 @@ def main():
 
     with open(extension_api_path, 'r') as file:
         extension_api: ExtensionApi = json.load(file)
-
     header_writer = HeaderWriter(*output_dir.split("/"))
+
+    # Global Enums
     header_writer.write_header(
         generate_all_enums(extension_api["global_enums"]),
         "global_enums",
+    )
+
+    # Extension Interface
+    contents, implementation = generate_all_extension_bindings()
+    header_writer.write_header(
+        contents,
+        "extension_interface",
+        implementation=implementation,
     )
 
     # Builtin Classes (a.k.a Variants)

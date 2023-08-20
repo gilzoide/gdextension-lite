@@ -6,7 +6,7 @@
 
 #include <stdint.h>
 
-#include "../gdextension-interface.h"
+#include "../generated/extension_interface.h"
 
 typedef struct godot_String {
 	uint8_t _[sizeof(void *)];

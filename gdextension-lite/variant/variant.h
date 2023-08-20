@@ -24,7 +24,7 @@ void godot_destroy_Variant(godot_Variant *self);
 #ifndef __GDEXTENSION_LITE_VARIANT_H_IMPLEMENTATION__
 #define __GDEXTENSION_LITE_VARIANT_H_IMPLEMENTATION__
 
-#include "../gdextension-interface.h"
+#include "../generated/extension_interface.h"
 
 void godot_destroy_Variant(godot_Variant *self) {
 	godot_variant_destroy(self);

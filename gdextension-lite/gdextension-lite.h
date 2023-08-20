@@ -4,7 +4,7 @@
 #ifndef __GDEXTENSION_LITE_H__
 #define __GDEXTENSION_LITE_H__
 
-#include "gdextension-interface.h"
+#include "generated/extension_interface.h"
 #include "generated/global_enums.h"
 #include "generated/utility_functions.h"
 #include "generated/variant/all.h"
