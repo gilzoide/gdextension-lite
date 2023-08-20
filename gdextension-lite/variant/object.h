@@ -4,6 +4,6 @@
 #ifndef __GDEXTENSION_LITE_OBJECT_H__
 #define __GDEXTENSION_LITE_OBJECT_H__
 
-typedef void godot_Object;
+typedef struct godot_Object godot_Object;
 
 #endif

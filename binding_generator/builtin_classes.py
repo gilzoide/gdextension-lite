@@ -125,7 +125,7 @@ def generate_builtin_class(
     )
 
 
-def generate_initialize_all(
+def generate_initialize_all_builtin_classes(
     builtin_classes: list[BuiltinClass],
 ) -> Tuple[str, str]:
     class_names = [cls["name"] for cls in builtin_classes]

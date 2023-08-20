@@ -12,7 +12,8 @@ Usage:
 import json
 import sys
 
-from builtin_classes import generate_builtin_class, generate_initialize_all
+from builtin_classes import generate_builtin_class, generate_initialize_all_builtin_classes
+from classes import generate_class, generate_initialize_all_classes, generate_all_class_stubs
 from enums import generate_all_enums
 from format_utils import format_type_snake_case
 from header import HeaderWriter
@@ -47,7 +48,7 @@ def main():
         header_writer.write_header(contents,
                                    "variant", format_type_snake_case(builtin_class["name"]),
                                    implementation=implementation)
-    contents, implementation = generate_initialize_all(builtin_classes)
+    contents, implementation = generate_initialize_all_builtin_classes(builtin_classes)
     header_writer.write_header(contents,
                                "variant", "all",
                                implementation=implementation)
@@ -55,6 +56,20 @@ def main():
     contents, implementation = generate_utility_functions(extension_api["utility_functions"])
     header_writer.write_header(contents,
                                "utility_functions",
+                               implementation=implementation)
+
+    for cls in extension_api["classes"]:
+        contents, implementation = generate_class(cls)
+        header_writer.write_header(contents,
+                                   "class", format_type_snake_case(cls["name"]),
+                                   implementation=implementation)
+    contents, implementation = generate_all_class_stubs(extension_api["classes"])
+    header_writer.write_header(contents,
+                               "class", "all-stubs",
+                               implementation=implementation)
+    contents, implementation = generate_initialize_all_classes(extension_api["classes"])
+    header_writer.write_header(contents,
+                               "class", "all",
                                implementation=implementation)
 
 

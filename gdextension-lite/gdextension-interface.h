@@ -35,6 +35,8 @@ extern GDExtensionInterfaceStringNewWithUtf16CharsAndLen godot_string_new_with_u
 extern GDExtensionInterfaceStringNewWithUtf32CharsAndLen godot_string_new_with_utf32_chars_and_len;
 extern GDExtensionInterfaceStringNewWithWideCharsAndLen godot_string_new_with_wide_chars_and_len;
 
+extern GDExtensionInterfaceClassdbGetMethodBind godot_classdb_get_method_bind;
+
 
 #endif
 
@@ -69,6 +71,8 @@ GDExtensionInterfaceStringNewWithUtf16CharsAndLen godot_string_new_with_utf16_ch
 GDExtensionInterfaceStringNewWithUtf32CharsAndLen godot_string_new_with_utf32_chars_and_len;
 GDExtensionInterfaceStringNewWithWideCharsAndLen godot_string_new_with_wide_chars_and_len;
 
+GDExtensionInterfaceClassdbGetMethodBind godot_classdb_get_method_bind;
+
 void gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddress get_proc_address) {
 	godot_get_variant_from_type_constructor = (GDExtensionInterfaceGetVariantFromTypeConstructor) get_proc_address("get_variant_from_type_constructor");
 	godot_get_variant_to_type_constructor = (GDExtensionInterfaceGetVariantToTypeConstructor) get_proc_address("get_variant_to_type_constructor");
@@ -95,6 +99,7 @@ void gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddr
 	godot_string_new_with_utf16_chars_and_len = (GDExtensionInterfaceStringNewWithUtf16CharsAndLen) get_proc_address("string_new_with_utf16_chars_and_len");
 	godot_string_new_with_utf32_chars_and_len = (GDExtensionInterfaceStringNewWithUtf32CharsAndLen) get_proc_address("string_new_with_utf32_chars_and_len");
 	godot_string_new_with_wide_chars_and_len = (GDExtensionInterfaceStringNewWithWideCharsAndLen) get_proc_address("string_new_with_wide_chars_and_len");
+	godot_classdb_get_method_bind = (GDExtensionInterfaceClassdbGetMethodBind) get_proc_address("classdb_get_method_bind");
 }
 
 #endif  // __GDEXTENSION_LITE_INTERFACE_H_IMPLEMENTATION__

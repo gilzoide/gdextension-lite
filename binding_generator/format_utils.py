@@ -17,6 +17,47 @@ NON_STRUCT_TYPES = (
 )
 
 
+VARIANT_TYPES = (
+    'Nil',
+    'bool',
+    'int',
+    'float',
+    'String',
+    'Vector2',
+    'Vector2i',
+    'Rect2',
+    'Rect2i',
+    'Vector3',
+    'Vector3i',
+    'Transform2d',
+    'Vector4',
+    'Vector4i',
+    'Plane',
+    'Quaternion',
+    'Aabb',
+    'Basis',
+    'Transform3d',
+    'Projection',
+    'Color',
+    'StringName',
+    'NodePath',
+    'Rid',
+    'Callable',
+    'Signal',
+    'Dictionary',
+    'Array',
+    'PackedByteArray',
+    'PackedInt32Array',
+    'PackedInt64Array',
+    'PackedFloat32Array',
+    'PackedFloat64Array',
+    'PackedStringArray',
+    'PackedVector2Array',
+    'PackedVector3Array',
+    'PackedColorArray',
+)
+
+
 OPERATOR_TO_C = {
     '+': 'add',
     '-': 'subtract',
@@ -47,7 +88,7 @@ IDENTIFIER_OVERRIDES = {
 }
 
 
-INTERFACE_PARAMETER_NAME = "interface"
+TYPE_STRING_NAME_PARAMETER_NAME = "type_name"
 
 
 def code_block(
@@ -99,16 +140,19 @@ class BindingCode:
         self.bind = bind
 
     def prepend_section_comment(self, comment: str):
-        self.prototype = f"// {comment}\n{self.prototype}"
-        self.implementation = f"// {comment}\n{self.implementation}"
-        self.bind = f"// {comment}\n{self.bind}"
+        if self.prototype:
+            self.prototype = f"// {comment}\n{self.prototype}"
+        if self.implementation:
+            self.implementation = f"// {comment}\n{self.implementation}"
+        if self.bind:
+            self.bind = f"// {comment}\n{self.bind}"
 
     @classmethod
     def merge(cls, bindings: Sequence[BindingCode]) -> BindingCode: 
         return BindingCode(
-            "\n\n".join(b.prototype for b in bindings),
-            "\n\n".join(b.implementation for b in bindings),
-            "\n".join(b.bind for b in bindings),
+            "\n\n".join(b.prototype for b in bindings if b.prototype),
+            "\n\n".join(b.implementation for b in bindings if b.implementation),
+            "\n".join(b.bind for b in bindings if b.bind),
         )
 
 
@@ -516,9 +560,100 @@ def format_utility_function(
     )
 
 
+def format_class_struct(
+    class_name: str,
+) -> str:
+    return f"typedef struct godot_{class_name} godot_{class_name};"
+
+
+def format_class_enum(
+    class_name: str,
+    enum: Enum,
+) -> BindingCode:
+    enum_name = f"godot_{class_name}_{enum['name']}"
+    values = ",\n".join(f"{value['name']} = {value['value']}"
+                        for value in enum["values"])
+    return BindingCode(
+        code_block(f"""
+            typedef enum {enum_name} {{
+{indent(values, '            	')}
+            }} {enum_name};
+        """),
+        "",
+    )
+
+
+def format_class_method_pointer(
+    class_name: str,
+    method: Method,
+) -> BindingCode:
+    return_value = method.get("return_value")
+    return_type = return_value["type"] if return_value else None
+    proto_return_type = format_return_type(return_type) if return_type else "void"
+
+    proto_args = []
+    is_static = method.get("is_static", False)
+    if not is_static:
+        is_const = method.get("is_const", False)
+        proto_args.append(format_parameter(class_name,
+                                           "self",
+                                           is_const=is_const))
+    arguments = method.get("arguments")
+    if arguments:
+        proto_args.extend(
+            format_parameter_const(arg["type"], arg["name"])
+            for arg in arguments
+        )
+
+    non_vararg_argc = len(proto_args)
+    is_vararg = method.get("is_vararg")
+    if is_vararg:
+        proto_args.append("godot_int argc")
+        proto_args.append("const godot_Variant **argv")
+
+    proto_args = ", ".join(proto_args)
+
+    method_name = method["name"]
+    function_name = f"{class_name}_{method_name}"
+    proto_ptr = f"GDExtensionMethodBindPtr godot_ptr_{function_name}"
+    proto_typed = f"{proto_return_type} godot_{function_name}({proto_args})"
+    return BindingCode(
+        code_block(f"""
+            extern {proto_ptr};
+            {proto_typed};
+            {format_vararg_macro(function_name, non_vararg_argc) if is_vararg else ""}
+        """),
+        code_block(f"""
+            {proto_ptr};
+            {proto_typed} {{
+            \t{proto_return_type + " result;" if return_type else ""}
+{indent(format_arguments_array('args', arguments, is_vararg), '            	')}
+            \tgodot_object_method_bind_ptrcall(godot_ptr_{function_name}, {
+                "NULL"
+                if is_static
+                else "(GDExtensionObjectPtr) self"
+            }, args, {
+                "&result"
+                if return_type
+                else "NULL"
+            }, {format_arguments_count(arguments, is_vararg)});
+            \t{"return result;" if return_type else ""}
+            }}
+        """),
+        code_block(f"""
+            GDEXTENSION_LITE_WITH_STRING_NAME({method_name}, name, {{
+            \tgodot_ptr_{function_name} = godot_classdb_get_method_bind(&{
+                TYPE_STRING_NAME_PARAMETER_NAME
+            }, &name, {method.get('hash', 0)});
+            }})
+        """),
+    )
+
+
 def format_binders(
     type_name: str,
     merged_binder_code: str,
+    type_stringname_var: bool = False,
 ) -> BindingCode:
     prototype = (f"void gdextension_lite_initialize_{type_name}()")
     return BindingCode(
@@ -526,6 +661,12 @@ def format_binders(
             {prototype};
         """),
         code_block(f"""
+            {prototype} {{
+                GDEXTENSION_LITE_WITH_STRING_NAME({type_name}, {TYPE_STRING_NAME_PARAMETER_NAME}, {{
+{indent(merged_binder_code, '            		')}
+                }})
+            }}
+        """) if type_stringname_var else code_block(f"""
             {prototype} {{
 {indent(merged_binder_code, '            	')}
             }}
@@ -544,6 +685,8 @@ def format_parameter(
     parameter_name = IDENTIFIER_OVERRIDES.get(parameter_name, parameter_name)
     if type_name in NON_STRUCT_TYPES:
         return f"godot_{type_name} {parameter_name}"
+    elif type_name.startswith("enum::"):
+        return f"godot_{type_name[6:].replace('.', '_')} {parameter_name}"
     elif is_const:
         return f"const godot_{type_name} *{parameter_name or ''}"
     else:
@@ -560,7 +703,9 @@ def format_parameter_const(
 def format_return_type(
     type_name: str,
 ) -> str:
-    if type_name == "Object":
+    if type_name.startswith("enum::"):
+        return f"godot_{type_name[6:].replace('.', '_')}"
+    elif type_name not in VARIANT_TYPES:
         return f"godot_{type_name} *"
     else:
         return f"godot_{type_name}"
@@ -571,7 +716,7 @@ def format_value_to_ptr(
     parameter_name: str,
 ) -> str:
     parameter_name = IDENTIFIER_OVERRIDES.get(parameter_name, parameter_name)
-    if type_name in NON_STRUCT_TYPES:
+    if type_name in NON_STRUCT_TYPES or type_name.startswith("enum::"):
         return "&" + parameter_name
     else:
         return parameter_name
