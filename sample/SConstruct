@@ -1,1 +1,4 @@
-SharedLibrary(['hello-gdextension-lite.c', 'gdextension-lite-implementation.c'])
+env = Environment()
+if ARGUMENTS.get('debug', 0):
+    env.Append(CFLAGS=['-g', '-O0'])
+env.SharedLibrary(['hello-gdextension-lite.c', 'gdextension-lite-implementation.c'])
