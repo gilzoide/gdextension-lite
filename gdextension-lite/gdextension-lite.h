@@ -20,7 +20,7 @@ void gdextension_lite_initialize(const GDExtensionInterfaceGetProcAddress get_pr
 
 void gdextension_lite_initialize(const GDExtensionInterfaceGetProcAddress get_proc_address) {
 	gdextension_lite_initialize_interface(get_proc_address);
-	godot_ptr_destroy_String = godot_variant_get_ptr_destructor(GDEXTENSION_VARIANT_TYPE_STRING);
+	godot_destroy_String_ptr = godot_variant_get_ptr_destructor(GDEXTENSION_VARIANT_TYPE_STRING);
 	gdextension_lite_initialize_StringName();
 	gdextension_lite_initialize_generated();
 	gdextension_lite_initialize_utility_functions();
