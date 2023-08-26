@@ -579,7 +579,7 @@ def format_class_enum(
     enum: Enum,
 ) -> BindingCode:
     enum_name = f"godot_{class_name}_{enum['name']}"
-    values = ",\n".join(f"godot_{class_name}_{value['name']} = {value['value']}"
+    values = "\n".join(f"godot_{class_name}_{value['name']} = {value['value']},"
                         for value in enum["values"])
     return BindingCode(
         code_block(f"""
