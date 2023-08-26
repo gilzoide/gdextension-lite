@@ -7,6 +7,7 @@ Automatically generated header-only GDExtension bindings for C/C++
 - Automatically generated from `extension_api.json` file, so new Godot APIs are easily added
 - Bindings for all Godot classes, variant types, methods, operators, utility functions, enums, GDExtension interface functions
 - Compatible with C99 and above, as well as C++
+- Fast compilation times (much faster than godot-cpp project)
 
 
 ## How to use
@@ -82,3 +83,17 @@ Sample code is also available at the [sample](sample) folder.
 15. Variadic methods and utility functions expect argc/argv parameters.
     Variadic macros with the format `godot_<function name>_v` are declared so that C developers can call them more easily.
 
+
+## Generating bindings
+1. Update the `extension_api.json` and `gdextension_interface.h` files (depends on Make, Python 3.10+):
+   ```sh
+   make refresh-gdextension-api
+   ```
+2. Generate the bindings files:
+   ```sh
+   make generate-bindings
+   ```
+3. Generate the distribution `build/gdextension-lite.zip` file with all headers:
+   ```sh
+   make dist
+   ```
