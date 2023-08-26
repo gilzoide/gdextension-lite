@@ -7,6 +7,8 @@
 #include "generated/extension_interface.h"
 #include "generated/global_enums.h"
 #include "generated/utility_functions.h"
+#include "generated/class-stubs/all.h"
+#include "generated/class-methods/all.h"
 #include "generated/variant/all.h"
 #include "variant/all.h"
 

@@ -69,9 +69,10 @@ def generate_class_method_header(
     merged = BindingCode.merge(definitions)
     binders = format_binders(cls["name"], merged.bind, type_stringname_var=True)
     includes = [
+        '#include "../class-stubs/all.h"',
         '#include "../global_enums.h"',
         '#include "../native_structures.h"',
-        '#include "../class-stubs/all.h"',
+        '#include "../variant/all.h"',
         '#include "../../gdextension/gdextension_interface.h"',
         '#include "../../variant/all.h"',
     ]

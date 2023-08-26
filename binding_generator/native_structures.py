@@ -10,7 +10,8 @@ def generate_native_structure(
     struct: NativeStructure,
 ) -> str:
     name = struct["name"]
-    fields = [format_native_struct_field(field) for field in struct["format"].split(";")]
+    fields = [format_native_struct_field(field)
+              for field in struct["format"].split(";")]
     return '\n'.join([
         f"typedef struct godot_{name} {{",
         *[f"\t{f};" for f in fields],

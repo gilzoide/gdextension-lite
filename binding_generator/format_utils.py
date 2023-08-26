@@ -190,8 +190,8 @@ def format_constructor_pointer(
             {proto_ptr};
             {proto_typed} {{
             \tgodot_{type_name} self;
-{indent(format_arguments_array("args", arguments), "            	")}
-            \tgodot_{func_name}_ptr(&self, args);
+{indent(format_arguments_array("_args", arguments), "            	")}
+            \tgodot_{func_name}_ptr(&self, _args);
             \treturn self;
             }}
         """),
@@ -422,15 +422,15 @@ def format_operator_pointer(
         code_block(f"""
             {proto_ptr};
             {proto_typed} {{
-            \tgodot_{return_type} result;
+            \tgodot_{return_type} _ret;
             \tgodot_{function_name}_ptr({
                 format_value_to_ptr(type_name, 'a')
             }, {
                 format_value_to_ptr(right_type, 'b')
                 if right_type
                 else "NULL"
-            }, &result);
-            \treturn result;
+            }, &_ret);
+            \treturn _ret;
             }}
         """),
         code_block(f"""
@@ -488,18 +488,18 @@ def format_method_pointer(
         code_block(f"""
             {proto_ptr};
             {proto_typed} {{
-            \t{proto_return_type + " result;" if return_type else ""}
-{indent(format_arguments_array('args', arguments, is_vararg), '            	')}
+            \t{proto_return_type + " _ret;" if return_type else ""}
+{indent(format_arguments_array('_args', arguments, is_vararg), '            	')}
             \tgodot_{function_name}_ptr({
                 "NULL"
                 if is_static
                 else "(GDExtensionTypePtr) self"
-            }, args, {
-                "&result"
+            }, _args, {
+                "&_ret"
                 if return_type
                 else "NULL"
             }, {format_arguments_count(arguments, is_vararg)});
-            \t{"return result;" if return_type else ""}
+            \t{"return _ret;" if return_type else ""}
             }}
         """),
         code_block(f"""
@@ -547,14 +547,14 @@ def format_utility_function(
         code_block(f"""
             {proto_ptr};
             {proto_typed} {{
-            \t{proto_return_type + " result;" if return_type else ""}
-{indent(format_arguments_array('args', arguments, is_vararg), '            	')}
+            \t{proto_return_type + " _ret;" if return_type else ""}
+{indent(format_arguments_array('_args', arguments, is_vararg), '            	')}
             \tgodot_{function_name}_ptr({
-                "&result"
+                "&_ret"
                 if return_type
                 else "NULL"
-            }, args, {format_arguments_count(arguments, is_vararg)});
-            \t{"return result;" if return_type else ""}
+            }, _args, {format_arguments_count(arguments, is_vararg)});
+            \t{"return _ret;" if return_type else ""}
             }}
         """),
         code_block(f"""
@@ -625,6 +625,19 @@ def format_class_method_pointer(
     function_name = f"{class_name}_{method_name}"
     proto_ptr = f"GDExtensionMethodBindPtr godot_{function_name}_ptr"
     proto_typed = f"{proto_return_type} godot_{function_name}({proto_args})"
+
+    call_args = [
+        f"godot_{function_name}_ptr",
+        "NULL" if is_static else "(GDExtensionObjectPtr) self",
+        "_args",
+    ]
+    if is_vararg:
+        call_args.append(format_arguments_count(arguments, is_vararg))
+        call_args.append("&_ret" if return_type else "NULL")
+        call_args.append("&_error")
+    else:
+        call_args.append("&_ret" if return_type else "NULL")
+    bind_call = "godot_object_method_bind_call" if is_vararg else "godot_object_method_bind_ptrcall"
     return BindingCode(
         code_block(f"""
             extern {proto_ptr};
@@ -634,18 +647,11 @@ def format_class_method_pointer(
         code_block(f"""
             {proto_ptr};
             {proto_typed} {{
-            \t{proto_return_type + " result;" if return_type else ""}
-{indent(format_arguments_array('args', arguments, is_vararg), '            	')}
-            \tgodot_object_method_bind_ptrcall(godot_{function_name}_ptr, {
-                "NULL"
-                if is_static
-                else "(GDExtensionObjectPtr) self"
-            }, args, {
-                "&result"
-                if return_type
-                else "NULL"
-            }, {format_arguments_count(arguments, is_vararg)});
-            \t{"return result;" if return_type else ""}
+            \t{proto_return_type + " _ret;" if return_type else ""}
+{indent(format_arguments_array('_args', arguments, is_vararg), '            	')}
+            \t{"GDExtensionCallError _error;" if is_vararg else ""}
+            \t{bind_call}({', '.join(call_args)});
+            \t{"return _ret;" if return_type else ""}
             }}
         """),
         code_block(f"""
@@ -738,6 +744,8 @@ def format_return_type(
 def format_native_struct_field(
     field_declaration: str,
 ) -> str:
+    if "=" in field_declaration:
+        field_declaration = re.sub(r"\s*=.*", "", field_declaration)
     if "::" in field_declaration:
         return f"godot_{field_declaration.replace('::', '_').replace('.', '_')}"
     elif field_declaration.startswith('int') or field_declaration.startswith('float') or field_declaration.startswith('uint'):
