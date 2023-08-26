@@ -26,6 +26,7 @@ void gdextension_lite_initialize(const GDExtensionInterfaceGetProcAddress get_pr
 	gdextension_lite_initialize_StringName();
 	gdextension_lite_initialize_generated();
 	gdextension_lite_initialize_utility_functions();
+	gdextension_lite_initialize_generated_classes();
 }
 
 #endif  // __GDEXTENSION_LITE_H_IMPLEMENTATION__
