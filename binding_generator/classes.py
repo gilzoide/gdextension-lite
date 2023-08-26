@@ -3,11 +3,8 @@ Generates bindings for Godot classes
 """
 
 from typing import Tuple
-from textwrap import indent
 
 from format_utils import (BindingCode,
-                          code_block,
-                          format_binders,
                           format_class_enum,
                           format_class_method_pointer,
                           format_class_struct,
@@ -49,7 +46,7 @@ def generate_all_class_stubs(
                 for cls in classes)
     return (
         "\n".join(includes),
-        ""
+        "",
     )
 
 def generate_class_methods(
@@ -67,7 +64,6 @@ def generate_class_method_header(
 ) -> Tuple[str, str]:
     definitions = (generate_class_methods(cls))
     merged = BindingCode.merge(definitions)
-    binders = format_binders(cls["name"], merged.bind, type_stringname_var=True)
     includes = [
         '#include "../class-stubs/all.h"',
         '#include "../global_enums.h"',
@@ -77,8 +73,8 @@ def generate_class_method_header(
         '#include "../../variant/all.h"',
     ]
     return (
-        "\n".join(includes) + "\n\n" + binders.prototype + "\n\n" + merged.prototype,
-        merged.implementation + "\n\n" + binders.implementation,
+        "\n".join(includes) + "\n\n" + merged.prototype,
+        merged.implementation,
     )
 
 
@@ -88,18 +84,7 @@ def generate_initialize_all_classes(
     class_names = [cls["name"] for cls in classes]
     includes = "\n".join(f'#include "{format_type_snake_case(name)}.h"'
                          for name in class_names)
-    prototype = ("void gdextension_lite_initialize_generated_classes()")
-    calls = "\n".join(f"gdextension_lite_initialize_{name}();"
-                      for name in class_names)
     return (
-        code_block(f"""
-{indent(includes, "            ")}
-
-            {prototype};
-        """),
-        code_block(f"""
-            {prototype} {{
-{indent(calls, "            	")}
-            }}
-        """),
+        includes,
+        "",
     )

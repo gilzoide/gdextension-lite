@@ -22,13 +22,8 @@ void gdextension_lite_initialize(const GDExtensionInterfaceGetProcAddress get_pr
 
 void gdextension_lite_initialize(const GDExtensionInterfaceGetProcAddress get_proc_address) {
 	gdextension_lite_initialize_interface(get_proc_address);
-	godot_ptr_destroy_String = godot_variant_get_ptr_destructor(GDEXTENSION_VARIANT_TYPE_STRING);
 	godot_ptr_Object_from_Variant = godot_get_variant_to_type_constructor(GDEXTENSION_VARIANT_TYPE_OBJECT);
 	godot_ptr_Variant_from_Object = godot_get_variant_from_type_constructor(GDEXTENSION_VARIANT_TYPE_OBJECT);
-	gdextension_lite_initialize_StringName();
-	gdextension_lite_initialize_generated();
-	gdextension_lite_initialize_utility_functions();
-	gdextension_lite_initialize_generated_classes();
 }
 
 #endif  // __GDEXTENSION_LITE_H_IMPLEMENTATION__

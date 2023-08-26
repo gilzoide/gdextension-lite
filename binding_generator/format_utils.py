@@ -189,16 +189,16 @@ def format_constructor_pointer(
         code_block(f"""
             {proto_ptr};
             {proto_typed} {{
+            \tif (godot_ptr_{func_name} == NULL) {{
+            \t\tgodot_ptr_{func_name} = godot_variant_get_ptr_constructor({
+                    format_type_to_variant_enum(type_name)
+                }, {ctor["index"]});
+            \t}}
             \tgodot_{type_name} self;
 {indent(format_arguments_array("_args", arguments), "            	")}
             \tgodot_ptr_{func_name}(&self, _args);
             \treturn self;
             }}
-        """),
-        code_block(f"""
-            godot_ptr_{func_name} = godot_variant_get_ptr_constructor({
-                format_type_to_variant_enum(type_name)
-            }, {ctor["index"]});
         """),
     )
 
@@ -218,13 +218,13 @@ def format_destructor_pointer(
         code_block(f"""
             {proto_ptr};
             {proto_typed} {{
+            \tif (godot_ptr_{function_name} == NULL) {{
+            \t\tgodot_ptr_{function_name} = godot_variant_get_ptr_destructor({
+                    format_type_to_variant_enum(type_name)
+                });
+            \t}}
             \tgodot_ptr_{function_name}(self);
             }}
-        """),
-        code_block(f"""
-            godot_ptr_{function_name} = godot_variant_get_ptr_destructor({
-                format_type_to_variant_enum(type_name)
-            });
         """),
     )
 
@@ -256,26 +256,28 @@ def format_type_from_to_variant(
             {proto_type_ptr};
             {proto_type_typed} {{
             \tgodot_{type_name} self;
+            \tif ({type_ptr_name} == NULL) {{
+            \t\t{type_ptr_name} = godot_get_variant_to_type_constructor({
+                    format_type_to_variant_enum(type_name)
+                });
+            \t}}
             \tgodot_ptr_{type_name}_from_Variant(&self, value);
             \treturn self;
             }}
 
             {proto_variant_ptr};
             {proto_variant_typed} {{
+            \tif ({variant_ptr_name} == NULL) {{
+            \t\t{variant_ptr_name} = godot_get_variant_from_type_constructor({
+                    format_type_to_variant_enum(type_name)
+                });
+            \t}}
             \tgodot_Variant self;
             \tgodot_ptr_Variant_from_{type_name}(&self, {
                 format_value_to_ptr(type_name, 'value')
             });
             \treturn self;
             }}
-        """),
-        code_block(f"""
-            {type_ptr_name} = godot_get_variant_to_type_constructor({
-                format_type_to_variant_enum(type_name)
-            });
-            {variant_ptr_name} = godot_get_variant_from_type_constructor({
-                format_type_to_variant_enum(type_name)
-            });
         """),
     )
 
@@ -306,25 +308,29 @@ def format_member_pointers(
         code_block(f"""
             {set_ptr};
             {set_typed} {{
+            \tif (godot_ptr_{set_name} == NULL) {{
+            \t\tGDEXTENSION_LITE_WITH_STRING_NAME({name}, name, {{
+            \t\t\tgodot_ptr_{set_name} = godot_variant_get_ptr_setter({
+                    format_type_to_variant_enum(type_name)
+                }, &name);
+            \t\t}})
+            \t}}
             \tgodot_ptr_{set_name}(self, {format_value_to_ptr(type, 'value')});
             }}
 
             {get_ptr};
             {get_typed} {{
+            \tif (godot_ptr_{get_name} == NULL) {{
+            \t\tGDEXTENSION_LITE_WITH_STRING_NAME({name}, name, {{
+            \t\t\tgodot_ptr_{get_name} = godot_variant_get_ptr_getter({
+                    format_type_to_variant_enum(type_name)
+                }, &name);
+            \t\t}})
+            \t}}
             \tgodot_{type} value;
             \tgodot_ptr_{get_name}(self, &value);
             \treturn value;
             }}
-        """),
-        code_block(f"""
-            GDEXTENSION_LITE_WITH_STRING_NAME({name}, name, {{
-            \tgodot_ptr_{set_name} = godot_variant_get_ptr_setter({
-                format_type_to_variant_enum(type_name)
-            }, &name);
-            \tgodot_ptr_{get_name} = godot_variant_get_ptr_getter({
-                format_type_to_variant_enum(type_name)
-            }, &name);
-            }})
         """),
     )
 
@@ -373,6 +379,11 @@ def format_indexing_pointers(
         code_block(f"""
             {set_ptr};
             {set_typed} {{
+            \tif (godot_ptr_{set_name} == NULL) {{
+            \t\tgodot_ptr_{set_name} = godot_{set_fetch_func}({
+                    format_type_to_variant_enum(type_name)
+                });
+            \t}}
             \tgodot_ptr_{set_name}(self, key, {
                 format_value_to_ptr(return_type, 'value')
             });
@@ -380,18 +391,15 @@ def format_indexing_pointers(
 
             {get_ptr};
             {get_typed} {{
+            \tif (godot_ptr_{get_name} == NULL) {{
+            \t\tgodot_ptr_{get_name} = godot_{get_fetch_func}({
+                    format_type_to_variant_enum(type_name)
+                });
+            \t}}
             \tgodot_{return_type} value;
             \tgodot_ptr_{get_name}(self, key, &value);
             \treturn value;
             }}
-        """),
-        code_block(f"""
-            godot_ptr_{set_name} = godot_{set_fetch_func}({
-                format_type_to_variant_enum(type_name)
-            });
-            godot_ptr_{get_name} = godot_{get_fetch_func}({
-                format_type_to_variant_enum(type_name)
-            });
         """),
     )
 
@@ -422,6 +430,15 @@ def format_operator_pointer(
         code_block(f"""
             {proto_ptr};
             {proto_typed} {{
+            \tif (godot_ptr_{function_name} == NULL) {{
+            \t\tgodot_ptr_{function_name} = godot_variant_get_ptr_operator_evaluator({
+                    format_operator_to_enum(operator_name)
+                }, {
+                    format_type_to_variant_enum(type_name)
+                }, {
+                    format_type_to_variant_enum(right_type)
+                });
+            \t}}
             \tgodot_{return_type} _ret;
             \tgodot_ptr_{function_name}({
                 format_value_to_ptr(type_name, 'a')
@@ -432,15 +449,6 @@ def format_operator_pointer(
             }, &_ret);
             \treturn _ret;
             }}
-        """),
-        code_block(f"""
-            godot_ptr_{function_name} = godot_variant_get_ptr_operator_evaluator({
-                format_operator_to_enum(operator_name)
-            }, {
-                format_type_to_variant_enum(type_name)
-            }, {
-                format_type_to_variant_enum(right_type)
-            });
         """),
     )
 
@@ -488,6 +496,13 @@ def format_method_pointer(
         code_block(f"""
             {proto_ptr};
             {proto_typed} {{
+            \tif (godot_ptr_{function_name} == NULL) {{
+            \t\tGDEXTENSION_LITE_WITH_STRING_NAME({method_name}, name, {{
+            \t\t\tgodot_ptr_{function_name} = godot_variant_get_ptr_builtin_method({
+                    format_type_to_variant_enum(type_name)
+                }, &name, {method['hash']});
+            \t\t}})
+            \t}}
             \t{proto_return_type + " _ret;" if return_type else ""}
 {indent(format_arguments_array('_args', arguments, is_vararg), '            	')}
             \tgodot_ptr_{function_name}({
@@ -501,13 +516,6 @@ def format_method_pointer(
             }, {format_arguments_count(arguments, is_vararg)});
             \t{"return _ret;" if return_type else ""}
             }}
-        """),
-        code_block(f"""
-            GDEXTENSION_LITE_WITH_STRING_NAME({method_name}, name, {{
-            \tgodot_ptr_{function_name} = godot_variant_get_ptr_builtin_method({
-                format_type_to_variant_enum(type_name)
-            }, &name, {method['hash']});
-            }})
         """),
     )
 
@@ -547,6 +555,11 @@ def format_utility_function(
         code_block(f"""
             {proto_ptr};
             {proto_typed} {{
+            \tif (godot_ptr_{function_name} == NULL) {{
+            \t\tGDEXTENSION_LITE_WITH_STRING_NAME({function_name}, name, {{
+            \t\t\tgodot_ptr_{function_name} = godot_variant_get_ptr_utility_function(&name, {function['hash']});
+            \t\t}})
+            \t}}
             \t{proto_return_type + " _ret;" if return_type else ""}
 {indent(format_arguments_array('_args', arguments, is_vararg), '            	')}
             \tgodot_ptr_{function_name}({
@@ -556,11 +569,6 @@ def format_utility_function(
             }, _args, {format_arguments_count(arguments, is_vararg)});
             \t{"return _ret;" if return_type else ""}
             }}
-        """),
-        code_block(f"""
-            GDEXTENSION_LITE_WITH_STRING_NAME({function_name}, name, {{
-            \tgodot_ptr_{function_name} = godot_variant_get_ptr_utility_function(&name, {function['hash']});
-            }})
         """),
     )
 
@@ -647,19 +655,21 @@ def format_class_method_pointer(
         code_block(f"""
             {proto_ptr};
             {proto_typed} {{
+            \tif (godot_ptr_{function_name} == NULL) {{
+            \t\tGDEXTENSION_LITE_WITH_STRING_NAME({class_name}, type_name, {{
+            \t\tGDEXTENSION_LITE_WITH_STRING_NAME({method_name}, name, {{
+            \t\t\tgodot_ptr_{function_name} = godot_classdb_get_method_bind(&{
+                    TYPE_STRING_NAME_PARAMETER_NAME
+                }, &name, {method.get('hash', 0)});
+            \t\t}})
+            \t\t}})
+            \t}}
             \t{proto_return_type + " _ret;" if return_type else ""}
 {indent(format_arguments_array('_args', arguments, is_vararg), '            	')}
             \t{"GDExtensionCallError _error;" if is_vararg else ""}
             \t{bind_call}({', '.join(call_args)});
             \t{"return _ret;" if return_type else ""}
             }}
-        """),
-        code_block(f"""
-            GDEXTENSION_LITE_WITH_STRING_NAME({method_name}, name, {{
-            \tgodot_ptr_{function_name} = godot_classdb_get_method_bind(&{
-                TYPE_STRING_NAME_PARAMETER_NAME
-            }, &name, {method.get('hash', 0)});
-            }})
         """),
     )
 
