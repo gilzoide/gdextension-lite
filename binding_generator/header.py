@@ -31,11 +31,14 @@ class HeaderWriter:
 
         if implementation:
             define = f"__GDEXTENSION_LITE_GENERATED_{guard_name}_H_IMPLEMENTATION__"
+            implementation_macros_h = ("../" * len(pathsegments)) + "implementation-macros.h"
             lines.extend([
                 "",
                 "#ifdef GDEXTENSION_LITE_IMPLEMENTATION",
                 f"#ifndef {define}",
                 f"#define {define}",
+                "",
+                f'#include "{implementation_macros_h}"'
                 "",
                 implementation,
                 "",
