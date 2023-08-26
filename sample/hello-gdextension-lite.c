@@ -7,9 +7,9 @@ void initialize(void *userdata, GDExtensionInitializationLevel p_level) {
 
 	godot_String msg = godot_new_String_from_latin1_chars("Hello from GDExtension Lite!");
 	godot_Variant msg_var = godot_Variant_from_String(&msg);
-	godot_destroy_String(&msg);
-	godot_prints_v(&msg_var, &msg_var, &msg_var);
+	godot_print_v(&msg_var);
 	godot_destroy_Variant(&msg_var);
+	godot_destroy_String(&msg);
 }
 
 void deinitialize(void *userdata, GDExtensionInitializationLevel p_level) {
@@ -23,8 +23,8 @@ GDExtensionBool gdextension_entry(
     GDExtensionClassLibraryPtr p_library,
     GDExtensionInitialization *r_initialization
 ) {
+	gdextension_lite_initialize(p_get_proc_address);
     r_initialization->initialize = &initialize;
     r_initialization->deinitialize = &deinitialize;
-	gdextension_lite_initialize(p_get_proc_address);
     return 1;
 }
