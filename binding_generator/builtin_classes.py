@@ -8,6 +8,7 @@ from textwrap import indent
 from format_utils import (BindingCode,
                           code_block,
                           format_binders,
+                          format_class_enum,
                           format_constructor_pointer,
                           format_destructor_pointer,
                           format_indexing_pointers,
@@ -20,6 +21,16 @@ from format_utils import (BindingCode,
                           should_generate_method,
                           should_generate_operator)
 from json_types import BuiltinClass
+
+
+def generate_enums(
+    builtin_class: BuiltinClass,
+) -> list[BindingCode]:
+    enums = [format_class_enum(builtin_class["name"], enum)
+             for enum in builtin_class.get("enums", [])]
+    if enums:
+        enums[0].prepend_section_comment("Enums")
+    return enums
 
 
 def generate_operators(
@@ -105,7 +116,8 @@ def generate_methods(
 def generate_builtin_class(
     builtin_class: BuiltinClass,
 ) -> Tuple[str, str]:
-    definitions = (generate_constructors(builtin_class)
+    definitions = (generate_enums(builtin_class)
+                   + generate_constructors(builtin_class)
                    + generate_variant_from_to(builtin_class)
                    + generate_destructor(builtin_class)
                    + generate_members(builtin_class)
