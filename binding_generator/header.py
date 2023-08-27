@@ -38,7 +38,7 @@ class HeaderWriter:
                 f"#ifndef {define}",
                 f"#define {define}",
                 "",
-                f'#include "{implementation_macros_h}"'
+                f'#include "{implementation_macros_h}"',
                 "",
                 implementation,
                 "",

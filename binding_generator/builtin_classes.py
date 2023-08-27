@@ -6,6 +6,7 @@ from typing import Tuple
 
 from format_utils import (BindingCode,
                           format_class_enum,
+                          format_constant,
                           format_constructor_pointer,
                           format_destructor_pointer,
                           format_indexing_pointers,
@@ -18,6 +19,22 @@ from format_utils import (BindingCode,
                           should_generate_method,
                           should_generate_operator)
 from json_types import BuiltinClass
+
+
+def generate_constants(
+    builtin_class: BuiltinClass,
+) -> list[BindingCode]:
+    enum_names = {
+        value["name"]
+        for enum in builtin_class.get("enums", [])
+        for value in enum["values"]
+    }
+    constants = [format_constant(builtin_class["name"], constant)
+                 for constant in builtin_class.get("constants", [])
+                 if constant["name"] not in enum_names]
+    if constants:
+        constants[0].prepend_section_comment("Constants")
+    return constants
 
 
 def generate_enums(
@@ -113,7 +130,8 @@ def generate_methods(
 def generate_builtin_class(
     builtin_class: BuiltinClass,
 ) -> Tuple[str, str]:
-    definitions = (generate_enums(builtin_class)
+    definitions = (generate_constants(builtin_class)
+                   + generate_enums(builtin_class)
                    + generate_constructors(builtin_class)
                    + generate_variant_from_to(builtin_class)
                    + generate_destructor(builtin_class)
