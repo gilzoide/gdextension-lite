@@ -55,6 +55,7 @@ VARIANT_TYPES = (
     'PackedVector2Array',
     'PackedVector3Array',
     'PackedColorArray',
+    'Variant',
 )
 
 
