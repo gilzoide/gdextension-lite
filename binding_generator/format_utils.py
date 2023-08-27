@@ -94,9 +94,6 @@ IDENTIFIER_OVERRIDES = {
 }
 
 
-TYPE_STRING_NAME_PARAMETER_NAME = "type_name"
-
-
 def code_block(
     code: str,
     remove_empty_lines: bool = True,
@@ -670,30 +667,6 @@ def format_class_method_pointer(
             \t{"GDExtensionCallError _error;" if is_vararg else ""}
             \t{bind_call}({', '.join(call_args)});
             \t{"return _ret;" if return_type else ""}
-            }}
-        """),
-    )
-
-
-def format_binders(
-    type_name: str,
-    merged_binder_code: str,
-    type_stringname_var: bool = False,
-) -> BindingCode:
-    prototype = (f"void gdextension_lite_initialize_{type_name}()")
-    return BindingCode(
-        code_block(f"""
-            {prototype};
-        """),
-        code_block(f"""
-            {prototype} {{
-                GDEXTENSION_LITE_WITH_STRING_NAME({type_name}, {TYPE_STRING_NAME_PARAMETER_NAME}, {{
-{indent(merged_binder_code, '            		')}
-                }})
-            }}
-        """) if type_stringname_var else code_block(f"""
-            {prototype} {{
-{indent(merged_binder_code, '            	')}
             }}
         """),
     )
