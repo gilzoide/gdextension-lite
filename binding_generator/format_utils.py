@@ -573,6 +573,17 @@ def format_utility_function(
     )
 
 
+def format_constant(
+    type_name: str,
+    constant: ValueOrConstant,
+) -> BindingCode:
+    type = constant.get("type", "int")
+    return BindingCode(
+        f"const {type} godot_{type_name}_{constant['name']} = {constant['value']};",
+        ""
+    )
+
+
 def format_class_struct(
     class_name: str,
 ) -> BindingCode:

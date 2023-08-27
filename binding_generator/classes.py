@@ -5,11 +5,22 @@ Generates bindings for Godot classes
 from typing import Tuple
 
 from format_utils import (BindingCode,
+                          format_constant,
                           format_class_enum,
                           format_class_method_pointer,
                           format_class_struct,
                           format_type_snake_case)
 from json_types import Class
+
+
+def generate_class_constants(
+    cls: Class,
+) -> list[BindingCode]:
+    constants = [format_constant(cls["name"], constant)
+                 for constant in cls.get("constants", [])]
+    if constants:
+        constants[0].prepend_section_comment("Constants")
+    return constants
 
 
 def generate_class_enums(
@@ -26,6 +37,7 @@ def generate_class_stub(
     cls: Class,
 ) -> list[BindingCode]:
     return ([format_class_struct(cls["name"])]
+            + generate_class_constants(cls)
             + generate_class_enums(cls))
 
 
