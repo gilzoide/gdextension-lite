@@ -4,8 +4,8 @@
 #ifndef __GDEXTENSION_LITE_INT_H__
 #define __GDEXTENSION_LITE_INT_H__
 
-#include <stdint.h>
+#include "../gdextension/gdextension_interface.h"
 
-typedef uint64_t godot_int;
+typedef GDExtensionInt godot_int;
 
 #endif
