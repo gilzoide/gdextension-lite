@@ -1,12 +1,16 @@
 # GDExtension Lite
 Automatically generated header-only GDExtension bindings for C/C++
 
+This is not meant to be a replacement for the [godot-cpp](https://github.com/godotengine/godot-cpp) project,
+but rather an alternative for those who want the full API matching `extension_api.json` in a C-compatible interface,
+for example for creating bindings for other programming languages.
+
 
 ## Features
 - Header-only, easily embeddable in any project
-- Automatically generated from `extension_api.json` file, so new Godot APIs are easily added
+- Automatically generated from `extension_api.json` file, so new Godot APIs are added in a matter of regenerating the bindings
 - Bindings for all Godot classes, variant types, methods, operators, utility functions, enums, GDExtension interface functions
-- Compatible with C99 and above, as well as C++
+- Supports Godot 4.1+
 - Fast compilation times (much faster than godot-cpp project)
 
 
@@ -47,14 +51,14 @@ void initialize(void *userdata, GDExtensionInitializationLevel p_level) {
         return;
     }
 
-	godot_String msg = godot_new_String_from_latin1_chars("Hello from GDExtension Lite!");
-	godot_Variant msg_var = godot_Variant_from_String(&msg);
-  // godot_print_v is the variadic version of godot_print
-  // This avoids having to pass argc/argv parameters manually
-	godot_print_v(&msg_var);
-  // As always in C, you are responsible for freeing objects
-	godot_destroy_Variant(&msg_var);
-	godot_destroy_String(&msg);
+    godot_String msg = godot_new_String_from_latin1_chars("Hello from GDExtension Lite!");
+    godot_Variant msg_var = godot_Variant_from_String(&msg);
+    // godot_print_v is the variadic version of godot_print
+    // This avoids having to pass argc/argv parameters manually
+    godot_print_v(&msg_var);
+    // As always in C, you are responsible for freeing objects
+    godot_destroy_Variant(&msg_var);
+    godot_destroy_String(&msg);
 }
 
 void deinitialize(void *userdata, GDExtensionInitializationLevel p_level) {
@@ -85,11 +89,11 @@ Sample code is also available at the [sample](sample) folder.
 
 
 ## Generating bindings
-1. Update the `extension_api.json` and `gdextension_interface.h` files (depends on Make, Python 3.10+):
+1. Update the `extension_api.json` and `gdextension_interface.h` files (depends on Godot 4 executable):
    ```sh
    make refresh-gdextension-api
    ```
-2. Generate the bindings files:
+2. Generate the bindings files (depends on Python 3.10+):
    ```sh
    make generate-bindings
    ```
