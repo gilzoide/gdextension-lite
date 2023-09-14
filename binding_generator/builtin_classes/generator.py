@@ -6,6 +6,8 @@ from typing import Tuple
 
 from .constructor import BuiltinClassConstructor
 from .destructor import BuiltinClassDestructor
+from .variant_conversion import (BuiltinClassFromVariantConversion,
+                                 BuiltinClassToVariantConversion)
 from format_utils import (BindingCode,
                           format_class_enum,
                           format_constant,
@@ -13,7 +15,6 @@ from format_utils import (BindingCode,
                           format_member_pointers,
                           format_method_pointer,
                           format_operator_pointer,
-                          format_type_from_to_variant,
                           format_type_snake_case,
                           should_generate_method,
                           should_generate_operator)
@@ -75,7 +76,10 @@ def generate_constructors(
 def generate_variant_from_to(
     builtin_class: BuiltinClass,
 ) -> list[BindingCode]:
-    return [format_type_from_to_variant(builtin_class["name"])]
+    return [
+        BuiltinClassToVariantConversion(builtin_class["name"]).get_c_code(),
+        BuiltinClassFromVariantConversion(builtin_class["name"]).get_c_code(),
+    ]
 
 
 def generate_destructor(

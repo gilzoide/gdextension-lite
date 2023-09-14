@@ -162,59 +162,6 @@ class BindingCode:
 ############################################################
 # Functions pointer variables + custom implementations
 ############################################################
-def format_type_from_to_variant(
-    type_name: str,
-) -> BindingCode:
-    type_ptr_name = f"godot_ptr_new_{type_name}_from_Variant"
-    proto_type_ptr = ("GDExtensionTypeFromVariantConstructorFunc"
-                      f" {type_ptr_name}")
-    proto_type_typed = (f"godot_{type_name}"
-                        f" godot_new_{type_name}_from_Variant("
-                        f"{format_parameter('Variant', 'value')})")
-    variant_ptr_name = f"godot_ptr_new_Variant_from_{type_name}"
-    proto_variant_ptr = ("GDExtensionVariantFromTypeConstructorFunc"
-                         f" {variant_ptr_name}")
-    proto_variant_typed = (f"godot_Variant"
-                           f" godot_new_Variant_from_{type_name}("
-                           f"{format_parameter(type_name, 'value')})")
-    return BindingCode(
-        code_block(f"""
-            extern {proto_type_ptr};
-            {proto_type_typed};
-
-            extern {proto_variant_ptr};
-            {proto_variant_typed};
-        """),
-        code_block(f"""
-            {proto_type_ptr};
-            {proto_type_typed} {{
-            \tGDEXTENSION_LITE_LAZY_INIT_TYPE_FROM_VARIANT({
-                    type_name
-                }, {
-                    format_type_to_variant_enum(type_name)
-                });
-            \tgodot_{type_name} self;
-            \tgodot_ptr_new_{type_name}_from_Variant(&self, value);
-            \treturn self;
-            }}
-
-            {proto_variant_ptr};
-            {proto_variant_typed} {{
-            \tGDEXTENSION_LITE_LAZY_INIT_VARIANT_FROM_TYPE({
-                    type_name
-                }, {
-                    format_type_to_variant_enum(type_name)
-                });
-            \tgodot_Variant self;
-            \tgodot_ptr_new_Variant_from_{type_name}(&self, {
-                format_value_to_ptr(type_name, 'value')
-            });
-            \treturn self;
-            }}
-        """),
-    )
-
-
 def format_member_pointers(
     type_name: str,
     member: ArgumentOrSingletonOrMember,
