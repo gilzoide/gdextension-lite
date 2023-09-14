@@ -10,12 +10,12 @@
 	}
 
 #define GDEXTENSION_LITE_LAZY_INIT_TYPE_FROM_VARIANT(name, type) \
-		if (godot_ptr_##name##_from_Variant == NULL) { \
-			godot_ptr_##name##_from_Variant = godot_get_variant_to_type_constructor(type); \
+		if (godot_ptr_new_##name##_from_Variant == NULL) { \
+			godot_ptr_new_##name##_from_Variant = godot_get_variant_to_type_constructor(type); \
 		}
 #define GDEXTENSION_LITE_LAZY_INIT_VARIANT_FROM_TYPE(name, type) \
-		if (godot_ptr_Variant_from_##name == NULL) { \
-			godot_ptr_Variant_from_##name = godot_get_variant_from_type_constructor(type); \
+		if (godot_ptr_new_Variant_from_##name == NULL) { \
+			godot_ptr_new_Variant_from_##name = godot_get_variant_from_type_constructor(type); \
 		}
 
 #define GDEXTENSION_LITE_LAZY_INIT_VARIANT_DESTRUCTOR(name, type) \
