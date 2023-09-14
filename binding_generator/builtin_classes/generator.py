@@ -6,13 +6,13 @@ from typing import Tuple
 
 from .constructor import BuiltinClassConstructor
 from .destructor import BuiltinClassDestructor
+from .members import BuiltinClassMember
 from .variant_conversion import (BuiltinClassFromVariantConversion,
                                  BuiltinClassToVariantConversion)
 from format_utils import (BindingCode,
                           format_class_enum,
                           format_constant,
                           format_indexing_pointers,
-                          format_member_pointers,
                           format_method_pointer,
                           format_operator_pointer,
                           format_type_snake_case,
@@ -96,8 +96,8 @@ def generate_destructor(
 def generate_members(
     builtin_class: BuiltinClass,
 ) -> list[BindingCode]:
-    members = [format_member_pointers(builtin_class["name"], member)
-               for member in builtin_class.get("members", [])]
+    members = [member.get_c_code()
+               for member in BuiltinClassMember.get_all_members(builtin_class)]
     if members:
         members[0].prepend_section_comment("Members")
     return members

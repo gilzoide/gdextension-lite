@@ -162,59 +162,6 @@ class BindingCode:
 ############################################################
 # Functions pointer variables + custom implementations
 ############################################################
-def format_member_pointers(
-    type_name: str,
-    member: ArgumentOrSingletonOrMember,
-) -> BindingCode:
-    name = member['name']
-    type = member['type']
-    set_name = f"{type_name}_set_{name}"
-    set_ptr = f"GDExtensionPtrSetter godot_ptr_{set_name}"
-    set_typed = (f"void godot_{set_name}("
-                 f"{format_parameter(type_name, 'self')}, "
-                 f"{format_parameter_const(type, 'value')})")
-    get_name = f"{type_name}_get_{name}"
-    get_ptr = f"GDExtensionPtrGetter godot_ptr_{get_name}"
-    get_typed = (f"godot_{type} godot_{get_name}("
-                 f"{format_parameter_const(type_name, 'self')})")
-    return BindingCode(
-        code_block(f"""
-            extern {set_ptr};
-            {set_typed};
-
-            extern {get_ptr};
-            {get_typed};
-        """),
-        code_block(f"""
-            {set_ptr};
-            {set_typed} {{
-            \tGDEXTENSION_LITE_LAZY_INIT_VARIANT_MEMBER(set, {
-                    type_name
-                }, {
-                    format_type_to_variant_enum(type_name)
-                }, {
-                    name
-                });
-            \tgodot_ptr_{set_name}(self, {format_value_to_ptr(type, 'value')});
-            }}
-
-            {get_ptr};
-            {get_typed} {{
-            \tGDEXTENSION_LITE_LAZY_INIT_VARIANT_MEMBER(get, {
-                    type_name
-                }, {
-                    format_type_to_variant_enum(type_name)
-                }, {
-                    name
-                });
-            \tgodot_{type} value;
-            \tgodot_ptr_{get_name}(self, &value);
-            \treturn value;
-            }}
-        """),
-    )
-
-
 def format_indexing_pointers(
     type_name: str,
     is_keyed: bool,
