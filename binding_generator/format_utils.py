@@ -162,47 +162,6 @@ class BindingCode:
 ############################################################
 # Functions pointer variables + custom implementations
 ############################################################
-def format_constructor_pointer(
-    type_name: str,
-    ctor: Constructor,
-) -> BindingCode:
-    func_name = f"new_{type_name}"
-    arguments = ctor.get("arguments")
-    if arguments:
-        func_name += "_from" + "".join(f"_{arg['type']}" for arg in arguments)
-
-        proto_arguments = ", ".join(
-            format_parameter_const(arg["type"], arg["name"])
-            for arg in arguments
-        )
-    else:
-        proto_arguments = ""
-    proto_ptr = f"GDExtensionPtrConstructor godot_ptr_{func_name}"
-    proto_typed = f"godot_{type_name} godot_{func_name}({proto_arguments})"
-    return BindingCode(
-        code_block(f"""
-            extern {proto_ptr};
-            {proto_typed};
-        """),
-        code_block(f"""
-            {proto_ptr};
-            {proto_typed} {{
-            \tGDEXTENSION_LITE_LAZY_INIT_VARIANT_CONSTRUCTOR({
-                    func_name
-                }, {
-                    format_type_to_variant_enum(type_name)
-                }, {
-                    ctor["index"]
-                });
-            \tgodot_{type_name} self;
-{indent(format_arguments_array("_args", arguments), "            	")}
-            \tgodot_ptr_{func_name}(&self, _args);
-            \treturn self;
-            }}
-        """),
-    )
-
-
 def format_destructor_pointer(
     type_name: str,
 ) -> BindingCode:

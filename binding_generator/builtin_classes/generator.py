@@ -4,10 +4,10 @@ Generates bindings for Godot's builtin classes (a.k.a. Variants)
 
 from typing import Tuple
 
+from .constructor import BuiltinClassConstructor
 from format_utils import (BindingCode,
                           format_class_enum,
                           format_constant,
-                          format_constructor_pointer,
                           format_destructor_pointer,
                           format_indexing_pointers,
                           format_member_pointers,
@@ -15,7 +15,6 @@ from format_utils import (BindingCode,
                           format_operator_pointer,
                           format_type_from_to_variant,
                           format_type_snake_case,
-                          should_generate_constructor,
                           should_generate_method,
                           should_generate_operator)
 from json_types import BuiltinClass
@@ -65,9 +64,8 @@ def generate_constructors(
     builtin_class: BuiltinClass,
 ) -> list[BindingCode]:
     ctors = [
-        format_constructor_pointer(builtin_class["name"], ctor)
-        for ctor in builtin_class["constructors"]
-        if should_generate_constructor(builtin_class["name"], ctor)
+        ctor.get_c_code()
+        for ctor in BuiltinClassConstructor.get_all_constructors(builtin_class)
     ]
     if ctors:
         ctors[0].prepend_section_comment("Constructors")

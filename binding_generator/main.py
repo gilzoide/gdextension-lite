@@ -12,7 +12,7 @@ Usage:
 import json
 import sys
 
-from builtin_classes import generate_builtin_class, generate_initialize_all_builtin_classes
+from builtin_classes.generator import generate_builtin_class, generate_initialize_all_builtin_classes
 from classes import generate_class_stub_header, generate_all_class_stubs, generate_class_method_header, generate_initialize_all_classes
 from enums import generate_all_enums
 from extension_interface import generate_all_extension_bindings
