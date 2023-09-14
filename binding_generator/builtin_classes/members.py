@@ -1,5 +1,4 @@
 from format_utils import (BindingCode,
-                          code_block,
                           format_parameter,
                           format_parameter_const,
                           format_type_to_variant_enum,
@@ -52,10 +51,7 @@ class BuiltinClassMemberSetter(BuiltinClassMember):
 
     def get_c_code(self) -> BindingCode:
         return BindingCode(
-            code_block(f"""
-                extern {self.ptr_prototype};
-                {self.prototype};
-            """),
+            f"{self.prototype};",
             '\n'.join([
                 f"{self.ptr_prototype};",
                 f"{self.prototype} {{",
@@ -91,10 +87,7 @@ class BuiltinClassMemberGetter(BuiltinClassMember):
 
     def get_c_code(self) -> BindingCode:
         return BindingCode(
-            code_block(f"""
-                extern {self.ptr_prototype};
-                {self.prototype};
-            """),
+            f"{self.prototype};",
             '\n'.join([
                 f"{self.ptr_prototype};",
                 f"{self.prototype} {{",

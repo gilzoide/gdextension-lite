@@ -1,7 +1,6 @@
 from textwrap import indent
 
 from format_utils import (BindingCode,
-                          code_block,
                           format_arguments_array,
                           format_parameter_const,
                           format_type_to_variant_enum,
@@ -34,16 +33,12 @@ class BuiltinClassConstructor:
         self.return_type = f"godot_{type_name}"
         self.prototype = f"{self.return_type} {self.function_name}({proto_arguments})"
 
-        self.ptr_type = "GDExtensionPtrConstructor"
         self.ptr_function_name = f"godot_ptr_{self.constructor_name}"
-        self.ptr_prototype = f"{self.ptr_type} {self.ptr_function_name}"
+        self.ptr_prototype = f"GDExtensionPtrConstructor {self.ptr_function_name}"
 
     def get_c_code(self) -> BindingCode:
         return BindingCode(
-            code_block(f"""
-                extern {self.ptr_prototype};
-                {self.prototype};
-            """),
+            f"{self.prototype};",
             '\n'.join([
                 f"{self.ptr_prototype};",
                 f"{self.prototype} {{",

@@ -1,5 +1,4 @@
 from format_utils import (BindingCode,
-                          code_block,
                           format_type_to_variant_enum)
 from json_types import *
 
@@ -15,16 +14,12 @@ class BuiltinClassDestructor:
         self.function_name = f"godot_{self.destructor_name}"
         self.prototype = f"void {self.function_name}(godot_{type_name} *self)"
         
-        self.ptr_type = "GDExtensionPtrDestructor"
         self.ptr_function_name = f"godot_ptr_{self.destructor_name}"
-        self.ptr_prototype = f"{self.ptr_type} {self.ptr_function_name}"
+        self.ptr_prototype = f"GDExtensionPtrDestructor {self.ptr_function_name}"
 
     def get_c_code(self) -> BindingCode:
         return BindingCode(
-            code_block(f"""
-                extern {self.ptr_prototype};
-                {self.prototype};
-            """),
+            f"{self.prototype};",
             '\n'.join([
                 f"{self.ptr_prototype};",
                 f"{self.prototype} {{",

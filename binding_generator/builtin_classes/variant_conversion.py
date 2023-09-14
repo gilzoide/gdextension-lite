@@ -1,5 +1,4 @@
 from format_utils import (BindingCode,
-                          code_block,
                           format_parameter,
                           format_type_to_variant_enum,
                           format_value_to_ptr)
@@ -19,16 +18,13 @@ class BuiltinClassFromVariantConversion:
         parameter = format_parameter('Variant', 'value')
         self.prototype = f"{self.return_type} {self.function_name}({parameter})"
 
-        self.ptr_type = "GDExtensionTypeFromVariantConstructorFunc"
         self.ptr_function_name = f"godot_ptr_new_{type_name}_from_Variant"
-        self.ptr_prototype = f"{self.ptr_type} {self.ptr_function_name}"
+        ptr_type = "GDExtensionTypeFromVariantConstructorFunc"
+        self.ptr_prototype = f"{ptr_type} {self.ptr_function_name}"
 
     def get_c_code(self) -> BindingCode:
         return BindingCode(
-            code_block(f"""
-                extern {self.ptr_prototype};
-                {self.prototype};
-            """),
+            f"{self.prototype};",
             '\n'.join([
                 f"{self.ptr_prototype};",
                 f"{self.prototype} {{",
@@ -44,6 +40,7 @@ class BuiltinClassFromVariantConversion:
             ]),
         )
 
+
 class BuiltinClassToVariantConversion:
     """
     Conversion from builtin class to Variant
@@ -57,16 +54,13 @@ class BuiltinClassToVariantConversion:
         parameter = format_parameter(type_name, 'value')
         self.prototype = f"{self.return_type} {self.function_name}({parameter})"
 
-        self.ptr_type = "GDExtensionVariantFromTypeConstructorFunc"
         self.ptr_function_name = f"godot_ptr_new_Variant_from_{type_name}"
-        self.ptr_prototype = f"{self.ptr_type} {self.ptr_function_name}"
+        ptr_type = "GDExtensionVariantFromTypeConstructorFunc"
+        self.ptr_prototype = f"{ptr_type} {self.ptr_function_name}"
 
     def get_c_code(self) -> BindingCode:
         return BindingCode(
-            code_block(f"""
-                extern {self.ptr_prototype};
-                {self.prototype};
-            """),
+            f"{self.prototype};",
             '\n'.join([
                 f"{self.ptr_prototype};",
                 f"{self.prototype} {{",

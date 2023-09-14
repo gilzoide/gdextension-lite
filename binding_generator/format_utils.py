@@ -195,10 +195,7 @@ def format_indexing_pointers(
         indexed_or_keyed = "indexed"
     return BindingCode(
         code_block(f"""
-            extern {set_ptr};
             {set_typed};
-
-            extern {get_ptr};
             {get_typed};
         """),
         code_block(f"""
@@ -253,7 +250,6 @@ def format_operator_pointer(
                    f"{right_parameter})")
     return BindingCode(
         code_block(f"""
-            extern {proto_ptr};
             {proto_typed};
         """),
         code_block(f"""
@@ -318,7 +314,6 @@ def format_method_pointer(
 
     return BindingCode(
         code_block(f"""
-            extern {proto_ptr};
             {proto_typed};
             {format_vararg_macro(function_name, non_vararg_argc) if is_vararg else ""}
         """),
@@ -379,7 +374,6 @@ def format_utility_function(
 
     return BindingCode(
         code_block(f"""
-            extern {proto_ptr};
             {proto_typed};
             {format_vararg_macro(function_name, non_vararg_argc) if is_vararg else ""}
         """),
@@ -492,7 +486,6 @@ def format_class_method_pointer(
     bind_call = "godot_object_method_bind_call" if is_vararg else "godot_object_method_bind_ptrcall"
     return BindingCode(
         code_block(f"""
-            extern {proto_ptr};
             {proto_typed};
             {format_vararg_macro(function_name, non_vararg_argc) if is_vararg else ""}
         """),
