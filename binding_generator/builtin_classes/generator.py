@@ -5,10 +5,10 @@ Generates bindings for Godot's builtin classes (a.k.a. Variants)
 from typing import Tuple
 
 from .constructor import BuiltinClassConstructor
+from .destructor import BuiltinClassDestructor
 from format_utils import (BindingCode,
                           format_class_enum,
                           format_constant,
-                          format_destructor_pointer,
                           format_indexing_pointers,
                           format_member_pointers,
                           format_method_pointer,
@@ -82,7 +82,7 @@ def generate_destructor(
     builtin_class: BuiltinClass,
 ) -> list[BindingCode]:
     if builtin_class["has_destructor"]:
-        dtor = format_destructor_pointer(builtin_class["name"])
+        dtor = BuiltinClassDestructor(builtin_class["name"]).get_c_code()
         dtor.prepend_section_comment("Destructor")
         return [dtor]
     else:

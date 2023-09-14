@@ -15,6 +15,7 @@ class BuiltinClassConstructor:
     """
     def __init__(self, type_name: str, constructor: Constructor):
         self.class_name = type_name
+        self.variant_type_enum = format_type_to_variant_enum(type_name)
         self.constructor_index = constructor["index"]
         self.constructor_name = f"new_{type_name}"
         arguments = constructor.get("arguments")
@@ -49,7 +50,7 @@ class BuiltinClassConstructor:
                     f"""\tGDEXTENSION_LITE_LAZY_INIT_VARIANT_CONSTRUCTOR({
                             self.constructor_name
                         }, {
-                            format_type_to_variant_enum(self.class_name)
+                            self.variant_type_enum
                         }, {
                             self.constructor_index
                         });""",

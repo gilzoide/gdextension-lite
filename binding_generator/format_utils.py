@@ -162,32 +162,6 @@ class BindingCode:
 ############################################################
 # Functions pointer variables + custom implementations
 ############################################################
-def format_destructor_pointer(
-    type_name: str,
-) -> BindingCode:
-    function_name = f"destroy_{type_name}"
-    proto_ptr = f"GDExtensionPtrDestructor godot_ptr_{function_name}"
-    proto_typed = (f"void godot_{function_name}("
-                   f"{format_parameter(type_name, 'self')})")
-    return BindingCode(
-        code_block(f"""
-            extern {proto_ptr};
-            {proto_typed};
-        """),
-        code_block(f"""
-            {proto_ptr};
-            {proto_typed} {{
-            \tGDEXTENSION_LITE_LAZY_INIT_VARIANT_DESTRUCTOR({
-                    type_name
-                }, {
-                    format_type_to_variant_enum(type_name)
-                });
-            \tgodot_ptr_{function_name}(self);
-            }}
-        """),
-    )
-
-
 def format_type_from_to_variant(
     type_name: str,
 ) -> BindingCode:
