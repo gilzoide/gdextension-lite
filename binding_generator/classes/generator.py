@@ -5,10 +5,10 @@ Generates bindings for Godot classes
 from typing import Tuple
 
 from common.constant import Constant
+from common.opaque_struct import OpaqueStruct
 from common.scoped_enum import ScopedEnum
 from format_utils import (BindingCode,
                           format_class_method_pointer,
-                          format_class_struct,
                           format_type_snake_case)
 from json_types import Class
 
@@ -40,7 +40,7 @@ def generate_class_enums(
 def generate_class_stub(
     cls: Class,
 ) -> list[BindingCode]:
-    return ([format_class_struct(cls["name"])]
+    return ([OpaqueStruct(cls['name']).get_c_code()]
             + generate_class_constants(cls)
             + generate_class_enums(cls))
 

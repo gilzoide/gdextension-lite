@@ -162,15 +162,6 @@ class BindingCode:
 ############################################################
 # Functions pointer variables + custom implementations
 ############################################################
-def format_class_struct(
-    class_name: str,
-) -> BindingCode:
-    return BindingCode(
-        f"typedef struct godot_{class_name} godot_{class_name};",
-        ""
-    )
-
-
 def format_class_method_pointer(
     class_name: str,
     method: Method,
