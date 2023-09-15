@@ -4,7 +4,7 @@ Internal utilities for Godot types
 
 from __future__ import annotations
 import re
-from textwrap import dedent, indent
+from textwrap import dedent
 from typing import Sequence
 
 from json_types import *
@@ -157,81 +157,6 @@ class BindingCode:
             "\n\n".join(b.implementation for b in bindings if b.implementation),
             "\n".join(b.bind for b in bindings if b.bind),
         )
-
-
-############################################################
-# Functions pointer variables + custom implementations
-############################################################
-def format_class_method_pointer(
-    class_name: str,
-    method: Method,
-) -> BindingCode:
-    return_value = method.get("return_value")
-    return_type = return_value["type"] if return_value else None
-    proto_return_type = format_return_type(return_type) if return_type else "void"
-
-    proto_args = []
-    is_static = method.get("is_static", False)
-    if not is_static:
-        is_const = method.get("is_const", False)
-        proto_args.append(format_parameter(class_name,
-                                           "self",
-                                           is_const=is_const))
-    arguments = method.get("arguments")
-    if arguments:
-        proto_args.extend(
-            format_parameter_const(arg["type"], arg["name"])
-            for arg in arguments
-        )
-
-    non_vararg_argc = len(proto_args)
-    is_vararg = method.get("is_vararg")
-    if is_vararg:
-        proto_args.append("godot_int argc")
-        proto_args.append("const godot_Variant **argv")
-
-    proto_args = ", ".join(proto_args)
-
-    method_name = method["name"]
-    function_name = f"{class_name}_{method_name}"
-    proto_ptr = f"GDExtensionMethodBindPtr godot_ptr_{function_name}"
-    proto_typed = f"{proto_return_type} godot_{function_name}({proto_args})"
-
-    call_args = [
-        f"godot_ptr_{function_name}",
-        "NULL" if is_static else "(GDExtensionObjectPtr) self",
-        "_args",
-    ]
-    if is_vararg:
-        call_args.append(format_arguments_count(arguments, is_vararg))
-        call_args.append("&_ret" if return_type else "NULL")
-        call_args.append("&_error")
-    else:
-        call_args.append("&_ret" if return_type else "NULL")
-    bind_call = "godot_object_method_bind_call" if is_vararg else "godot_object_method_bind_ptrcall"
-    return BindingCode(
-        code_block(f"""
-            {proto_typed};
-            {format_vararg_macro(function_name, non_vararg_argc) if is_vararg else ""}
-        """),
-        code_block(f"""
-            {proto_ptr};
-            {proto_typed} {{
-            \tGDEXTENSION_LITE_LAZY_INIT_CLASS_METHOD({
-                    class_name
-                }, {
-                    method_name
-                }, {
-                    method.get('hash', 0)
-                });
-            \t{proto_return_type + " _ret;" if return_type else ""}
-{indent(format_arguments_array('_args', arguments, is_vararg), '            	')}
-            \t{"GDExtensionCallError _error;" if is_vararg else ""}
-            \t{bind_call}({', '.join(call_args)});
-            \t{"return _ret;" if return_type else ""}
-            }}
-        """),
-    )
 
 
 ############################################################

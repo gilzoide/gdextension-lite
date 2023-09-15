@@ -4,12 +4,11 @@ Generates bindings for Godot classes
 
 from typing import Tuple
 
+from .method import ClassMethod
 from common.constant import Constant
 from common.opaque_struct import OpaqueStruct
 from common.scoped_enum import ScopedEnum
-from format_utils import (BindingCode,
-                          format_class_method_pointer,
-                          format_type_snake_case)
+from format_utils import BindingCode, format_type_snake_case
 from json_types import Class
 
 
@@ -68,8 +67,10 @@ def generate_all_class_stubs(
 def generate_class_methods(
     cls: Class,
 ) -> list[BindingCode]:
-    methods = [format_class_method_pointer(cls["name"], method)
-               for method in cls.get("methods", [])]
+    methods = [
+        method.get_c_code()
+        for method in ClassMethod.get_all_methods(cls)
+    ]
     if methods:
         methods[0].prepend_section_comment("Methods")
     return methods
