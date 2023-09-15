@@ -8,16 +8,14 @@ from .constructor import BuiltinClassConstructor
 from .destructor import BuiltinClassDestructor
 from .indexing import BuiltinClassIndexing
 from .members import BuiltinClassMember
+from .method import BuiltinClassMethod
 from .operator import BuiltinClassOperator
 from .variant_conversion import (BuiltinClassFromVariantConversion,
                                  BuiltinClassToVariantConversion)
 from format_utils import (BindingCode,
                           format_class_enum,
                           format_constant,
-                          format_method_pointer,
-                          format_type_snake_case,
-                          should_generate_method,
-                          should_generate_operator)
+                          format_type_snake_case)
 from json_types import BuiltinClass
 
 
@@ -115,10 +113,10 @@ def generate_indexing(
 def generate_methods(
     builtin_class: BuiltinClass,
 ) -> list[BindingCode]:
-    members = builtin_class.get("members", [])
-    methods = [format_method_pointer(builtin_class["name"], method)
-               for method in builtin_class.get("methods", [])
-               if should_generate_method(method, members)]
+    methods = [
+        method.get_c_code()
+        for method in BuiltinClassMethod.get_all_methods(builtin_class)
+    ]
     if methods:
         methods[0].prepend_section_comment("Methods")
     return methods
