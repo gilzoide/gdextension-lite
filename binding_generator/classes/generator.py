@@ -5,8 +5,8 @@ Generates bindings for Godot classes
 from typing import Tuple
 
 from common.constant import Constant
+from common.scoped_enum import ScopedEnum
 from format_utils import (BindingCode,
-                          format_class_enum,
                           format_class_method_pointer,
                           format_class_struct,
                           format_type_snake_case)
@@ -28,8 +28,10 @@ def generate_class_constants(
 def generate_class_enums(
     cls: Class,
 ) -> list[BindingCode]:
-    enums = [format_class_enum(cls["name"], enum)
-             for enum in cls.get("enums", [])]
+    enums = [
+        enum.get_c_code()
+        for enum in ScopedEnum.get_all_scoped_enums(cls)
+    ]
     if enums:
         enums[0].prepend_section_comment("Enums")
     return enums

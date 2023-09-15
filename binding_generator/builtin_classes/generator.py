@@ -13,9 +13,8 @@ from .operator import BuiltinClassOperator
 from .variant_conversion import (BuiltinClassFromVariantConversion,
                                  BuiltinClassToVariantConversion)
 from common.constant import Constant
-from format_utils import (BindingCode,
-                          format_class_enum,
-                          format_type_snake_case)
+from common.scoped_enum import ScopedEnum
+from format_utils import BindingCode, format_type_snake_case
 from json_types import BuiltinClass
 
 
@@ -35,8 +34,8 @@ def generate_enums(
     builtin_class: BuiltinClass,
 ) -> list[BindingCode]:
     enums = [
-        format_class_enum(builtin_class["name"], enum)
-        for enum in builtin_class.get("enums", [])
+        enum.get_c_code()
+        for enum in ScopedEnum.get_all_scoped_enums(builtin_class)
     ]
     if enums:
         enums[0].prepend_section_comment("Enums")

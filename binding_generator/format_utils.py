@@ -171,23 +171,6 @@ def format_class_struct(
     )
 
 
-def format_class_enum(
-    class_name: str,
-    enum: Enum,
-) -> BindingCode:
-    enum_name = f"godot_{class_name}_{enum['name']}"
-    values = "\n".join(f"godot_{class_name}_{value['name']} = {value['value']},"
-                        for value in enum["values"])
-    return BindingCode(
-        code_block(f"""
-            typedef enum {enum_name} {{
-{indent(values, '            	')}
-            }} {enum_name};
-        """),
-        "",
-    )
-
-
 def format_class_method_pointer(
     class_name: str,
     method: Method,
