@@ -19,7 +19,7 @@ def generate_extension_binding(
     return BindingCode(
         f"extern {type_name} godot_{symbol};",
         f"{type_name} godot_{symbol};",
-        f'godot_{symbol} = ({type_name}) get_proc_address("{symbol}");',
+        bind=f'godot_{symbol} = ({type_name}) get_proc_address("{symbol}");',
     )
 
 
@@ -53,7 +53,7 @@ def generate_all_extension_bindings() -> Tuple[str, str]:
         merged.implementation,
         '',
         'void gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddress get_proc_address) {',
-        indent(merged.bind, '\t'),
+        indent(merged['bind'], '\t'),
         '}',
     ]
     return (

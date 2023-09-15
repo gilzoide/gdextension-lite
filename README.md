@@ -37,7 +37,7 @@ GDExtensionBool gdextension_entry(
     GDExtensionClassLibraryPtr p_library,
     GDExtensionInitialization *r_initialization
 ) {
-	  gdextension_lite_initialize(p_get_proc_address);
+    gdextension_lite_initialize(p_get_proc_address);
     // setup initialize/deinitialize as usual
     r_initialization->initialize = &initialize;
     r_initialization->deinitialize = &deinitialize;

@@ -3,6 +3,7 @@ Internal utilities for Godot types
 """
 
 from __future__ import annotations
+from collections import defaultdict
 import re
 from textwrap import dedent
 from typing import Sequence
@@ -137,25 +138,32 @@ def should_generate_method(
 
 class BindingCode:
     """Object that contains the code necessary for each function binding"""
-    def __init__(self, prototype: str, implementation: str, bind: str = ""):
+    def __init__(self, prototype: str, implementation: str, **extras: str):
         self.prototype = prototype
         self.implementation = implementation
-        self.bind = bind
+        self.extras = extras
+
+    def __getitem__(self, key: str) -> str:
+        return self.extras.get(key, "")
 
     def prepend_section_comment(self, comment: str):
         if self.prototype:
             self.prototype = f"// {comment}\n{self.prototype}"
         if self.implementation:
             self.implementation = f"// {comment}\n{self.implementation}"
-        if self.bind:
-            self.bind = f"// {comment}\n{self.bind}"
 
     @classmethod
     def merge(cls, bindings: Sequence[BindingCode]) -> BindingCode: 
+        extras: dict = defaultdict(list)
+        for b in bindings:
+            for k, v in b.extras.items():
+                extras[k].append(v)
+        for k, v in extras.items():
+            extras[k] = '\n'.join(v)
         return BindingCode(
             "\n\n".join(b.prototype for b in bindings if b.prototype),
             "\n\n".join(b.implementation for b in bindings if b.implementation),
-            "\n".join(b.bind for b in bindings if b.bind),
+            **extras,
         )
 
 

@@ -99,9 +99,11 @@ def generate_members(
 def generate_indexing(
     builtin_class: BuiltinClass,
 ) -> list[BindingCode]:
-    indexers = [indexer.get_c_code()
-                for indexer
-                in BuiltinClassIndexing.get_all_indexers(builtin_class)]
+    indexers = [
+        indexer.get_c_code()
+        for indexer
+        in BuiltinClassIndexing.get_all_indexers(builtin_class)
+    ]
     if indexers:
         indexers[0].prepend_section_comment("Indexing")
     return indexers
