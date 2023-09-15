@@ -8,13 +8,13 @@ from .constructor import BuiltinClassConstructor
 from .destructor import BuiltinClassDestructor
 from .indexing import BuiltinClassIndexing
 from .members import BuiltinClassMember
+from .operator import BuiltinClassOperator
 from .variant_conversion import (BuiltinClassFromVariantConversion,
                                  BuiltinClassToVariantConversion)
 from format_utils import (BindingCode,
                           format_class_enum,
                           format_constant,
                           format_method_pointer,
-                          format_operator_pointer,
                           format_type_snake_case,
                           should_generate_method,
                           should_generate_operator)
@@ -50,11 +50,9 @@ def generate_enums(
 def generate_operators(
     builtin_class: BuiltinClass,
 ) -> list[BindingCode]:
-    type_name = builtin_class["name"]
     operators = [
-        format_operator_pointer(type_name, op)
-        for op in builtin_class["operators"]
-        if should_generate_operator(type_name, op.get("right_type"))
+        op.get_c_code()
+        for op in BuiltinClassOperator.get_all_operators(builtin_class)
     ]
     if operators:
         operators[0].prepend_section_comment("Operators")

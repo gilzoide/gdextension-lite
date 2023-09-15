@@ -162,54 +162,6 @@ class BindingCode:
 ############################################################
 # Functions pointer variables + custom implementations
 ############################################################
-def format_operator_pointer(
-    type_name: str,
-    operator: Operator,
-) -> BindingCode:
-    operator_name = OPERATOR_TO_C.get(operator["name"], operator["name"])
-    function_name = f"{type_name}_op_{operator_name}"
-    return_type = operator["return_type"]
-    right_type = operator.get("right_type")
-    if right_type:
-        function_name += "_" + right_type
-        right_parameter = ", " + format_parameter_const(right_type, "b")
-    else:
-        right_parameter = ""
-
-    proto_ptr = f"GDExtensionPtrOperatorEvaluator godot_ptr_{function_name}"
-    proto_typed = (f"godot_{return_type} godot_{function_name}("
-                   f"{format_parameter_const(type_name, 'a')}"
-                   f"{right_parameter})")
-    return BindingCode(
-        code_block(f"""
-            {proto_typed};
-        """),
-        code_block(f"""
-            {proto_ptr};
-            {proto_typed} {{
-            \tGDEXTENSION_LITE_LAZY_INIT_VARIANT_OPERATOR({
-                    function_name
-                }, {
-                    format_operator_to_enum(operator_name)
-                }, {
-                    format_type_to_variant_enum(type_name)
-                }, {
-                    format_type_to_variant_enum(right_type)
-                });
-            \tgodot_{return_type} _ret;
-            \tgodot_ptr_{function_name}({
-                format_value_to_ptr(type_name, 'a')
-            }, {
-                format_value_to_ptr(right_type, 'b')
-                if right_type
-                else "NULL"
-            }, &_ret);
-            \treturn _ret;
-            }}
-        """),
-    )
-
-
 def format_method_pointer(
     type_name: str,
     method: BuiltinClassMethod
@@ -508,9 +460,12 @@ def format_native_struct_field(
 
 
 def format_value_to_ptr(
-    type_name: str,
+    type_name: str | None,
     parameter_name: str,
 ) -> str:
+    if type_name is None:
+        return "NULL"
+
     parameter_name = IDENTIFIER_OVERRIDES.get(parameter_name, parameter_name)
     if type_name in NON_STRUCT_TYPES or type_name.startswith("enum::"):
         return "&" + parameter_name
