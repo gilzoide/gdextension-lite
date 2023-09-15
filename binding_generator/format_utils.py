@@ -162,23 +162,6 @@ class BindingCode:
 ############################################################
 # Functions pointer variables + custom implementations
 ############################################################
-def format_constant(
-    type_name: str,
-    constant: Constant | ValueOrConstant,
-) -> BindingCode:
-    type = constant.get("type", "int")
-    value = str(constant["value"])
-    if "(" in value:
-        match = re.search(r"\(([^)]+)", value)
-        if match:
-            value = match.group(1).replace("inf", "godot_inf")
-            value = "{ " + value + " }"
-    return BindingCode(
-        f"extern const godot_{type} godot_{type_name}_{constant['name']};  // {value}",
-        f"const godot_{type} godot_{type_name}_{constant['name']} = {value};"
-    )
-
-
 def format_class_struct(
     class_name: str,
 ) -> BindingCode:

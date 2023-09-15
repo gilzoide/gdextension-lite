@@ -4,8 +4,8 @@ Generates bindings for Godot classes
 
 from typing import Tuple
 
+from common.constant import Constant
 from format_utils import (BindingCode,
-                          format_constant,
                           format_class_enum,
                           format_class_method_pointer,
                           format_class_struct,
@@ -16,8 +16,10 @@ from json_types import Class
 def generate_class_constants(
     cls: Class,
 ) -> list[BindingCode]:
-    constants = [format_constant(cls["name"], constant)
-                 for constant in cls.get("constants", [])]
+    constants = [
+        constant.get_c_code()
+        for constant in Constant.get_all_constants(cls)
+    ]
     if constants:
         constants[0].prepend_section_comment("Constants")
     return constants

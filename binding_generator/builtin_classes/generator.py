@@ -12,9 +12,9 @@ from .method import BuiltinClassMethod
 from .operator import BuiltinClassOperator
 from .variant_conversion import (BuiltinClassFromVariantConversion,
                                  BuiltinClassToVariantConversion)
+from common.constant import Constant
 from format_utils import (BindingCode,
                           format_class_enum,
-                          format_constant,
                           format_type_snake_case)
 from json_types import BuiltinClass
 
@@ -22,15 +22,9 @@ from json_types import BuiltinClass
 def generate_constants(
     builtin_class: BuiltinClass,
 ) -> list[BindingCode]:
-    enum_names = {
-        value["name"]
-        for enum in builtin_class.get("enums", [])
-        for value in enum["values"]
-    }
     constants = [
-        format_constant(builtin_class["name"], constant)
-        for constant in builtin_class.get("constants", [])
-        if constant["name"] not in enum_names
+        constant.get_c_code()
+        for constant in Constant.get_all_constants(builtin_class)
     ]
     if constants:
         constants[0].prepend_section_comment("Constants")
