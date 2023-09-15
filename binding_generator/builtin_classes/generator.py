@@ -27,9 +27,11 @@ def generate_constants(
         for enum in builtin_class.get("enums", [])
         for value in enum["values"]
     }
-    constants = [format_constant(builtin_class["name"], constant)
-                 for constant in builtin_class.get("constants", [])
-                 if constant["name"] not in enum_names]
+    constants = [
+        format_constant(builtin_class["name"], constant)
+        for constant in builtin_class.get("constants", [])
+        if constant["name"] not in enum_names
+    ]
     if constants:
         constants[0].prepend_section_comment("Constants")
     return constants
@@ -38,8 +40,10 @@ def generate_constants(
 def generate_enums(
     builtin_class: BuiltinClass,
 ) -> list[BindingCode]:
-    enums = [format_class_enum(builtin_class["name"], enum)
-             for enum in builtin_class.get("enums", [])]
+    enums = [
+        format_class_enum(builtin_class["name"], enum)
+        for enum in builtin_class.get("enums", [])
+    ]
     if enums:
         enums[0].prepend_section_comment("Enums")
     return enums
