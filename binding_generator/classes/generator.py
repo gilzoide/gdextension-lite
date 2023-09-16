@@ -57,14 +57,14 @@ def generate_class_stub_header(
 def generate_all_class_stubs(
     classes: list[Class],
 ) -> BindingCode:
-    includes = (
+    includes = [
         f'#include "{format_type_snake_case(cls["name"])}.h"'
         for cls in classes
-    )
+    ]
     return BindingCode(
         "",
         "",
-        includes="\n".join(includes),
+        includes=includes,
     )
 
 
@@ -115,5 +115,5 @@ def generate_initialize_all_classes(
     return BindingCode(
         "",
         "",
-        includes="\n".join(includes),
+        includes=includes,
     )

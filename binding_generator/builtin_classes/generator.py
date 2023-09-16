@@ -160,10 +160,10 @@ def generate_initialize_all_builtin_classes(
     builtin_classes: list[BuiltinClass],
 ) -> BindingCode:
     class_names = [cls["name"] for cls in builtin_classes]
-    includes = "\n".join(
+    includes = [
         f'#include "{format_type_snake_case(name)}.h"'
         for name in class_names
-    )
+    ]
     return BindingCode(
         "",
         "",

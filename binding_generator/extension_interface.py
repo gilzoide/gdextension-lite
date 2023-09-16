@@ -3,7 +3,6 @@ Generate bindings for Godot extension interface
 """
 
 import re
-from textwrap import indent
 
 from common.binding_code import BindingCode
 
@@ -18,7 +17,7 @@ def generate_extension_binding(
     return BindingCode(
         f"extern {type_name} godot_{symbol};",
         f"{type_name} godot_{symbol};",
-        bind=f'godot_{symbol} = ({type_name}) get_proc_address("{symbol}");',
+        bind=[f'godot_{symbol} = ({type_name}) get_proc_address("{symbol}");'],
     )
 
 
@@ -30,7 +29,7 @@ def generate_all_extension_bindings() -> BindingCode:
         BindingCode(
             "void gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddress get_proc_address);",
             "",
-            includes='#include "../gdextension/gdextension_interface.h"',
+            includes=['#include "../gdextension/gdextension_interface.h"'],
         ),
     ]
     symbol = None
@@ -49,7 +48,7 @@ def generate_all_extension_bindings() -> BindingCode:
     merged = BindingCode.merge(bindings)
     merged.implementation += "\n".join([
         "void gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddress get_proc_address) {",
-        indent(merged['bind'], "\t"),
+        *[f"\t{line}" for line in merged['bind']],
         "}",
     ])
     return merged

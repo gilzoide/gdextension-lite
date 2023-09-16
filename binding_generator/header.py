@@ -38,7 +38,7 @@ class HeaderWriter:
             "",
         ]
         if contents['includes']:
-            lines.append(contents['includes'])
+            lines.extend(contents['includes'])
             lines.append("")
         lines.extend([
             contents.prototype,
@@ -58,7 +58,7 @@ class HeaderWriter:
                 f'#include "{implementation_macros_h}"',
             ])
             if contents['implementation_includes']:
-                lines.append(contents['implementation_includes'])
+                lines.extend(contents['implementation_includes'])
                 lines.append("")
             lines.extend([
                 contents.implementation,
