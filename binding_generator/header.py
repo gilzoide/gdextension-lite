@@ -63,6 +63,6 @@ class HeaderWriter:
                 "#endif  // GDEXTENSION_LITE_IMPLEMENTATION",
             ])
         filename = self.base_dir.joinpath(header_name).with_suffix("." + h_or_hpp)
-        filename.parent.mkdir(exist_ok=True)
+        filename.parent.mkdir(exist_ok=True, parents=True)
         with open(filename, 'w') as file:
             file.write('\n'.join(lines))
