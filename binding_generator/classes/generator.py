@@ -62,11 +62,13 @@ def generate_all_class_stubs(
         includes="\n".join(includes),
     )
 
+
 def generate_class_methods(
     cls: Class,
+    is_cpp: bool,
 ) -> list[BindingCode]:
     methods = [
-        method.get_c_code()
+        method.get_code(is_cpp)
         for method in ClassMethod.get_all_methods(cls)
     ]
     if methods:
@@ -76,8 +78,9 @@ def generate_class_methods(
 
 def generate_class_method_header(
     cls: Class,
+    is_cpp: bool = False,
 ) -> BindingCode:
-    definitions = (generate_class_methods(cls))
+    definitions = (generate_class_methods(cls, is_cpp=is_cpp))
     includes = [
         '#include "../class-stubs/all.h"',
         '#include "../global_enums.h"',

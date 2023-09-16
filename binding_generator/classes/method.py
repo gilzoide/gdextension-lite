@@ -1,18 +1,18 @@
 from textwrap import indent
 
 from common.binding_code import BindingCode
+from common.code_generator import CodeGenerator
 from format_utils import (format_arguments_array,
                           format_arguments_count,
                           format_parameter,
                           format_parameter_const,
                           format_return_type,
                           format_type_to_variant_enum,
-                          format_vararg_macro,
-                          should_generate_method)
+                          format_vararg_macro)
 from json_types import *
 
 
-class ClassMethod:
+class ClassMethod(CodeGenerator):
     """
     Builtin classes (a.k.a Variants) Constructor structure
     """
