@@ -89,7 +89,14 @@ def generate_class_method_header(
         '#include "../../gdextension/gdextension_interface.h"',
         '#include "../../variant/all.h"',
     ]
-    return BindingCode.merge(definitions, includes=includes)
+    implementation_includes = (
+        ['#include <string.h>']
+        if any(method.get('is_vararg') for method in cls.get('methods', []))
+        else []
+    )
+    return BindingCode.merge(definitions,
+                             includes=includes,
+                             implementation_includes=implementation_includes)
 
 
 def generate_initialize_all_classes(

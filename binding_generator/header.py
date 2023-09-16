@@ -56,7 +56,11 @@ class HeaderWriter:
                 f"#define {define}",
                 "",
                 f'#include "{implementation_macros_h}"',
-                "",
+            ])
+            if contents['implementation_includes']:
+                lines.append(contents['implementation_includes'])
+                lines.append("")
+            lines.extend([
                 contents.implementation,
                 "",
                 f"#endif  // {define}",
