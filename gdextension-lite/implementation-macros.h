@@ -25,7 +25,7 @@
 
 #define GDEXTENSION_LITE_LAZY_INIT_VARIANT_MEMBER(get_or_set, name, type, member) \
 	if (godot_ptr_##name##_##get_or_set##_##member == NULL) { \
-		GDEXTENSION_LITE_WITH_STRING_NAME(name, _member, { \
+		GDEXTENSION_LITE_WITH_STRING_NAME(#name, _member, { \
 			godot_ptr_##name##_##get_or_set##_##member = godot_variant_get_ptr_##get_or_set##ter(type, &_member); \
 		}); \
 	}
@@ -42,22 +42,22 @@
 
 #define GDEXTENSION_LITE_LAZY_INIT_VARIANT_METHOD(name, type, method, hash) \
 	if (godot_ptr_##name##_##method == NULL) { \
-		GDEXTENSION_LITE_WITH_STRING_NAME(method, _method, { \
+		GDEXTENSION_LITE_WITH_STRING_NAME(#method, _method, { \
 			godot_ptr_##name##_##method = godot_variant_get_ptr_builtin_method(type, &_method, hash); \
 		}); \
 	}
 
 #define GDEXTENSION_LITE_LAZY_INIT_UTILITY_FUNCTION(name, hash) \
 	if (godot_ptr_##name == NULL) { \
-		GDEXTENSION_LITE_WITH_STRING_NAME(name, _name, { \
+		GDEXTENSION_LITE_WITH_STRING_NAME(#name, _name, { \
 			godot_ptr_##name = godot_variant_get_ptr_utility_function(&_name, hash); \
 		}); \
 	}
 
 #define GDEXTENSION_LITE_LAZY_INIT_CLASS_METHOD(name, method, hash) \
 	if (godot_ptr_##name##_##method == NULL) { \
-		GDEXTENSION_LITE_WITH_STRING_NAME(name, _class, { \
-			GDEXTENSION_LITE_WITH_STRING_NAME(method, _method, { \
+		GDEXTENSION_LITE_WITH_STRING_NAME(#name, _class, { \
+			GDEXTENSION_LITE_WITH_STRING_NAME(#method, _method, { \
 				godot_ptr_##name##_##method = godot_classdb_get_method_bind(&_class, &_method, hash); \
 			}); \
 		}); \
