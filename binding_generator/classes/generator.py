@@ -13,34 +13,36 @@ from json_types import Class
 
 def generate_class_constants(
     cls: Class,
-) -> list[BindingCode]:
-    constants = [
+) -> BindingCode:
+    constants = BindingCode.merge([
         constant.get_c_code()
         for constant in Constant.get_all_constants(cls)
-    ]
+    ])
     if constants:
-        constants[0].prepend_section_comment("Constants")
+        constants.format_as_section("Constants")
     return constants
 
 
 def generate_class_enums(
     cls: Class,
-) -> list[BindingCode]:
-    enums = [
+) -> BindingCode:
+    enums = BindingCode.merge([
         enum.get_c_code()
         for enum in ScopedEnum.get_all_scoped_enums(cls)
-    ]
+    ])
     if enums:
-        enums[0].prepend_section_comment("Enums")
+        enums.format_as_section("Enums")
     return enums
 
 
 def generate_class_stub(
     cls: Class,
-) -> list[BindingCode]:
-    return ([OpaqueStruct(cls['name']).get_c_code()]
-            + generate_class_constants(cls)
-            + generate_class_enums(cls))
+) -> BindingCode:
+    return BindingCode.merge([
+        OpaqueStruct(cls['name']).get_c_code(),
+        generate_class_constants(cls),
+        generate_class_enums(cls),
+    ])
 
 
 def generate_class_stub_header(
@@ -51,7 +53,9 @@ def generate_class_stub_header(
         if cls.get('constants')
         else []
     )
-    return BindingCode.merge(generate_class_stub(cls), includes=includes)
+    stub = generate_class_stub(cls)
+    stub.add_extras(includes=includes)
+    return stub
 
 
 def generate_all_class_stubs(
@@ -71,13 +75,13 @@ def generate_all_class_stubs(
 def generate_class_methods(
     cls: Class,
     is_cpp: bool,
-) -> list[BindingCode]:
-    methods = [
+) -> BindingCode:
+    methods = BindingCode.merge([
         method.get_code(is_cpp)
         for method in ClassMethod.get_all_methods(cls)
-    ]
+    ])
     if methods:
-        methods[0].prepend_section_comment("Methods")
+        methods.format_as_section("Methods")
     return methods
 
 
@@ -85,7 +89,6 @@ def generate_class_method_header(
     cls: Class,
     is_cpp: bool = False,
 ) -> BindingCode:
-    definitions = (generate_class_methods(cls, is_cpp=is_cpp))
     includes = [
         "class-stubs/all.h",
         "global_enums.h",
@@ -99,9 +102,10 @@ def generate_class_method_header(
         if any(method.get('is_vararg') for method in cls.get('methods', []))
         else []
     )
-    return BindingCode.merge(definitions,
-                             includes=includes,
-                             implementation_includes=implementation_includes)
+    definitions = generate_class_methods(cls, is_cpp=is_cpp)
+    definitions.add_extras(includes=includes,
+                           implementation_includes=implementation_includes)
+    return definitions
 
 
 def generate_initialize_all_classes(

@@ -20,112 +20,114 @@ from json_types import BuiltinClass
 def generate_constants(
     builtin_class: BuiltinClass,
     is_cpp: bool,
-) -> list[BindingCode]:
-    constants = [
+) -> BindingCode:
+    constants = BindingCode.merge([
         constant.get_code(is_cpp)
         for constant in Constant.get_all_constants(builtin_class)
-    ]
+    ])
     if constants:
-        constants[0].prepend_section_comment("Constants")
+        constants.format_as_section("Constants")
     return constants
 
 
 def generate_enums(
     builtin_class: BuiltinClass,
     is_cpp: bool,
-) -> list[BindingCode]:
-    enums = [
+) -> BindingCode:
+    enums = BindingCode.merge([
         enum.get_code(is_cpp)
         for enum in ScopedEnum.get_all_scoped_enums(builtin_class)
-    ]
+    ])
     if enums:
-        enums[0].prepend_section_comment("Enums")
+        enums.format_as_section("Enums")
     return enums
 
 
 def generate_operators(
     builtin_class: BuiltinClass,
     is_cpp: bool,
-) -> list[BindingCode]:
-    operators = [
+) -> BindingCode:
+    operators = BindingCode.merge([
         op.get_code(is_cpp)
         for op in BuiltinClassOperator.get_all_operators(builtin_class)
-    ]
+    ])
     if operators:
-        operators[0].prepend_section_comment("Operators")
+        operators.format_as_section("Operators")
     return operators
 
 
 def generate_constructors(
     builtin_class: BuiltinClass,
     is_cpp: bool,
-) -> list[BindingCode]:
-    ctors = [
+) -> BindingCode:
+    ctors = BindingCode.merge([
         ctor.get_code(is_cpp)
         for ctor in BuiltinClassConstructor.get_all_constructors(builtin_class)
-    ]
+    ])
     if ctors:
-        ctors[0].prepend_section_comment("Constructors")
+        ctors.format_as_section("Constructors")
     return ctors
 
 
 def generate_variant_from_to(
     builtin_class: BuiltinClass,
     is_cpp: bool,
-) -> list[BindingCode]:
-    return [
+) -> BindingCode:
+    return BindingCode.merge([
         BuiltinClassToVariantConversion(builtin_class["name"]).get_code(is_cpp),
         BuiltinClassFromVariantConversion(builtin_class["name"]).get_code(is_cpp),
-    ]
+    ])
 
 
 def generate_destructor(
     builtin_class: BuiltinClass,
     is_cpp: bool,
-) -> list[BindingCode]:
+) -> BindingCode:
     if builtin_class["has_destructor"]:
         dtor = BuiltinClassDestructor(builtin_class["name"]).get_code(is_cpp)
-        dtor.prepend_section_comment("Destructor")
-        return [dtor]
+        dtor.format_as_section("Destructor")
+        return dtor
     else:
-        return []
+        return BindingCode()
 
 
 def generate_members(
     builtin_class: BuiltinClass,
     is_cpp: bool,
-) -> list[BindingCode]:
-    members = [member.get_code(is_cpp)
-               for member in BuiltinClassMember.get_all_members(builtin_class)]
+) -> BindingCode:
+    members = BindingCode.merge([
+        member.get_code(is_cpp)
+        for member in BuiltinClassMember.get_all_members(builtin_class)
+    ])
     if members:
-        members[0].prepend_section_comment("Members")
+        members.format_as_section("Members")
     return members
 
 
 def generate_indexing(
     builtin_class: BuiltinClass,
     is_cpp: bool,
-) -> list[BindingCode]:
-    indexers = [
+) -> BindingCode:
+    indexers = BindingCode.merge([
         indexer.get_code(is_cpp)
         for indexer
         in BuiltinClassIndexing.get_all_indexers(builtin_class)
-    ]
+    ])
     if indexers:
-        indexers[0].prepend_section_comment("Indexing")
+        indexers.format_as_section("Indexing")
     return indexers
 
 
 def generate_methods(
     builtin_class: BuiltinClass,
     is_cpp: bool,
-) -> list[BindingCode]:
-    methods = [
+) -> BindingCode:
+    methods = BindingCode.merge([
         method.get_code(is_cpp)
         for method in BuiltinClassMethod.get_all_methods(builtin_class)
-    ]
+    ])
     if methods:
-        methods[0].prepend_section_comment("Methods")
+        methods.format_as_section("Methods")
     return methods
 
 
@@ -133,15 +135,17 @@ def generate_builtin_class(
     builtin_class: BuiltinClass,
     is_cpp: bool = False,
 ) -> BindingCode:
-    definitions = (generate_constants(builtin_class, is_cpp)
-                   + generate_enums(builtin_class, is_cpp)
-                   + generate_constructors(builtin_class, is_cpp)
-                   + generate_variant_from_to(builtin_class, is_cpp)
-                   + generate_destructor(builtin_class, is_cpp)
-                   + generate_members(builtin_class, is_cpp)
-                   + generate_indexing(builtin_class, is_cpp)
-                   + generate_operators(builtin_class, is_cpp)
-                   + generate_methods(builtin_class, is_cpp))
+    definitions = [
+        generate_constants(builtin_class, is_cpp),
+        generate_enums(builtin_class, is_cpp),
+        generate_constructors(builtin_class, is_cpp),
+        generate_variant_from_to(builtin_class, is_cpp),
+        generate_destructor(builtin_class, is_cpp),
+        generate_members(builtin_class, is_cpp),
+        generate_indexing(builtin_class, is_cpp),
+        generate_operators(builtin_class, is_cpp),
+        generate_methods(builtin_class, is_cpp),
+    ]
 
     includes = [
         "../gdextension/gdextension_interface.h",

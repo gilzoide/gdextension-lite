@@ -13,6 +13,9 @@ class BindingCode:
     def __getitem__(self, key: str) -> list[str]:
         return self.extras.get(key, [])
 
+    def __bool__(self) -> bool:
+        return bool(self.prototype) or bool(self.implementation) or bool(self.extras)
+
     def add_extras(self, **extras: list[str]) -> None:
         for k, v in extras.items():
             lst = self.extras.get(k, [])
@@ -20,24 +23,24 @@ class BindingCode:
             self.extras[k] = lst
 
     def surround_prototype(self, prefix: str, suffix: str, add_indent: bool = True) -> None:
-        self.prototype = "\n".join([
-            prefix,
-            indent(self.prototype, "\t") if add_indent else self.prototype,
-            suffix,
-        ])
+        if self.prototype:
+            self.prototype = "\n".join([
+                prefix,
+                indent(self.prototype, "\t") if add_indent else self.prototype,
+                suffix,
+            ])
 
     def surround_implementation(self, prefix: str, suffix: str, add_indent: bool = True) -> None:
-        self.implementation = "\n".join([
-            prefix,
-            indent(self.implementation, "\t") if add_indent else self.implementation,
-            suffix,
-        ])
-
-    def prepend_section_comment(self, comment: str):
-        if self.prototype:
-            self.prototype = f"// {comment}\n{self.prototype}"
         if self.implementation:
-            self.implementation = f"// {comment}\n{self.implementation}"
+            self.implementation = "\n".join([
+                prefix,
+                indent(self.implementation, "\t") if add_indent else self.implementation,
+                suffix,
+            ])
+
+    def format_as_section(self, comment: str):
+        self.surround_prototype(f"// {comment}", "", add_indent=False)
+        self.surround_implementation(f"// {comment}", "", add_indent=False)
 
     @classmethod
     def merge(cls, bindings: Sequence["BindingCode"], **kwargs: list[str]) -> "BindingCode":
@@ -46,8 +49,8 @@ class BindingCode:
             for k, v in b.extras.items():
                 extras[k].extend(v)
         return BindingCode(
-            "\n\n".join(b.prototype for b in bindings if b.prototype),
-            "\n\n".join(b.implementation for b in bindings if b.implementation),
+            "\n".join(b.prototype for b in bindings if b.prototype),
+            "\n".join(b.implementation for b in bindings if b.implementation),
             **extras,
         )
 
