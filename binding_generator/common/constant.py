@@ -11,6 +11,8 @@ class Constant(CodeGenerator):
     """
     def __init__(self, type_name: str, constant: Constant | ValueOrConstant):
         self.class_name = type_name
+        self.constant = constant
+
         value = str(constant["value"])
         if "(" in value:
             match = re.search(r"\(([^)]+)", value)
@@ -20,12 +22,20 @@ class Constant(CodeGenerator):
         self.value = value
 
         self.return_type = f"godot_{constant.get('type', 'int')}"
-        self.constant_name = f"godot_{type_name}_{constant['name']}"
+        self.constant_name = f"{type_name}_{constant['name']}"
 
     def get_c_code(self) -> BindingCode:
         return BindingCode(
-            f"extern const {self.return_type} {self.constant_name};  // {self.value}",
-            f"const {self.return_type} {self.constant_name} = {self.value};"
+            f"extern const {self.return_type} godot_{self.constant_name};  // {self.value}",
+            f"const {self.return_type} godot_{self.constant_name} = {self.value};"
+        )
+
+    def get_cpp_code(self) -> BindingCode:
+        constant_name = self.constant['name']
+        type = self.constant.get('type', 'godot_int')
+        return BindingCode(
+            f"static const {type} {constant_name}; // {self.value}",
+            f"const {type} {self.class_name}::{constant_name}({self.value.replace('{ ', '').replace(' }', '')});",
         )
 
     @classmethod
