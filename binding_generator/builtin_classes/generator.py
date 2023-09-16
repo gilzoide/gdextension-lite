@@ -150,7 +150,8 @@ def generate_builtin_class(
     merged = BindingCode.merge(definitions, includes=includes)
     type_name = builtin_class['name']
     if is_cpp:
-        merged.add_extras(implementation_includes=[f"variant/{format_type_snake_case(type_name)}.h"])
+        merged.add_extras(implementation_includes=[f"variant/{format_type_snake_case(type_name)}.h"],
+                          includes=["cpp/variant/all-stubs.hpp"])
         if type_name not in NON_STRUCT_TYPES:
             merged.surround_prototype(
                 f"struct {type_name} : public godot_{type_name} {{",
@@ -173,4 +174,17 @@ def generate_initialize_all_builtin_classes(
         "",
         "",
         includes=includes,
+    )
+
+
+def generate_initialize_all_builtin_classes_cpp_stub(
+    builtin_classes: list[BuiltinClass],
+) -> BindingCode:
+    forward_declarations = [
+        f"struct {cls['name']};"
+        for cls in builtin_classes
+        if cls['name'] not in NON_STRUCT_TYPES
+    ]
+    return BindingCode(
+        "\n".join(forward_declarations),
     )
