@@ -1,6 +1,7 @@
 env = Environment()
 if ARGUMENTS.get('debug', 0):
-    env.Append(CFLAGS=['-g', '-O0'])
+    flags = ['-g', '-O0']
+    env.Append(CFLAGS=flags, CXXFLAGS=flags)
 if ARGUMENTS.get('ccache', 0):
-    env.Prepend(CC="ccache ")
-env.SharedLibrary(['hello-gdextension-lite.c', 'gdextension-lite-implementation.c'])
+    env.Prepend(CC="ccache ", CXX="ccache ")
+env.SharedLibrary(['hello-gdextension-lite.cpp', 'gdextension-lite-implementation.cpp'])
