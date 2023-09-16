@@ -10,9 +10,10 @@ from .method import BuiltinClassMethod
 from .operator import BuiltinClassOperator
 from .variant_conversion import (BuiltinClassFromVariantConversion,
                                  BuiltinClassToVariantConversion)
+from common.binding_code import BindingCode
 from common.constant import Constant
 from common.scoped_enum import ScopedEnum
-from format_utils import BindingCode, format_type_snake_case
+from format_utils import format_type_snake_case
 from json_types import BuiltinClass
 
 

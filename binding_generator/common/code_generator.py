@@ -1,4 +1,4 @@
-from format_utils import BindingCode
+from .binding_code import BindingCode
 
 
 class CodeGenerator:

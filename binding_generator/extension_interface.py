@@ -5,7 +5,7 @@ Generate bindings for Godot extension interface
 import re
 from textwrap import indent
 
-from format_utils import BindingCode
+from common.binding_code import BindingCode
 
 SYMBOL_RE = re.compile(r"@name\s+(\w+)")
 TYPE_RE = re.compile(r"typedef [^(]*\(\*(\w+)")

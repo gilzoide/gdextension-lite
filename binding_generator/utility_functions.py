@@ -4,8 +4,8 @@ Generates bindings for Godot's utility functions
 
 from textwrap import indent
 
-from format_utils import (BindingCode,
-                          code_block,
+from common.binding_code import BindingCode
+from format_utils import (code_block,
                           format_arguments_array,
                           format_arguments_count,
                           format_parameter_const,

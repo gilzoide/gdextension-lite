@@ -1,7 +1,7 @@
 from textwrap import indent
 
-from format_utils import (BindingCode,
-                          format_arguments_array,
+from common.binding_code import BindingCode
+from format_utils import (format_arguments_array,
                           format_arguments_count,
                           format_parameter,
                           format_parameter_const,

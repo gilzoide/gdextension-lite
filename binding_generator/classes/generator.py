@@ -3,10 +3,11 @@ Generates bindings for Godot classes
 """
 
 from .method import ClassMethod
+from common.binding_code import BindingCode
 from common.constant import Constant
 from common.opaque_struct import OpaqueStruct
 from common.scoped_enum import ScopedEnum
-from format_utils import BindingCode, format_type_snake_case
+from format_utils import format_type_snake_case
 from json_types import Class
 
 

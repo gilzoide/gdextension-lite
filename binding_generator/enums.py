@@ -2,8 +2,8 @@
 Generates C enum bindings for GDExtension
 """
 
+from common.binding_code import BindingCode
 from json_types import GlobalEnumOrEnum
-from format_utils import BindingCode
 
 
 def generate_enum(enum: GlobalEnumOrEnum) -> BindingCode:

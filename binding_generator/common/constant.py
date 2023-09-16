@@ -1,7 +1,7 @@
 import re
 
+from .binding_code import BindingCode
 from .code_generator import CodeGenerator
-from format_utils import BindingCode
 from json_types import *
 
 

@@ -1,5 +1,6 @@
+from common.binding_code import BindingCode
 from common.code_generator import CodeGenerator
-from format_utils import BindingCode, format_type_to_variant_enum
+from format_utils import format_type_to_variant_enum
 from json_types import *
 
 

@@ -5,7 +5,7 @@ C header file generator
 from pathlib import Path
 import re
 
-from format_utils import BindingCode
+from common.binding_code import BindingCode
 
 
 class HeaderWriter:

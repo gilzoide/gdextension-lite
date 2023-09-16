@@ -2,7 +2,8 @@
 Generates bindings for Godot's native structures
 """
 
-from format_utils import BindingCode, format_native_struct_field
+from common.binding_code import BindingCode
+from format_utils import format_native_struct_field
 from json_types import NativeStructure
 
 

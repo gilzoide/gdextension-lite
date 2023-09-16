@@ -1,6 +1,6 @@
+from common.binding_code import BindingCode
 from common.code_generator import CodeGenerator
-from format_utils import (BindingCode,
-                          format_operator_to_enum,
+from format_utils import (format_operator_to_enum,
                           format_parameter_const,
                           format_type_to_variant_enum,
                           format_value_to_ptr,
