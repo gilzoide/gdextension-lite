@@ -5,7 +5,7 @@ from typing import Sequence
 
 class BindingCode:
     """Object that contains the code necessary for each function binding"""
-    def __init__(self, prototype: str, implementation: str, **extras: list[str]):
+    def __init__(self, prototype: str = "", implementation: str = "", **extras: list[str]):
         self.prototype = prototype
         self.implementation = implementation
         self.extras = extras

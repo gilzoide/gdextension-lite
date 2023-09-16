@@ -21,7 +21,7 @@ class BuiltinClassDestructor(CodeGenerator):
     def get_c_code(self) -> BindingCode:
         return BindingCode(
             f"{self.prototype};",
-            '\n'.join([
+            "\n".join([
                 f"{self.ptr_prototype};",
                 f"{self.prototype} {{",
                     f"""\tGDEXTENSION_LITE_LAZY_INIT_VARIANT_DESTRUCTOR({
@@ -31,5 +31,15 @@ class BuiltinClassDestructor(CodeGenerator):
                         });""",
                     f"\t{self.ptr_function_name}(self);",
                 "}",
+            ]),
+        )
+
+    def get_cpp_code(self) -> BindingCode:
+        return BindingCode(
+            f"~{self.class_name}();",
+            "\n".join([
+                f"{self.class_name}::~{self.class_name}() {{",
+                    f"\t{self.function_name}(this);",
+                f"}}",
             ]),
         )
