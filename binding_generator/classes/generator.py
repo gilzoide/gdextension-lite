@@ -46,7 +46,12 @@ def generate_class_stub(
 def generate_class_stub_header(
     cls: Class,
 ) -> BindingCode:
-    return BindingCode.merge(generate_class_stub(cls))
+    includes = (
+        ['#include "../variant/int.h"']
+        if cls.get('constants')
+        else []
+    )
+    return BindingCode.merge(generate_class_stub(cls), includes=includes)
 
 
 def generate_all_class_stubs(
