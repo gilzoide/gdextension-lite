@@ -4,7 +4,7 @@ Internal utilities for Godot types
 
 from collections import defaultdict
 import re
-from textwrap import dedent
+from textwrap import dedent, indent
 from typing import Sequence
 
 from json_types import *
@@ -144,6 +144,20 @@ class BindingCode:
 
     def __getitem__(self, key: str) -> str:
         return self.extras.get(key, "")
+
+    def surround_prototype(self, prefix: str, suffix: str) -> None:
+        self.prototype = "\n".join([
+            prefix,
+            indent(self.prototype, "\t"),
+            suffix,
+        ])
+
+    def surround_implementation(self, prefix: str, suffix: str) -> None:
+        self.implementation = "\n".join([
+            prefix,
+            indent(self.implementation, "\t"),
+            suffix,
+        ])
 
     def prepend_section_comment(self, comment: str):
         if self.prototype:
