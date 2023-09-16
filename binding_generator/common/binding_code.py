@@ -19,17 +19,17 @@ class BindingCode:
             lst.extend(v)
             self.extras[k] = lst
 
-    def surround_prototype(self, prefix: str, suffix: str) -> None:
+    def surround_prototype(self, prefix: str, suffix: str, add_indent: bool = True) -> None:
         self.prototype = "\n".join([
             prefix,
-            indent(self.prototype, "\t"),
+            indent(self.prototype, "\t") if add_indent else self.prototype,
             suffix,
         ])
 
-    def surround_implementation(self, prefix: str, suffix: str) -> None:
+    def surround_implementation(self, prefix: str, suffix: str, add_indent: bool = True) -> None:
         self.implementation = "\n".join([
             prefix,
-            indent(self.implementation, "\t"),
+            indent(self.implementation, "\t") if add_indent else self.implementation,
             suffix,
         ])
 

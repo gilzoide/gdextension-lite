@@ -31,6 +31,37 @@ class HeaderWriter:
                 "namespace godot {",
                 "}",
             )
+        else:
+            contents.surround_prototype(
+                "\n".join([
+                    "#ifdef __cplusplus",
+                    'extern "C" {',
+                    "#endif",
+                    "",
+                ]),
+                "\n".join([
+                    "",
+                    "#ifdef __cplusplus",
+                    "}",
+                    "#endif",
+                ]),
+                add_indent=False,
+            )
+            contents.surround_implementation(
+                "\n".join([
+                    "#ifdef __cplusplus",
+                    'extern "C" {',
+                    "#endif",
+                    "",
+                ]),
+                "\n".join([
+                    "",
+                    "#ifdef __cplusplus",
+                    "}",
+                    "#endif",
+                ]),
+                add_indent=False,
+            )
         lines = [
             "// This file was automatically generated",
             "// Do not modify this file",
