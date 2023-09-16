@@ -39,7 +39,7 @@ class HeaderWriter:
             "",
         ]
         if contents['includes']:
-            lines.extend(contents['includes'])
+            lines.extend(self.process_include(header_path, include) for include in contents['includes'])
             lines.append("")
         lines.extend([
             contents.prototype,
@@ -59,7 +59,7 @@ class HeaderWriter:
                 implementation_macros_h,
             ])
             if contents['implementation_includes']:
-                lines.extend(contents['implementation_includes'])
+                lines.extend(self.process_include(header_path, include) for include in contents['implementation_includes'])
             lines.extend([
                 "",
                 contents.implementation,

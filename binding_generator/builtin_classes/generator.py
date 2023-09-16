@@ -144,8 +144,8 @@ def generate_builtin_class(
                    + generate_methods(builtin_class, is_cpp))
 
     includes = [
-        '#include "../../gdextension/gdextension_interface.h"',
-        '#include "../../variant/all.h"',
+        "../gdextension/gdextension_interface.h",
+        "../variant/all.h",
     ]
     merged = BindingCode.merge(definitions, includes=includes)
     if is_cpp and builtin_class['name'] not in NON_STRUCT_TYPES:
@@ -161,7 +161,7 @@ def generate_initialize_all_builtin_classes(
 ) -> BindingCode:
     class_names = [cls["name"] for cls in builtin_classes]
     includes = [
-        f'#include "{format_type_snake_case(name)}.h"'
+        f"variant/{format_type_snake_case(name)}.h"
         for name in class_names
     ]
     return BindingCode(
