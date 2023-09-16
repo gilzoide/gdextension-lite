@@ -4,20 +4,21 @@ Generates bindings for Godot classes
 
 from typing import Tuple
 
-from format_utils import (BindingCode,
-                          format_constant,
-                          format_class_enum,
-                          format_class_method_pointer,
-                          format_class_struct,
-                          format_type_snake_case)
+from .method import ClassMethod
+from common.constant import Constant
+from common.opaque_struct import OpaqueStruct
+from common.scoped_enum import ScopedEnum
+from format_utils import BindingCode, format_type_snake_case
 from json_types import Class
 
 
 def generate_class_constants(
     cls: Class,
 ) -> list[BindingCode]:
-    constants = [format_constant(cls["name"], constant)
-                 for constant in cls.get("constants", [])]
+    constants = [
+        constant.get_c_code()
+        for constant in Constant.get_all_constants(cls)
+    ]
     if constants:
         constants[0].prepend_section_comment("Constants")
     return constants
@@ -26,8 +27,10 @@ def generate_class_constants(
 def generate_class_enums(
     cls: Class,
 ) -> list[BindingCode]:
-    enums = [format_class_enum(cls["name"], enum)
-             for enum in cls.get("enums", [])]
+    enums = [
+        enum.get_c_code()
+        for enum in ScopedEnum.get_all_scoped_enums(cls)
+    ]
     if enums:
         enums[0].prepend_section_comment("Enums")
     return enums
@@ -36,7 +39,7 @@ def generate_class_enums(
 def generate_class_stub(
     cls: Class,
 ) -> list[BindingCode]:
-    return ([format_class_struct(cls["name"])]
+    return ([OpaqueStruct(cls['name']).get_c_code()]
             + generate_class_constants(cls)
             + generate_class_enums(cls))
 
@@ -64,8 +67,10 @@ def generate_all_class_stubs(
 def generate_class_methods(
     cls: Class,
 ) -> list[BindingCode]:
-    methods = [format_class_method_pointer(cls["name"], method)
-               for method in cls.get("methods", [])]
+    methods = [
+        method.get_c_code()
+        for method in ClassMethod.get_all_methods(cls)
+    ]
     if methods:
         methods[0].prepend_section_comment("Methods")
     return methods

@@ -4,34 +4,27 @@ Generates bindings for Godot's builtin classes (a.k.a. Variants)
 
 from typing import Tuple
 
-from format_utils import (BindingCode,
-                          format_class_enum,
-                          format_constant,
-                          format_constructor_pointer,
-                          format_destructor_pointer,
-                          format_indexing_pointers,
-                          format_member_pointers,
-                          format_method_pointer,
-                          format_operator_pointer,
-                          format_type_from_to_variant,
-                          format_type_snake_case,
-                          should_generate_constructor,
-                          should_generate_method,
-                          should_generate_operator)
+from .constructor import BuiltinClassConstructor
+from .destructor import BuiltinClassDestructor
+from .indexing import BuiltinClassIndexing
+from .members import BuiltinClassMember
+from .method import BuiltinClassMethod
+from .operator import BuiltinClassOperator
+from .variant_conversion import (BuiltinClassFromVariantConversion,
+                                 BuiltinClassToVariantConversion)
+from common.constant import Constant
+from common.scoped_enum import ScopedEnum
+from format_utils import BindingCode, format_type_snake_case
 from json_types import BuiltinClass
 
 
 def generate_constants(
     builtin_class: BuiltinClass,
 ) -> list[BindingCode]:
-    enum_names = {
-        value["name"]
-        for enum in builtin_class.get("enums", [])
-        for value in enum["values"]
-    }
-    constants = [format_constant(builtin_class["name"], constant)
-                 for constant in builtin_class.get("constants", [])
-                 if constant["name"] not in enum_names]
+    constants = [
+        constant.get_c_code()
+        for constant in Constant.get_all_constants(builtin_class)
+    ]
     if constants:
         constants[0].prepend_section_comment("Constants")
     return constants
@@ -40,8 +33,10 @@ def generate_constants(
 def generate_enums(
     builtin_class: BuiltinClass,
 ) -> list[BindingCode]:
-    enums = [format_class_enum(builtin_class["name"], enum)
-             for enum in builtin_class.get("enums", [])]
+    enums = [
+        enum.get_c_code()
+        for enum in ScopedEnum.get_all_scoped_enums(builtin_class)
+    ]
     if enums:
         enums[0].prepend_section_comment("Enums")
     return enums
@@ -50,11 +45,9 @@ def generate_enums(
 def generate_operators(
     builtin_class: BuiltinClass,
 ) -> list[BindingCode]:
-    type_name = builtin_class["name"]
     operators = [
-        format_operator_pointer(type_name, op)
-        for op in builtin_class["operators"]
-        if should_generate_operator(type_name, op.get("right_type"))
+        op.get_c_code()
+        for op in BuiltinClassOperator.get_all_operators(builtin_class)
     ]
     if operators:
         operators[0].prepend_section_comment("Operators")
@@ -65,9 +58,8 @@ def generate_constructors(
     builtin_class: BuiltinClass,
 ) -> list[BindingCode]:
     ctors = [
-        format_constructor_pointer(builtin_class["name"], ctor)
-        for ctor in builtin_class["constructors"]
-        if should_generate_constructor(builtin_class["name"], ctor)
+        ctor.get_c_code()
+        for ctor in BuiltinClassConstructor.get_all_constructors(builtin_class)
     ]
     if ctors:
         ctors[0].prepend_section_comment("Constructors")
@@ -77,14 +69,17 @@ def generate_constructors(
 def generate_variant_from_to(
     builtin_class: BuiltinClass,
 ) -> list[BindingCode]:
-    return [format_type_from_to_variant(builtin_class["name"])]
+    return [
+        BuiltinClassToVariantConversion(builtin_class["name"]).get_c_code(),
+        BuiltinClassFromVariantConversion(builtin_class["name"]).get_c_code(),
+    ]
 
 
 def generate_destructor(
     builtin_class: BuiltinClass,
 ) -> list[BindingCode]:
     if builtin_class["has_destructor"]:
-        dtor = format_destructor_pointer(builtin_class["name"])
+        dtor = BuiltinClassDestructor(builtin_class["name"]).get_c_code()
         dtor.prepend_section_comment("Destructor")
         return [dtor]
     else:
@@ -94,8 +89,8 @@ def generate_destructor(
 def generate_members(
     builtin_class: BuiltinClass,
 ) -> list[BindingCode]:
-    members = [format_member_pointers(builtin_class["name"], member)
-               for member in builtin_class.get("members", [])]
+    members = [member.get_c_code()
+               for member in BuiltinClassMember.get_all_members(builtin_class)]
     if members:
         members[0].prepend_section_comment("Members")
     return members
@@ -104,24 +99,23 @@ def generate_members(
 def generate_indexing(
     builtin_class: BuiltinClass,
 ) -> list[BindingCode]:
-    indexing_return_type = builtin_class.get("indexing_return_type")
-    if indexing_return_type:
-        indexers = format_indexing_pointers(builtin_class["name"],
-                                            builtin_class["is_keyed"],
-                                            indexing_return_type)
-        indexers.prepend_section_comment("Indexing")
-        return [indexers]
-    else:
-        return []
+    indexers = [
+        indexer.get_c_code()
+        for indexer
+        in BuiltinClassIndexing.get_all_indexers(builtin_class)
+    ]
+    if indexers:
+        indexers[0].prepend_section_comment("Indexing")
+    return indexers
 
 
 def generate_methods(
     builtin_class: BuiltinClass,
 ) -> list[BindingCode]:
-    members = builtin_class.get("members", [])
-    methods = [format_method_pointer(builtin_class["name"], method)
-               for method in builtin_class.get("methods", [])
-               if should_generate_method(method, members)]
+    methods = [
+        method.get_c_code()
+        for method in BuiltinClassMethod.get_all_methods(builtin_class)
+    ]
     if methods:
         methods[0].prepend_section_comment("Methods")
     return methods

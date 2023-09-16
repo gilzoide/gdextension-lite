@@ -3,8 +3,9 @@ Internal utilities for Godot types
 """
 
 from __future__ import annotations
+from collections import defaultdict
 import re
-from textwrap import dedent, indent
+from textwrap import dedent
 from typing import Sequence
 
 from json_types import *
@@ -137,556 +138,33 @@ def should_generate_method(
 
 class BindingCode:
     """Object that contains the code necessary for each function binding"""
-    def __init__(self, prototype: str, implementation: str, bind: str = ""):
+    def __init__(self, prototype: str, implementation: str, **extras: str):
         self.prototype = prototype
         self.implementation = implementation
-        self.bind = bind
+        self.extras = extras
+
+    def __getitem__(self, key: str) -> str:
+        return self.extras.get(key, "")
 
     def prepend_section_comment(self, comment: str):
         if self.prototype:
             self.prototype = f"// {comment}\n{self.prototype}"
         if self.implementation:
             self.implementation = f"// {comment}\n{self.implementation}"
-        if self.bind:
-            self.bind = f"// {comment}\n{self.bind}"
 
     @classmethod
     def merge(cls, bindings: Sequence[BindingCode]) -> BindingCode: 
+        extras: dict = defaultdict(list)
+        for b in bindings:
+            for k, v in b.extras.items():
+                extras[k].append(v)
+        for k, v in extras.items():
+            extras[k] = '\n'.join(v)
         return BindingCode(
             "\n\n".join(b.prototype for b in bindings if b.prototype),
             "\n\n".join(b.implementation for b in bindings if b.implementation),
-            "\n".join(b.bind for b in bindings if b.bind),
+            **extras,
         )
-
-
-############################################################
-# Functions pointer variables + custom implementations
-############################################################
-def format_constructor_pointer(
-    type_name: str,
-    ctor: Constructor,
-) -> BindingCode:
-    func_name = f"new_{type_name}"
-    arguments = ctor.get("arguments")
-    if arguments:
-        func_name += "_from" + "".join(f"_{arg['type']}" for arg in arguments)
-
-        proto_arguments = ", ".join(
-            format_parameter_const(arg["type"], arg["name"])
-            for arg in arguments
-        )
-    else:
-        proto_arguments = ""
-    proto_ptr = f"GDExtensionPtrConstructor godot_ptr_{func_name}"
-    proto_typed = f"godot_{type_name} godot_{func_name}({proto_arguments})"
-    return BindingCode(
-        code_block(f"""
-            extern {proto_ptr};
-            {proto_typed};
-        """),
-        code_block(f"""
-            {proto_ptr};
-            {proto_typed} {{
-            \tGDEXTENSION_LITE_LAZY_INIT_VARIANT_CONSTRUCTOR({
-                    func_name
-                }, {
-                    format_type_to_variant_enum(type_name)
-                }, {
-                    ctor["index"]
-                });
-            \tgodot_{type_name} self;
-{indent(format_arguments_array("_args", arguments), "            	")}
-            \tgodot_ptr_{func_name}(&self, _args);
-            \treturn self;
-            }}
-        """),
-    )
-
-
-def format_destructor_pointer(
-    type_name: str,
-) -> BindingCode:
-    function_name = f"destroy_{type_name}"
-    proto_ptr = f"GDExtensionPtrDestructor godot_ptr_{function_name}"
-    proto_typed = (f"void godot_{function_name}("
-                   f"{format_parameter(type_name, 'self')})")
-    return BindingCode(
-        code_block(f"""
-            extern {proto_ptr};
-            {proto_typed};
-        """),
-        code_block(f"""
-            {proto_ptr};
-            {proto_typed} {{
-            \tGDEXTENSION_LITE_LAZY_INIT_VARIANT_DESTRUCTOR({
-                    type_name
-                }, {
-                    format_type_to_variant_enum(type_name)
-                });
-            \tgodot_ptr_{function_name}(self);
-            }}
-        """),
-    )
-
-
-def format_type_from_to_variant(
-    type_name: str,
-) -> BindingCode:
-    type_ptr_name = f"godot_ptr_new_{type_name}_from_Variant"
-    proto_type_ptr = ("GDExtensionTypeFromVariantConstructorFunc"
-                      f" {type_ptr_name}")
-    proto_type_typed = (f"godot_{type_name}"
-                        f" godot_new_{type_name}_from_Variant("
-                        f"{format_parameter('Variant', 'value')})")
-    variant_ptr_name = f"godot_ptr_new_Variant_from_{type_name}"
-    proto_variant_ptr = ("GDExtensionVariantFromTypeConstructorFunc"
-                         f" {variant_ptr_name}")
-    proto_variant_typed = (f"godot_Variant"
-                           f" godot_new_Variant_from_{type_name}("
-                           f"{format_parameter(type_name, 'value')})")
-    return BindingCode(
-        code_block(f"""
-            extern {proto_type_ptr};
-            {proto_type_typed};
-
-            extern {proto_variant_ptr};
-            {proto_variant_typed};
-        """),
-        code_block(f"""
-            {proto_type_ptr};
-            {proto_type_typed} {{
-            \tGDEXTENSION_LITE_LAZY_INIT_TYPE_FROM_VARIANT({
-                    type_name
-                }, {
-                    format_type_to_variant_enum(type_name)
-                });
-            \tgodot_{type_name} self;
-            \tgodot_ptr_new_{type_name}_from_Variant(&self, value);
-            \treturn self;
-            }}
-
-            {proto_variant_ptr};
-            {proto_variant_typed} {{
-            \tGDEXTENSION_LITE_LAZY_INIT_VARIANT_FROM_TYPE({
-                    type_name
-                }, {
-                    format_type_to_variant_enum(type_name)
-                });
-            \tgodot_Variant self;
-            \tgodot_ptr_new_Variant_from_{type_name}(&self, {
-                format_value_to_ptr(type_name, 'value')
-            });
-            \treturn self;
-            }}
-        """),
-    )
-
-
-def format_member_pointers(
-    type_name: str,
-    member: ArgumentOrSingletonOrMember,
-) -> BindingCode:
-    name = member['name']
-    type = member['type']
-    set_name = f"{type_name}_set_{name}"
-    set_ptr = f"GDExtensionPtrSetter godot_ptr_{set_name}"
-    set_typed = (f"void godot_{set_name}("
-                 f"{format_parameter(type_name, 'self')}, "
-                 f"{format_parameter_const(type, 'value')})")
-    get_name = f"{type_name}_get_{name}"
-    get_ptr = f"GDExtensionPtrGetter godot_ptr_{get_name}"
-    get_typed = (f"godot_{type} godot_{get_name}("
-                 f"{format_parameter_const(type_name, 'self')})")
-    return BindingCode(
-        code_block(f"""
-            extern {set_ptr};
-            {set_typed};
-
-            extern {get_ptr};
-            {get_typed};
-        """),
-        code_block(f"""
-            {set_ptr};
-            {set_typed} {{
-            \tGDEXTENSION_LITE_LAZY_INIT_VARIANT_MEMBER(set, {
-                    type_name
-                }, {
-                    format_type_to_variant_enum(type_name)
-                }, {
-                    name
-                });
-            \tgodot_ptr_{set_name}(self, {format_value_to_ptr(type, 'value')});
-            }}
-
-            {get_ptr};
-            {get_typed} {{
-            \tGDEXTENSION_LITE_LAZY_INIT_VARIANT_MEMBER(get, {
-                    type_name
-                }, {
-                    format_type_to_variant_enum(type_name)
-                }, {
-                    name
-                });
-            \tgodot_{type} value;
-            \tgodot_ptr_{get_name}(self, &value);
-            \treturn value;
-            }}
-        """),
-    )
-
-
-def format_indexing_pointers(
-    type_name: str,
-    is_keyed: bool,
-    return_type: str,
-) -> BindingCode:
-    if is_keyed:
-        set_name = f"{type_name}_keyed_set"
-        set_ptr = f"GDExtensionPtrKeyedSetter godot_ptr_{set_name}"
-        set_typed = (f"void godot_{set_name}("
-                     f"{format_parameter(type_name, 'self')}, "
-                     f"{format_parameter_const('Variant', 'key')}, "
-                     f"{format_parameter_const(return_type, 'value')})")
-        get_name = f"{type_name}_keyed_get"
-        get_ptr = f"GDExtensionPtrKeyedGetter godot_ptr_{get_name}"
-        get_typed = (f"godot_{return_type} godot_{get_name}("
-                     f"{format_parameter_const(type_name, 'self')}, "
-                     f"{format_parameter_const('Variant', 'key')})")
-        indexed_or_keyed = "keyed"
-    else:
-        set_name = f"{type_name}_indexed_set"
-        set_ptr = f"GDExtensionPtrIndexedSetter godot_ptr_{set_name}"
-        set_typed = (f"void godot_{set_name}("
-                     f"{format_parameter(type_name, 'self')}, "
-                     f"{format_parameter_const('int', 'key')}, "
-                     f"{format_parameter_const(return_type, 'value')})")
-        get_name = f"{type_name}_indexed_get"
-        get_ptr = f"GDExtensionPtrIndexedGetter godot_ptr_{get_name}"
-        get_typed = (f"godot_{return_type} godot_{get_name}("
-                     f"{format_parameter_const(type_name, 'self')}, "
-                     f"{format_parameter_const('int', 'key')})")
-        indexed_or_keyed = "indexed"
-    return BindingCode(
-        code_block(f"""
-            extern {set_ptr};
-            {set_typed};
-
-            extern {get_ptr};
-            {get_typed};
-        """),
-        code_block(f"""
-            {set_ptr};
-            {set_typed} {{
-            \tGDEXTENSION_LITE_LAZY_INIT_VARIANT_INDEXING(set, {
-                    indexed_or_keyed
-                }, {
-                    type_name
-                }, {
-                    format_type_to_variant_enum(type_name)
-                });
-            \tgodot_ptr_{set_name}(self, key, {
-                format_value_to_ptr(return_type, 'value')
-            });
-            }}
-
-            {get_ptr};
-            {get_typed} {{
-            \tGDEXTENSION_LITE_LAZY_INIT_VARIANT_INDEXING(get, {
-                    indexed_or_keyed
-                }, {
-                    type_name
-                }, {
-                    format_type_to_variant_enum(type_name)
-                });
-            \tgodot_{return_type} value;
-            \tgodot_ptr_{get_name}(self, key, &value);
-            \treturn value;
-            }}
-        """),
-    )
-
-
-def format_operator_pointer(
-    type_name: str,
-    operator: Operator,
-) -> BindingCode:
-    operator_name = OPERATOR_TO_C.get(operator["name"], operator["name"])
-    function_name = f"{type_name}_op_{operator_name}"
-    return_type = operator["return_type"]
-    right_type = operator.get("right_type")
-    if right_type:
-        function_name += "_" + right_type
-        right_parameter = ", " + format_parameter_const(right_type, "b")
-    else:
-        right_parameter = ""
-
-    proto_ptr = f"GDExtensionPtrOperatorEvaluator godot_ptr_{function_name}"
-    proto_typed = (f"godot_{return_type} godot_{function_name}("
-                   f"{format_parameter_const(type_name, 'a')}"
-                   f"{right_parameter})")
-    return BindingCode(
-        code_block(f"""
-            extern {proto_ptr};
-            {proto_typed};
-        """),
-        code_block(f"""
-            {proto_ptr};
-            {proto_typed} {{
-            \tGDEXTENSION_LITE_LAZY_INIT_VARIANT_OPERATOR({
-                    function_name
-                }, {
-                    format_operator_to_enum(operator_name)
-                }, {
-                    format_type_to_variant_enum(type_name)
-                }, {
-                    format_type_to_variant_enum(right_type)
-                });
-            \tgodot_{return_type} _ret;
-            \tgodot_ptr_{function_name}({
-                format_value_to_ptr(type_name, 'a')
-            }, {
-                format_value_to_ptr(right_type, 'b')
-                if right_type
-                else "NULL"
-            }, &_ret);
-            \treturn _ret;
-            }}
-        """),
-    )
-
-
-def format_method_pointer(
-    type_name: str,
-    method: BuiltinClassMethod
-) -> BindingCode:
-    return_type = method.get("return_type")
-    proto_return_type = format_return_type(return_type) if return_type else "void"
-
-    proto_args = []
-    is_static = method.get("is_static", False)
-    if not is_static:
-        is_const = method.get("is_const", False)
-        proto_args.append(format_parameter(type_name,
-                                           "self",
-                                           is_const=is_const))
-    arguments = method.get("arguments")
-    if arguments:
-        proto_args.extend(
-            format_parameter_const(arg["type"], arg["name"])
-            for arg in arguments
-        )
-
-    non_vararg_argc = len(proto_args)
-    is_vararg = method.get("is_vararg")
-    if is_vararg:
-        proto_args.append("godot_int argc")
-        proto_args.append("const godot_Variant **argv")
-
-    proto_args = ", ".join(proto_args)
-
-    method_name = method["name"]
-    function_name = f"{type_name}_{method_name}"
-    proto_ptr = f"GDExtensionPtrBuiltInMethod godot_ptr_{function_name}"
-    proto_typed = f"{proto_return_type} godot_{function_name}({proto_args})"
-
-    return BindingCode(
-        code_block(f"""
-            extern {proto_ptr};
-            {proto_typed};
-            {format_vararg_macro(function_name, non_vararg_argc) if is_vararg else ""}
-        """),
-        code_block(f"""
-            {proto_ptr};
-            {proto_typed} {{
-            \tGDEXTENSION_LITE_LAZY_INIT_VARIANT_METHOD({
-                    type_name
-                }, {
-                    format_type_to_variant_enum(type_name)
-                }, {
-                    method_name
-                }, {
-                    method['hash']
-                });
-            \t{proto_return_type + " _ret;" if return_type else ""}
-{indent(format_arguments_array('_args', arguments, is_vararg), '            	')}
-            \tgodot_ptr_{function_name}({
-                "NULL"
-                if is_static
-                else "(GDExtensionTypePtr) self"
-            }, _args, {
-                "&_ret"
-                if return_type
-                else "NULL"
-            }, {format_arguments_count(arguments, is_vararg)});
-            \t{"return _ret;" if return_type else ""}
-            }}
-        """),
-    )
-
-
-def format_utility_function(
-    function: UtilityFunction
-) -> BindingCode:
-    return_type = function.get("return_type")
-    proto_return_type = format_return_type(return_type) if return_type else "void"
-
-    proto_args = []
-    arguments = function.get("arguments")
-    if arguments:
-        proto_args.extend(
-            format_parameter_const(arg["type"], arg["name"])
-            for arg in arguments
-        )
-
-    non_vararg_argc = len(proto_args)
-    is_vararg = function.get("is_vararg")
-    if is_vararg:
-        proto_args.append("godot_int argc")
-        proto_args.append("const godot_Variant **argv")
-
-    proto_args = ", ".join(proto_args)
-
-    function_name = function["name"]
-    proto_ptr = f"GDExtensionPtrUtilityFunction godot_ptr_{function_name}"
-    proto_typed = f"{proto_return_type} godot_{function_name}({proto_args})"
-
-    return BindingCode(
-        code_block(f"""
-            extern {proto_ptr};
-            {proto_typed};
-            {format_vararg_macro(function_name, non_vararg_argc) if is_vararg else ""}
-        """),
-        code_block(f"""
-            {proto_ptr};
-            {proto_typed} {{
-            \tGDEXTENSION_LITE_LAZY_INIT_UTILITY_FUNCTION({function_name}, {function['hash']});
-            \t{proto_return_type + " _ret;" if return_type else ""}
-{indent(format_arguments_array('_args', arguments, is_vararg), '            	')}
-            \tgodot_ptr_{function_name}({
-                "&_ret"
-                if return_type
-                else "NULL"
-            }, _args, {format_arguments_count(arguments, is_vararg)});
-            \t{"return _ret;" if return_type else ""}
-            }}
-        """),
-    )
-
-
-def format_constant(
-    type_name: str,
-    constant: Constant | ValueOrConstant,
-) -> BindingCode:
-    type = constant.get("type", "int")
-    value = str(constant["value"])
-    if "(" in value:
-        match = re.search(r"\(([^)]+)", value)
-        if match:
-            value = match.group(1).replace("inf", "godot_inf")
-            value = "{ " + value + " }"
-    return BindingCode(
-        f"extern const godot_{type} godot_{type_name}_{constant['name']};  // {value}",
-        f"const godot_{type} godot_{type_name}_{constant['name']} = {value};"
-    )
-
-
-def format_class_struct(
-    class_name: str,
-) -> BindingCode:
-    return BindingCode(
-        f"typedef struct godot_{class_name} godot_{class_name};",
-        ""
-    )
-
-
-def format_class_enum(
-    class_name: str,
-    enum: Enum,
-) -> BindingCode:
-    enum_name = f"godot_{class_name}_{enum['name']}"
-    values = "\n".join(f"godot_{class_name}_{value['name']} = {value['value']},"
-                        for value in enum["values"])
-    return BindingCode(
-        code_block(f"""
-            typedef enum {enum_name} {{
-{indent(values, '            	')}
-            }} {enum_name};
-        """),
-        "",
-    )
-
-
-def format_class_method_pointer(
-    class_name: str,
-    method: Method,
-) -> BindingCode:
-    return_value = method.get("return_value")
-    return_type = return_value["type"] if return_value else None
-    proto_return_type = format_return_type(return_type) if return_type else "void"
-
-    proto_args = []
-    is_static = method.get("is_static", False)
-    if not is_static:
-        is_const = method.get("is_const", False)
-        proto_args.append(format_parameter(class_name,
-                                           "self",
-                                           is_const=is_const))
-    arguments = method.get("arguments")
-    if arguments:
-        proto_args.extend(
-            format_parameter_const(arg["type"], arg["name"])
-            for arg in arguments
-        )
-
-    non_vararg_argc = len(proto_args)
-    is_vararg = method.get("is_vararg")
-    if is_vararg:
-        proto_args.append("godot_int argc")
-        proto_args.append("const godot_Variant **argv")
-
-    proto_args = ", ".join(proto_args)
-
-    method_name = method["name"]
-    function_name = f"{class_name}_{method_name}"
-    proto_ptr = f"GDExtensionMethodBindPtr godot_ptr_{function_name}"
-    proto_typed = f"{proto_return_type} godot_{function_name}({proto_args})"
-
-    call_args = [
-        f"godot_ptr_{function_name}",
-        "NULL" if is_static else "(GDExtensionObjectPtr) self",
-        "_args",
-    ]
-    if is_vararg:
-        call_args.append(format_arguments_count(arguments, is_vararg))
-        call_args.append("&_ret" if return_type else "NULL")
-        call_args.append("&_error")
-    else:
-        call_args.append("&_ret" if return_type else "NULL")
-    bind_call = "godot_object_method_bind_call" if is_vararg else "godot_object_method_bind_ptrcall"
-    return BindingCode(
-        code_block(f"""
-            extern {proto_ptr};
-            {proto_typed};
-            {format_vararg_macro(function_name, non_vararg_argc) if is_vararg else ""}
-        """),
-        code_block(f"""
-            {proto_ptr};
-            {proto_typed} {{
-            \tGDEXTENSION_LITE_LAZY_INIT_CLASS_METHOD({
-                    class_name
-                }, {
-                    method_name
-                }, {
-                    method.get('hash', 0)
-                });
-            \t{proto_return_type + " _ret;" if return_type else ""}
-{indent(format_arguments_array('_args', arguments, is_vararg), '            	')}
-            \t{"GDExtensionCallError _error;" if is_vararg else ""}
-            \t{bind_call}({', '.join(call_args)});
-            \t{"return _ret;" if return_type else ""}
-            }}
-        """),
-    )
 
 
 ############################################################
@@ -726,9 +204,11 @@ def format_parameter_const(
 
 
 def format_return_type(
-    type_name: str,
+    type_name: str | None,
 ) -> str:
-    if type_name.startswith("enum::"):
+    if type_name is None:
+        return "void"
+    elif type_name.startswith("enum::"):
         return f"godot_{type_name[len('enum::'):].replace('.', '_')}"
     elif type_name.startswith("typedarray::"):
         return f"godot_TypedArray(godot_{type_name[len('typedarray::'):]})"
@@ -756,9 +236,12 @@ def format_native_struct_field(
 
 
 def format_value_to_ptr(
-    type_name: str,
+    type_name: str | None,
     parameter_name: str,
 ) -> str:
+    if type_name is None:
+        return "NULL"
+
     parameter_name = IDENTIFIER_OVERRIDES.get(parameter_name, parameter_name)
     if type_name in NON_STRUCT_TYPES or type_name.startswith("enum::"):
         return "&" + parameter_name
