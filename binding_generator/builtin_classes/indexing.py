@@ -1,3 +1,4 @@
+from common.code_generator import CodeGenerator
 from format_utils import (BindingCode,
                           format_parameter,
                           format_parameter_const,
@@ -6,7 +7,7 @@ from format_utils import (BindingCode,
 from json_types import *
 
 
-class BuiltinClassIndexing:
+class BuiltinClassIndexing(CodeGenerator):
     """
     Builtin classes (a.k.a Variants) indexing operators
     """
@@ -17,9 +18,6 @@ class BuiltinClassIndexing:
         self.indexed_or_keyed = "keyed" if is_keyed else "indexed"
         self.key_type = "Variant" if is_keyed else "int"
         self.return_type = return_type
-
-    def get_c_code(self) -> BindingCode:
-        return BindingCode("", "")
 
     @classmethod
     def get_all_indexers(

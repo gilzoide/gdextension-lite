@@ -18,9 +18,10 @@ from json_types import BuiltinClass
 
 def generate_constants(
     builtin_class: BuiltinClass,
+    is_cpp: bool,
 ) -> list[BindingCode]:
     constants = [
-        constant.get_c_code()
+        constant.get_code(is_cpp)
         for constant in Constant.get_all_constants(builtin_class)
     ]
     if constants:
@@ -30,9 +31,10 @@ def generate_constants(
 
 def generate_enums(
     builtin_class: BuiltinClass,
+    is_cpp: bool,
 ) -> list[BindingCode]:
     enums = [
-        enum.get_c_code()
+        enum.get_code(is_cpp)
         for enum in ScopedEnum.get_all_scoped_enums(builtin_class)
     ]
     if enums:
@@ -42,9 +44,10 @@ def generate_enums(
 
 def generate_operators(
     builtin_class: BuiltinClass,
+    is_cpp: bool,
 ) -> list[BindingCode]:
     operators = [
-        op.get_c_code()
+        op.get_code(is_cpp)
         for op in BuiltinClassOperator.get_all_operators(builtin_class)
     ]
     if operators:
@@ -54,9 +57,10 @@ def generate_operators(
 
 def generate_constructors(
     builtin_class: BuiltinClass,
+    is_cpp: bool,
 ) -> list[BindingCode]:
     ctors = [
-        ctor.get_c_code()
+        ctor.get_code(is_cpp)
         for ctor in BuiltinClassConstructor.get_all_constructors(builtin_class)
     ]
     if ctors:
@@ -66,18 +70,20 @@ def generate_constructors(
 
 def generate_variant_from_to(
     builtin_class: BuiltinClass,
+    is_cpp: bool,
 ) -> list[BindingCode]:
     return [
-        BuiltinClassToVariantConversion(builtin_class["name"]).get_c_code(),
-        BuiltinClassFromVariantConversion(builtin_class["name"]).get_c_code(),
+        BuiltinClassToVariantConversion(builtin_class["name"]).get_code(is_cpp),
+        BuiltinClassFromVariantConversion(builtin_class["name"]).get_code(is_cpp),
     ]
 
 
 def generate_destructor(
     builtin_class: BuiltinClass,
+    is_cpp: bool,
 ) -> list[BindingCode]:
     if builtin_class["has_destructor"]:
-        dtor = BuiltinClassDestructor(builtin_class["name"]).get_c_code()
+        dtor = BuiltinClassDestructor(builtin_class["name"]).get_code(is_cpp)
         dtor.prepend_section_comment("Destructor")
         return [dtor]
     else:
@@ -86,8 +92,9 @@ def generate_destructor(
 
 def generate_members(
     builtin_class: BuiltinClass,
+    is_cpp: bool,
 ) -> list[BindingCode]:
-    members = [member.get_c_code()
+    members = [member.get_code(is_cpp)
                for member in BuiltinClassMember.get_all_members(builtin_class)]
     if members:
         members[0].prepend_section_comment("Members")
@@ -96,9 +103,10 @@ def generate_members(
 
 def generate_indexing(
     builtin_class: BuiltinClass,
+    is_cpp: bool,
 ) -> list[BindingCode]:
     indexers = [
-        indexer.get_c_code()
+        indexer.get_code(is_cpp)
         for indexer
         in BuiltinClassIndexing.get_all_indexers(builtin_class)
     ]
@@ -109,9 +117,10 @@ def generate_indexing(
 
 def generate_methods(
     builtin_class: BuiltinClass,
+    is_cpp: bool,
 ) -> list[BindingCode]:
     methods = [
-        method.get_c_code()
+        method.get_code(is_cpp)
         for method in BuiltinClassMethod.get_all_methods(builtin_class)
     ]
     if methods:
@@ -121,31 +130,41 @@ def generate_methods(
 
 def generate_builtin_class(
     builtin_class: BuiltinClass,
+    is_cpp: bool = False,
 ) -> BindingCode:
-    definitions = (generate_constants(builtin_class)
-                   + generate_enums(builtin_class)
-                   + generate_constructors(builtin_class)
-                   + generate_variant_from_to(builtin_class)
-                   + generate_destructor(builtin_class)
-                   + generate_members(builtin_class)
-                   + generate_indexing(builtin_class)
-                   + generate_operators(builtin_class)
-                   + generate_methods(builtin_class))
+    definitions = (generate_constants(builtin_class, is_cpp)
+                   + generate_enums(builtin_class, is_cpp)
+                   + generate_constructors(builtin_class, is_cpp)
+                   + generate_variant_from_to(builtin_class, is_cpp)
+                   + generate_destructor(builtin_class, is_cpp)
+                   + generate_members(builtin_class, is_cpp)
+                   + generate_indexing(builtin_class, is_cpp)
+                   + generate_operators(builtin_class, is_cpp)
+                   + generate_methods(builtin_class, is_cpp))
 
     includes = [
         '#include "../../gdextension/gdextension_interface.h"',
         '#include "../../variant/all.h"',
     ]
-    return BindingCode.merge(definitions, includes=includes)
+    merged = BindingCode.merge(definitions, includes=includes)
+    if is_cpp:
+        merged.surround_prototype(
+            f"class {builtin_class['name']} {{",
+            "};",
+        )
+    return merged
 
 
 def generate_initialize_all_builtin_classes(
     builtin_classes: list[BuiltinClass],
 ) -> BindingCode:
     class_names = [cls["name"] for cls in builtin_classes]
-    includes = "\n".join(f'#include "{format_type_snake_case(name)}.h"'
-                         for name in class_names)
+    includes = "\n".join(
+        f'#include "{format_type_snake_case(name)}.h"'
+        for name in class_names
+    )
     return BindingCode(
-        includes,
         "",
+        "",
+        includes=includes,
     )

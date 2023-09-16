@@ -1,3 +1,4 @@
+from common.code_generator import CodeGenerator
 from format_utils import (BindingCode,
                           format_operator_to_enum,
                           format_parameter_const,
@@ -8,7 +9,7 @@ from format_utils import (BindingCode,
 from json_types import *
 
 
-class BuiltinClassOperator:
+class BuiltinClassOperator(CodeGenerator):
     """
     Builtin classes (a.k.a Variants) operator
     """

@@ -1,10 +1,11 @@
 from textwrap import indent
 
+from .code_generator import CodeGenerator
 from format_utils import BindingCode
 from json_types import *
 
 
-class ScopedEnum:
+class ScopedEnum(CodeGenerator):
     """
     Enums scoped in classes
     """
@@ -12,16 +13,16 @@ class ScopedEnum:
         self.scope = scope
         self.enum = enum
         self.enum_name = f"godot_{scope}_{enum['name']}"
-        self.values = '\n'.join(
+        self.values = "\n".join(
             f"godot_{scope}_{value['name']} = {value['value']},"
             for value in enum['values']
         )
 
     def get_c_code(self) -> BindingCode:
         return BindingCode(
-            '\n'.join([
+            "\n".join([
                 f"typedef enum {self.enum_name} {{",
-                indent(self.values, '\t'),
+                indent(self.values, "\t"),
                 f"}} {self.enum_name};",
             ]),
             "",
@@ -31,7 +32,7 @@ class ScopedEnum:
     def get_all_scoped_enums(
         cls,
         target_class: BuiltinClass | Class,
-    ) -> list['ScopedEnum']:
+    ) -> list["ScopedEnum"]:
         type_name = target_class['name']
         return [
             cls(type_name, enum)

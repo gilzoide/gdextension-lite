@@ -1,3 +1,4 @@
+from common.code_generator import CodeGenerator
 from format_utils import (BindingCode,
                           format_parameter,
                           format_parameter_const,
@@ -6,7 +7,7 @@ from format_utils import (BindingCode,
 from json_types import *
 
 
-class BuiltinClassMember:
+class BuiltinClassMember(CodeGenerator):
     """
     Builtin classes (a.k.a. Variants) member
     """
@@ -14,9 +15,6 @@ class BuiltinClassMember:
         self.class_name = type_name
         self.variant_type_enum = format_type_to_variant_enum(type_name)
         self.member = member
-
-    def get_c_code(self) -> BindingCode:
-        return BindingCode("", "")
 
     @classmethod
     def get_all_members(

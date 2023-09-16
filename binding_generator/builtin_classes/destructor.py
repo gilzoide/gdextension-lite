@@ -1,9 +1,9 @@
-from format_utils import (BindingCode,
-                          format_type_to_variant_enum)
+from common.code_generator import CodeGenerator
+from format_utils import BindingCode, format_type_to_variant_enum
 from json_types import *
 
 
-class BuiltinClassDestructor:
+class BuiltinClassDestructor(CodeGenerator):
     """
     Builtin classes (a.k.a Variants) Destructor structure
     """
@@ -32,4 +32,3 @@ class BuiltinClassDestructor:
                 "}",
             ]),
         )
-
