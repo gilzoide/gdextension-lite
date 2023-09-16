@@ -5,6 +5,8 @@ C header file generator
 from pathlib import Path
 import re
 
+from format_utils import BindingCode
+
 
 class HeaderWriter:
     """C header file writer class"""
@@ -12,9 +14,8 @@ class HeaderWriter:
         self.base_dir = Path(*pathsegments)
 
     def write_header(self,
-                     contents: str,
-                     *pathsegments: str,
-                     implementation: str = ""):
+                     contents: BindingCode,
+                     *pathsegments: str):
         header_name = Path(*pathsegments)
         guard_name = re.sub("[^a-zA-Z0-9_]", "_", str(header_name)).upper()
         define = f"__GDEXTENSION_LITE_GENERATED_{guard_name}_H__"
@@ -24,12 +25,17 @@ class HeaderWriter:
             f"#ifndef {define}",
             f"#define {define}",
             "",
-            contents,
+        ]
+        if contents['includes']:
+            lines.append(contents['includes'])
+            lines.append("")
+        lines.extend([
+            contents.prototype,
             "",
             f"#endif  // {define}",
-        ]
+        ])
 
-        if implementation:
+        if contents.implementation:
             define = f"__GDEXTENSION_LITE_GENERATED_{guard_name}_H_IMPLEMENTATION__"
             implementation_macros_h = ("../" * len(pathsegments)) + "implementation-macros.h"
             lines.extend([
@@ -40,7 +46,7 @@ class HeaderWriter:
                 "",
                 f'#include "{implementation_macros_h}"',
                 "",
-                implementation,
+                contents.implementation,
                 "",
                 f"#endif  // {define}",
                 "#endif  // GDEXTENSION_LITE_IMPLEMENTATION",

@@ -2,7 +2,6 @@
 Internal utilities for Godot types
 """
 
-from __future__ import annotations
 from collections import defaultdict
 import re
 from textwrap import dedent
@@ -153,13 +152,13 @@ class BindingCode:
             self.implementation = f"// {comment}\n{self.implementation}"
 
     @classmethod
-    def merge(cls, bindings: Sequence[BindingCode]) -> BindingCode: 
-        extras: dict = defaultdict(list)
+    def merge(cls, bindings: Sequence["BindingCode"], **kwargs: list[str]) -> "BindingCode":
+        extras: dict = defaultdict(list, **kwargs)
         for b in bindings:
             for k, v in b.extras.items():
                 extras[k].append(v)
         for k, v in extras.items():
-            extras[k] = '\n'.join(v)
+            extras[k] = "\n".join(v)
         return BindingCode(
             "\n\n".join(b.prototype for b in bindings if b.prototype),
             "\n\n".join(b.implementation for b in bindings if b.implementation),

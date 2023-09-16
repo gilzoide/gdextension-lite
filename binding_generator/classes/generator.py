@@ -2,8 +2,6 @@
 Generates bindings for Godot classes
 """
 
-from typing import Tuple
-
 from .method import ClassMethod
 from common.constant import Constant
 from common.opaque_struct import OpaqueStruct
@@ -46,22 +44,21 @@ def generate_class_stub(
 
 def generate_class_stub_header(
     cls: Class,
-) -> Tuple[str, str]:
-    merged = BindingCode.merge(generate_class_stub(cls))
-    return (
-        merged.prototype,
-        "",
-    )
+) -> BindingCode:
+    return BindingCode.merge(generate_class_stub(cls))
 
 
 def generate_all_class_stubs(
     classes: list[Class],
-) -> Tuple[str, str]:
-    includes = (f'#include "{format_type_snake_case(cls["name"])}.h"'
-                for cls in classes)
-    return (
-        "\n".join(includes),
+) -> BindingCode:
+    includes = (
+        f'#include "{format_type_snake_case(cls["name"])}.h"'
+        for cls in classes
+    )
+    return BindingCode(
         "",
+        "",
+        includes="\n".join(includes),
     )
 
 def generate_class_methods(
@@ -78,9 +75,8 @@ def generate_class_methods(
 
 def generate_class_method_header(
     cls: Class,
-) -> Tuple[str, str]:
+) -> BindingCode:
     definitions = (generate_class_methods(cls))
-    merged = BindingCode.merge(definitions)
     includes = [
         '#include "../class-stubs/all.h"',
         '#include "../global_enums.h"',
@@ -89,19 +85,19 @@ def generate_class_method_header(
         '#include "../../gdextension/gdextension_interface.h"',
         '#include "../../variant/all.h"',
     ]
-    return (
-        "\n".join(includes) + "\n\n" + merged.prototype,
-        merged.implementation,
-    )
+    return BindingCode.merge(definitions, includes=includes)
 
 
 def generate_initialize_all_classes(
     classes: list[Class],
-) -> Tuple[str, str]:
+) -> BindingCode:
     class_names = [cls["name"] for cls in classes]
-    includes = "\n".join(f'#include "{format_type_snake_case(name)}.h"'
-                         for name in class_names)
-    return (
-        includes,
+    includes = [
+        f'#include "{format_type_snake_case(name)}.h"'
+        for name in class_names
+    ]
+    return BindingCode(
         "",
+        "",
+        includes="\n".join(includes),
     )

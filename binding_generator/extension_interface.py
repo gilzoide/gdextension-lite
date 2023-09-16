@@ -4,7 +4,6 @@ Generate bindings for Godot extension interface
 
 import re
 from textwrap import indent
-from typing import Tuple
 
 from format_utils import BindingCode
 
@@ -23,11 +22,17 @@ def generate_extension_binding(
     )
 
 
-def generate_all_extension_bindings() -> Tuple[str, str]:
+def generate_all_extension_bindings() -> BindingCode:
     with open("gdextension-lite/gdextension/gdextension_interface.h") as header_file:
         lines = header_file.readlines()
 
-    bindings = []
+    bindings = [
+        BindingCode(
+            "void gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddress get_proc_address);",
+            "",
+            includes='#include "../gdextension/gdextension_interface.h"',
+        ),
+    ]
     symbol = None
     for line in lines:
         line = line.rstrip()
@@ -42,21 +47,9 @@ def generate_all_extension_bindings() -> Tuple[str, str]:
                 symbol = None
 
     merged = BindingCode.merge(bindings)
-    prototype = [
-        '#include "../gdextension/gdextension_interface.h"',
-        '',
-        'void gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddress get_proc_address);',
-        '',
-        merged.prototype,
-    ]
-    implementation = [
-        merged.implementation,
-        '',
-        'void gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddress get_proc_address) {',
-        indent(merged['bind'], '\t'),
-        '}',
-    ]
-    return (
-        '\n'.join(prototype),
-        '\n'.join(implementation),
-    )
+    merged.implementation += "\n".join([
+        "void gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddress get_proc_address) {",
+        indent(merged['bind'], "\t"),
+        "}",
+    ])
+    return merged

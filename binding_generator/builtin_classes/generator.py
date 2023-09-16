@@ -2,8 +2,6 @@
 Generates bindings for Godot's builtin classes (a.k.a. Variants)
 """
 
-from typing import Tuple
-
 from .constructor import BuiltinClassConstructor
 from .destructor import BuiltinClassDestructor
 from .indexing import BuiltinClassIndexing
@@ -123,7 +121,7 @@ def generate_methods(
 
 def generate_builtin_class(
     builtin_class: BuiltinClass,
-) -> Tuple[str, str]:
+) -> BindingCode:
     definitions = (generate_constants(builtin_class)
                    + generate_enums(builtin_class)
                    + generate_constructors(builtin_class)
@@ -134,24 +132,20 @@ def generate_builtin_class(
                    + generate_operators(builtin_class)
                    + generate_methods(builtin_class))
 
-    merged = BindingCode.merge(definitions)
     includes = [
         '#include "../../gdextension/gdextension_interface.h"',
         '#include "../../variant/all.h"',
     ]
-    return (
-        "\n".join(includes) + "\n\n" +  merged.prototype,
-        merged.implementation,
-    )
+    return BindingCode.merge(definitions, includes=includes)
 
 
 def generate_initialize_all_builtin_classes(
     builtin_classes: list[BuiltinClass],
-) -> Tuple[str, str]:
+) -> BindingCode:
     class_names = [cls["name"] for cls in builtin_classes]
     includes = "\n".join(f'#include "{format_type_snake_case(name)}.h"'
                          for name in class_names)
-    return (
+    return BindingCode(
         includes,
         "",
     )
