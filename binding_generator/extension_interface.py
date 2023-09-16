@@ -25,13 +25,7 @@ def generate_all_extension_bindings() -> BindingCode:
     with open("gdextension-lite/gdextension/gdextension_interface.h") as header_file:
         lines = header_file.readlines()
 
-    bindings = [
-        BindingCode(
-            "void gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddress get_proc_address);",
-            "",
-            includes=["../gdextension/gdextension_interface.h"],
-        ),
-    ]
+    bindings = []
     symbol = None
     for line in lines:
         line = line.rstrip()
@@ -46,9 +40,15 @@ def generate_all_extension_bindings() -> BindingCode:
                 symbol = None
 
     merged = BindingCode.merge(bindings)
-    merged.implementation += "\n".join([
-        "void gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddress get_proc_address) {",
-        *[f"\t{line}" for line in merged['bind']],
-        "}",
+    return BindingCode.merge([
+        merged,
+        BindingCode(
+            "\nvoid gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddress get_proc_address);",
+            "\n" + "\n".join([
+                "void gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddress get_proc_address) {",
+                *[f"\t{line}" for line in merged['bind']],
+                "}",
+            ]),
+            includes=["../gdextension/gdextension_interface.h"],
+        )
     ])
-    return merged
