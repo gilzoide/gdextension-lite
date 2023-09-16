@@ -58,9 +58,19 @@ def main():
             generate_builtin_class(builtin_class),
             "variant", format_type_snake_case(builtin_class["name"]),
         )
+        header_writer.write_header(
+            generate_builtin_class(builtin_class, is_cpp=True),
+            "cpp", "variant", format_type_snake_case(builtin_class["name"]),
+            is_cpp=True,
+        )
     header_writer.write_header(
         generate_initialize_all_builtin_classes(builtin_classes),
         "variant", "all",
+    )
+    header_writer.write_header(
+        generate_initialize_all_builtin_classes(builtin_classes, is_cpp=True),
+        "cpp", "variant", "all",
+        is_cpp=True,
     )
 
     # Utility functions

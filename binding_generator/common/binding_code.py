@@ -13,6 +13,12 @@ class BindingCode:
     def __getitem__(self, key: str) -> list[str]:
         return self.extras.get(key, [])
 
+    def add_extras(self, **extras: list[str]) -> None:
+        for k, v in extras.items():
+            lst = self.extras.get(k, [])
+            lst.extend(v)
+            self.extras[k] = lst
+
     def surround_prototype(self, prefix: str, suffix: str) -> None:
         self.prototype = "\n".join([
             prefix,

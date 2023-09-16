@@ -140,6 +140,7 @@ def format_parameter(
     type_name: str,
     parameter_name: str,
     is_const: bool = False,
+    is_cpp: bool = False,
 ) -> str:
     parameter_name = format_identifier(parameter_name)
     if type_name in NON_STRUCT_TYPES:
@@ -157,22 +158,45 @@ def format_parameter(
     if type_name.startswith("bitfield::"):
         type_name = type_name[len("bitfield::"):].replace('.', '_')
     if is_const:
-        return f"const godot_{type_name} *{parameter_name or ''}"
+        if is_cpp:
+            return f"const godot_{type_name}& {parameter_name or ''}"
+        else:
+            return f"const godot_{type_name} *{parameter_name or ''}"
     else:
-        return f"godot_{type_name} *{parameter_name or ''}"
+        if is_cpp:
+            return f"godot_{type_name}& {parameter_name or ''}"
+        else:
+            return f"godot_{type_name} *{parameter_name or ''}"
 
 
 def format_parameter_const(
     type_name: str,
     parameter_name: str,
+    is_cpp: bool = False,
 ) -> str:
-    return format_parameter(type_name, parameter_name, is_const=True)
+    return format_parameter(type_name, parameter_name, is_const=True, is_cpp=is_cpp)
 
 
 def format_identifier(
     identifier: str,
 ) -> str:
     return IDENTIFIER_OVERRIDES.get(identifier, identifier)
+
+
+def format_cpp_argument_forward(
+    type_name: str,
+    identifier: str,
+) -> str:
+    identifier = format_identifier(identifier)
+    if (
+        type_name in NON_STRUCT_TYPES
+        or type_name.startswith("enum")
+        or type_name.endswith("*")
+        or type_name.startswith("bitfield::")
+    ):
+        return identifier
+    else:
+        return "&" + identifier
 
 
 def format_return_type(

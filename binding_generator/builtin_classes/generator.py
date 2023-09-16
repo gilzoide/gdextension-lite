@@ -148,20 +148,25 @@ def generate_builtin_class(
         "../variant/all.h",
     ]
     merged = BindingCode.merge(definitions, includes=includes)
-    if is_cpp and builtin_class['name'] not in NON_STRUCT_TYPES:
-        merged.surround_prototype(
-            f"struct {builtin_class['name']} : public godot_{builtin_class['name']} {{",
-            "};",
-        )
+    type_name = builtin_class['name']
+    if is_cpp:
+        merged.add_extras(implementation_includes=[f"variant/{format_type_snake_case(type_name)}.h"])
+        if type_name not in NON_STRUCT_TYPES:
+            merged.surround_prototype(
+                f"struct {type_name} : public godot_{type_name} {{",
+                "};",
+            )
     return merged
 
 
 def generate_initialize_all_builtin_classes(
     builtin_classes: list[BuiltinClass],
+    is_cpp: bool = False,
 ) -> BindingCode:
     class_names = [cls["name"] for cls in builtin_classes]
+    h_or_hpp = "hpp" if is_cpp else "h"
     includes = [
-        f'#include "{format_type_snake_case(name)}.h"'
+        f'#include "{format_type_snake_case(name)}.{h_or_hpp}"'
         for name in class_names
     ]
     return BindingCode(

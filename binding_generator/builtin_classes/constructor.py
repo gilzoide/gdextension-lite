@@ -2,11 +2,12 @@ from textwrap import indent
 
 from common.binding_code import BindingCode
 from common.code_generator import CodeGenerator
-from format_utils import (format_arguments_array,
+from format_utils import (NON_STRUCT_TYPES,
+                          format_arguments_array,
+                          format_cpp_argument_forward,
                           format_identifier,
                           format_parameter,
                           format_parameter_const,
-                          format_return_type,
                           format_type_to_variant_enum,
                           should_generate_constructor)
 from json_types import *
@@ -59,6 +60,26 @@ class BuiltinClassConstructor(CodeGenerator):
                     f"\tgodot_{self.class_name} self;",
                     f"\tgodot_placement_{self.function_name}({', '.join(['&self'] + [format_identifier(arg['name']) for arg in self.arguments])});",
                     f"\treturn self;",
+                f"}}",
+            ]),
+        )
+
+    def get_cpp_code(self) -> BindingCode:
+        if self.class_name in NON_STRUCT_TYPES:
+            return BindingCode("", "")
+        proto_arguments = [
+            format_parameter(arg['type'], arg['name'], is_const=True, is_cpp=True)
+            for arg in self.arguments
+        ]
+        placement_call_arguments = ["this"] + [
+            format_cpp_argument_forward(arg['type'], arg['name'])
+            for arg in self.arguments
+        ]
+        return BindingCode(
+            f"{self.class_name}({', '.join(proto_arguments)});",
+            "\n".join([
+                f"{self.class_name}::{self.class_name}({', '.join(proto_arguments)}) {{",
+                    f"\tgodot_placement_{self.function_name}({', '.join(placement_call_arguments)});",
                 f"}}",
             ]),
         )
