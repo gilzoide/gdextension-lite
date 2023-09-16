@@ -25,9 +25,9 @@
 
 #define GDEXTENSION_LITE_LAZY_INIT_VARIANT_MEMBER(get_or_set, name, type, member) \
 	if (godot_ptr_##name##_##get_or_set##_##member == NULL) { \
-		GDEXTENSION_LITE_WITH_STRING_NAME(#name, _member, { \
-			godot_ptr_##name##_##get_or_set##_##member = godot_variant_get_ptr_##get_or_set##ter(type, &_member); \
-		}); \
+		godot_StringName _member = godot_new_StringName_from_latin1_chars(#name); \
+		godot_ptr_##name##_##get_or_set##_##member = godot_variant_get_ptr_##get_or_set##ter(type, &_member); \
+		godot_destroy_StringName(&_member); \
 	}
 
 #define GDEXTENSION_LITE_LAZY_INIT_VARIANT_INDEXING(get_or_set, indexed_or_keyed, name, type) \
@@ -42,25 +42,25 @@
 
 #define GDEXTENSION_LITE_LAZY_INIT_VARIANT_METHOD(name, type, method, hash) \
 	if (godot_ptr_##name##_##method == NULL) { \
-		GDEXTENSION_LITE_WITH_STRING_NAME(#method, _method, { \
-			godot_ptr_##name##_##method = godot_variant_get_ptr_builtin_method(type, &_method, hash); \
-		}); \
+		godot_StringName _method = godot_new_StringName_from_latin1_chars(#method); \
+		godot_ptr_##name##_##method = godot_variant_get_ptr_builtin_method(type, &_method, hash); \
+		godot_destroy_StringName(&_method); \
 	}
 
 #define GDEXTENSION_LITE_LAZY_INIT_UTILITY_FUNCTION(name, hash) \
 	if (godot_ptr_##name == NULL) { \
-		GDEXTENSION_LITE_WITH_STRING_NAME(#name, _name, { \
-			godot_ptr_##name = godot_variant_get_ptr_utility_function(&_name, hash); \
-		}); \
+		godot_StringName _name = godot_new_StringName_from_latin1_chars(#name); \
+		godot_ptr_##name = godot_variant_get_ptr_utility_function(&_name, hash); \
+		godot_destroy_StringName(&_name); \
 	}
 
 #define GDEXTENSION_LITE_LAZY_INIT_CLASS_METHOD(name, method, hash) \
 	if (godot_ptr_##name##_##method == NULL) { \
-		GDEXTENSION_LITE_WITH_STRING_NAME(#name, _class, { \
-			GDEXTENSION_LITE_WITH_STRING_NAME(#method, _method, { \
-				godot_ptr_##name##_##method = godot_classdb_get_method_bind(&_class, &_method, hash); \
-			}); \
-		}); \
+		godot_StringName _class = godot_new_StringName_from_latin1_chars(#name); \
+		godot_StringName _method = godot_new_StringName_from_latin1_chars(#method); \
+		godot_ptr_##name##_##method = godot_classdb_get_method_bind(&_class, &_method, hash); \
+		godot_destroy_StringName(&_method); \
+		godot_destroy_StringName(&_class); \
 	}
 
 #endif  // __GDEXTENSION_LITE_IMPLEMENTATION_MACROS_H__

@@ -4,10 +4,6 @@
 #ifndef __GDEXTENSION_LITE_H__
 #define __GDEXTENSION_LITE_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "generated/extension_interface.h"
 #include "generated/global_enums.h"
 #include "generated/utility_functions.h"
@@ -15,6 +11,10 @@ extern "C" {
 #include "generated/class-methods/all.h"
 #include "generated/variant/all.h"
 #include "variant/all.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void gdextension_lite_initialize(const GDExtensionInterfaceGetProcAddress get_proc_address);
 
