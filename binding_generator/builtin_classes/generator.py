@@ -13,7 +13,7 @@ from .variant_conversion import (BuiltinClassFromVariantConversion,
 from common.binding_code import BindingCode
 from common.constant import Constant
 from common.scoped_enum import ScopedEnum
-from format_utils import format_type_snake_case
+from format_utils import NON_STRUCT_TYPES, format_type_snake_case
 from json_types import BuiltinClass
 
 
@@ -148,9 +148,9 @@ def generate_builtin_class(
         '#include "../../variant/all.h"',
     ]
     merged = BindingCode.merge(definitions, includes=includes)
-    if is_cpp:
+    if is_cpp and builtin_class['name'] not in NON_STRUCT_TYPES:
         merged.surround_prototype(
-            f"class {builtin_class['name']} {{",
+            f"struct {builtin_class['name']} : public godot_{builtin_class['name']} {{",
             "};",
         )
     return merged
