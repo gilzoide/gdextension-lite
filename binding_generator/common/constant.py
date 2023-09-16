@@ -33,10 +33,19 @@ class Constant(CodeGenerator):
     def get_cpp_code(self) -> BindingCode:
         constant_name = self.constant['name']
         type = self.constant.get('type', 'godot_int')
-        return BindingCode(
-            f"static const {type} {constant_name}; // {self.value}",
-            f"const {type} {self.class_name}::{constant_name}({self.value.replace('{ ', '').replace(' }', '')});",
-        )
+        if type == 'godot_int':
+            return BindingCode(
+                f"static const godot_int {constant_name} = {self.value};",
+            )
+        else:
+            return BindingCode(
+                f"static {type} {constant_name}(); // {self.value}",
+                "\n".join([
+                    f"{type} {self.class_name}::{constant_name}() {{",
+                        f"\treturn godot_{self.constant_name};",
+                    f"}}"
+                ])
+            )
 
     @classmethod
     def get_all_constants(
