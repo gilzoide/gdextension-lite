@@ -141,7 +141,7 @@ def format_parameter(
     parameter_name: str,
     is_const: bool = False,
 ) -> str:
-    parameter_name = IDENTIFIER_OVERRIDES.get(parameter_name, parameter_name)
+    parameter_name = format_identifier(parameter_name)
     if type_name in NON_STRUCT_TYPES:
         return f"godot_{type_name} {parameter_name}"
     elif type_name.startswith("enum::"):
@@ -167,6 +167,12 @@ def format_parameter_const(
     parameter_name: str,
 ) -> str:
     return format_parameter(type_name, parameter_name, is_const=True)
+
+
+def format_identifier(
+    identifier: str,
+) -> str:
+    return IDENTIFIER_OVERRIDES.get(identifier, identifier)
 
 
 def format_return_type(
