@@ -30,8 +30,8 @@ def generate_all_native_structures(
     structs: list[NativeStructure],
 ) -> BindingCode:
     includes = [
-        '#include "class-stubs/all.h"',
-        '#include "../variant/all.h"',
+        "class-stubs/all.h",
+        "../variant/all.h",
     ]
     bindings = [generate_native_structure(struct) for struct in structs]
     return BindingCode.merge(bindings, includes=includes)

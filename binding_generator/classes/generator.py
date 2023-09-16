@@ -47,7 +47,7 @@ def generate_class_stub_header(
     cls: Class,
 ) -> BindingCode:
     includes = (
-        ['#include "../variant/int.h"']
+        ["../variant/int.h"]
         if cls.get('constants')
         else []
     )
@@ -87,15 +87,15 @@ def generate_class_method_header(
 ) -> BindingCode:
     definitions = (generate_class_methods(cls, is_cpp=is_cpp))
     includes = [
-        '#include "../class-stubs/all.h"',
-        '#include "../global_enums.h"',
-        '#include "../native_structures.h"',
-        '#include "../variant/all.h"',
-        '#include "../../gdextension/gdextension_interface.h"',
-        '#include "../../variant/all.h"',
+        "class-stubs/all.h",
+        "global_enums.h",
+        "native_structures.h",
+        "variant/all.h",
+        "../gdextension/gdextension_interface.h",
+        "../variant/all.h",
     ]
     implementation_includes = (
-        ['#include <string.h>']
+        ["<string.h>"]
         if any(method.get('is_vararg') for method in cls.get('methods', []))
         else []
     )

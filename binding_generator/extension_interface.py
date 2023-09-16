@@ -29,7 +29,7 @@ def generate_all_extension_bindings() -> BindingCode:
         BindingCode(
             "void gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddress get_proc_address);",
             "",
-            includes=['#include "../gdextension/gdextension_interface.h"'],
+            includes=["../gdextension/gdextension_interface.h"],
         ),
     ]
     symbol = None

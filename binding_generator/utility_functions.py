@@ -67,11 +67,11 @@ def generate_utility_functions(
 ) -> BindingCode:
     definitions = [format_utility_function(f) for f in utility_functions]
     includes = [
-        '#include "../gdextension/gdextension_interface.h"',
-        '#include "../variant/all.h"',
+        "../gdextension/gdextension_interface.h",
+        "../variant/all.h",
     ]
     implementation_includes = [
-        '#include <string.h>',
+        "<string.h>",
     ]
     return BindingCode.merge(definitions,
                              includes=includes,
