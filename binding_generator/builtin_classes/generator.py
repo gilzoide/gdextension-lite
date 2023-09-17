@@ -188,7 +188,7 @@ def generate_initialize_all_builtin_classes_cpp_stub(
         f"struct {cls['name']};"
         for cls in builtin_classes
         if cls['name'] not in NON_STRUCT_TYPES
-    ]
+    ] + ["struct Object;", "struct Variant;"]
     return BindingCode(
         "\n".join(forward_declarations),
     )
