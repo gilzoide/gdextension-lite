@@ -141,17 +141,24 @@ def format_parameter(
     parameter_name: str,
     is_const: bool = False,
     is_cpp: bool = False,
+    default_value: str | None = None,
 ) -> str:
+    if is_cpp and default_value and default_value != 'null' and not default_value.startswith('"'):
+        # TODO: support `null` (empty Variant) and defult strings
+        default_value = f" = {default_value}"
+    else:
+        default_value = ""
+
     parameter_name = format_identifier(parameter_name)
     if type_name in NON_STRUCT_TYPES:
-        return f"godot_{type_name} {parameter_name}"
+        return f"godot_{type_name} {parameter_name}{default_value}"
     elif type_name.startswith("enum::"):
-        return f"godot_{type_name[6:].replace('.', '_')} {parameter_name}"
+        return f"godot_{type_name[6:].replace('.', '_')} {parameter_name}{default_value}"
     elif type_name.endswith("*"):
         if 'void' in type_name or '_t' in type_name:
-            return f"{type_name} {parameter_name}"
+            return f"{type_name} {parameter_name}{default_value}"
         else:
-            return f"godot_{type_name} {parameter_name}"
+            return f"godot_{type_name} {parameter_name}{default_value}"
     
     if type_name.startswith("typedarray::"):
         type_name = f"TypedArray(godot_{type_name[len('typedarray::'):]})"
@@ -159,12 +166,12 @@ def format_parameter(
         type_name = type_name[len("bitfield::"):].replace('.', '_')
     if is_const:
         if is_cpp:
-            return f"const godot_{type_name}& {parameter_name or ''}"
+            return f"const godot_{type_name}& {parameter_name or ''}{default_value}"
         else:
             return f"const godot_{type_name} *{parameter_name or ''}"
     else:
         if is_cpp:
-            return f"godot_{type_name}& {parameter_name or ''}"
+            return f"godot_{type_name}& {parameter_name or ''}{default_value}"
         else:
             return f"godot_{type_name} *{parameter_name or ''}"
 

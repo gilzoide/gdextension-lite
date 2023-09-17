@@ -68,7 +68,7 @@ class BuiltinClassConstructor(CodeGenerator):
         if self.class_name in NON_STRUCT_TYPES:
             return BindingCode("", "")
         proto_arguments = [
-            format_parameter(arg['type'], arg['name'], is_const=True, is_cpp=True)
+            format_parameter(arg['type'], arg['name'], is_const=True, is_cpp=True, default_value=arg.get('default_value'))
             for arg in self.arguments
         ]
         placement_call_arguments = ["this"] + [
