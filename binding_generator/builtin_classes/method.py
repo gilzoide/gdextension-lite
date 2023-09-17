@@ -4,6 +4,7 @@ from common.binding_code import BindingCode
 from common.code_generator import CodeGenerator
 from format_utils import (format_arguments_array,
                           format_arguments_count,
+                          format_cpp_argument_forward,
                           format_parameter,
                           format_parameter_const,
                           format_return_type,
@@ -26,12 +27,12 @@ class BuiltinClassMethod(CodeGenerator):
 
         proto_arguments = []
         self.is_static = method.get('is_static', False)
+        self.is_const = method.get('is_const', False)
         if not self.is_static:
-            is_const = method.get('is_const', False)
             proto_arguments.append(format_parameter(type_name,
-                                               "self",
-                                               is_const=is_const))
-        arguments = method.get("arguments")
+                                                    "self",
+                                                    is_const=self.is_const))
+        arguments = method.get("arguments", [])
         if arguments:
             proto_arguments.extend(
                 format_parameter_const(arg["type"], arg["name"])
@@ -94,6 +95,46 @@ class BuiltinClassMethod(CodeGenerator):
                     (f"\treturn _ret;"
                      if self.return_type != "void"
                      else ""),
+                f"}}",
+            ] if line.strip()),
+        )
+
+    def get_cpp_code(self) -> BindingCode:
+        proto_arguments_with_default = [
+            format_parameter(arg['type'], arg['name'], is_const=True, is_cpp=True, default_value=arg.get('default_value'))
+            for arg in self.arguments
+        ]
+        proto_arguments = [
+            format_parameter(arg['type'], arg['name'], is_const=True, is_cpp=True)
+            for arg in self.arguments
+        ]
+        call_arguments = ["this"] if not self.is_static else []
+        call_arguments.extend([
+            format_cpp_argument_forward(arg['type'], arg['name'])
+            for arg in self.arguments
+        ])
+        if self.is_vararg:
+            vararg_template = "template<class... Args> "
+            vararg_to_array = "GDEXTENSION_LITE_VARIADIC_TEMPLATE_TO_ARRAY(args, argc, argv);"
+            proto_arguments_with_default.append("Args ...args")
+            proto_arguments.append("Args ...args")
+            call_arguments.append("argc")
+            call_arguments.append("argv")
+        else:
+            vararg_template = ""
+            vararg_to_array = ""
+        return BindingCode(
+            (f"{vararg_template}"
+             f"{'static ' if self.is_static else ''}"
+             f"{self.return_type} {self.method['name']}({', '.join(proto_arguments_with_default)})"
+             f"{' const' if self.is_const else ''};"),
+            "\n".join(line for line in [
+                (f"{vararg_template}"
+                 f"{self.return_type} {self.class_name}::{self.method['name']}({', '.join(proto_arguments)})"
+                 f"{' const' if self.is_const else ''} {{"),
+                    f"\t{vararg_to_array}",
+                    (f"\t{'return ' if self.return_type != 'void' else ''}"
+                     f"godot_{self.function_name}({', '.join(call_arguments)});"),
                 f"}}",
             ] if line.strip()),
         )

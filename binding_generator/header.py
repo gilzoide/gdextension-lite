@@ -80,7 +80,7 @@ class HeaderWriter:
 
         if contents.implementation:
             define = f"__GDEXTENSION_LITE_GENERATED_{guard_name}_{h_or_hpp.upper()}_IMPLEMENTATION__"
-            implementation_macros_h = self.process_include(header_path, "../implementation-macros.h")
+            implementation_macros_h = self.process_include(header_path, f"../implementation-macros.{h_or_hpp}")
             lines.extend([
                 "",
                 "#ifdef GDEXTENSION_LITE_IMPLEMENTATION",
