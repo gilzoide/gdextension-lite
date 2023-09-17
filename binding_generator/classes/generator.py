@@ -97,14 +97,8 @@ def generate_class_method_header(
         "../gdextension/gdextension_interface.h",
         "../variant/all.h",
     ]
-    implementation_includes = (
-        ["<string.h>"]
-        if any(method.get('is_vararg') for method in cls.get('methods', []))
-        else []
-    )
     definitions = generate_class_methods(cls, is_cpp=is_cpp)
-    definitions.add_extras(includes=includes,
-                           implementation_includes=implementation_includes)
+    definitions.add_extras(includes=includes)
     return definitions
 
 

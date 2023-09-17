@@ -275,7 +275,11 @@ def format_arguments_array(
         to_ptr = format_value_to_ptr(arg['type'], arg['name'])
         lines.append(f"{array_name}[{i}] = {to_ptr};")
     if is_vararg:
-        lines.append(f"if (argc > 0) memcpy({array_name} + {args_len}, argv, argc * sizeof(const godot_Variant *));")
+        lines.extend([
+            f"for (int _i = 0; _i < argc; _i++) {{",
+                f"\t{array_name}[{args_len} + _i] = argv[_i];",
+            f"}}",
+        ])
     return "\n".join(lines)
 
 
