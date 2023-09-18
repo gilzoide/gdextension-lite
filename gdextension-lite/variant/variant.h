@@ -16,6 +16,13 @@ typedef struct godot_Variant {
 	uint8_t _[GODOT_VARIANT_SIZE];
 } godot_Variant;
 
+// Constructors
+void godot_placement_new_Variant(godot_Variant *self);
+godot_Variant godot_new_Variant();
+void godot_placement_new_Variant_from_Variant(godot_Variant *self, const godot_Variant *other);
+godot_Variant godot_new_Variant_from_Variant(const godot_Variant *other);
+
+// Destructor
 void godot_destroy_Variant(godot_Variant *self);
 
 #endif  // __GDEXTENSION_LITE_VARIANT_H__
@@ -25,6 +32,26 @@ void godot_destroy_Variant(godot_Variant *self);
 #define __GDEXTENSION_LITE_VARIANT_H_IMPLEMENTATION__
 
 #include "../generated/extension_interface.h"
+
+void godot_placement_new_Variant(godot_Variant *self) {
+	godot_variant_new_nil(self);
+}
+
+godot_Variant godot_new_Variant() {
+	godot_Variant self;
+	godot_placement_new_Variant(&self);
+	return self;
+}
+
+void godot_placement_new_Variant_from_Variant(godot_Variant *self, const godot_Variant *other) {
+	godot_variant_new_copy(self, other);
+}
+
+godot_Variant godot_new_Variant_from_Variant(const godot_Variant *other) {
+	godot_Variant self;
+	godot_placement_new_Variant_from_Variant(&self, other);
+	return self;
+}
 
 void godot_destroy_Variant(godot_Variant *self) {
 	godot_variant_destroy(self);
