@@ -52,7 +52,7 @@ class BuiltinClassMemberSetter(BuiltinClassMember):
         return BindingCode(
             f"{self.prototype};",
             '\n'.join([
-                f"{self.ptr_prototype};",
+                f"static {self.ptr_prototype};",
                 f"{self.prototype} {{",
                     f"""\tGDEXTENSION_LITE_LAZY_INIT_VARIANT_MEMBER(set, {
                             self.class_name
@@ -102,7 +102,7 @@ class BuiltinClassMemberGetter(BuiltinClassMember):
         return BindingCode(
             f"{self.prototype};",
             '\n'.join([
-                f"{self.ptr_prototype};",
+                f"static {self.ptr_prototype};",
                 f"{self.prototype} {{",
                     f"""\tGDEXTENSION_LITE_LAZY_INIT_VARIANT_MEMBER(get, {
                             self.class_name

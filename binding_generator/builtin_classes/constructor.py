@@ -44,7 +44,7 @@ class BuiltinClassConstructor(CodeGenerator):
                 f"{self.prototype};",
             ]),
             "\n".join([
-                f"{self.ptr_prototype};",
+                f"static {self.ptr_prototype};",
                 f"{self.placement_prototype} {{",
                     f"""\tGDEXTENSION_LITE_LAZY_INIT_VARIANT_CONSTRUCTOR({
                             self.function_name

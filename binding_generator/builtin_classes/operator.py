@@ -41,7 +41,7 @@ class BuiltinClassOperator(CodeGenerator):
         return BindingCode(
             f"{self.prototype};",
             '\n'.join([
-                f"{self.ptr_prototype};",
+                f"static {self.ptr_prototype};",
                 f"{self.prototype} {{",
                     f"""\tGDEXTENSION_LITE_LAZY_INIT_VARIANT_OPERATOR({
                             self.operator_function_name

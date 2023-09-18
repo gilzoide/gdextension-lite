@@ -60,7 +60,7 @@ class BuiltinClassIndexingSetter(BuiltinClassIndexing):
         return BindingCode(
             f"{self.prototype};",
             '\n'.join([
-                f"{self.ptr_prototype};",
+                f"static {self.ptr_prototype};",
                 f"{self.prototype} {{",
                     f"""\tGDEXTENSION_LITE_LAZY_INIT_VARIANT_INDEXING(set, {
                             self.indexed_or_keyed
@@ -99,7 +99,7 @@ class BuiltinClassIndexingGetter(BuiltinClassIndexing):
         return BindingCode(
             f"{self.prototype};",
             '\n'.join([
-                f"{self.ptr_prototype};",
+                f"static {self.ptr_prototype};",
                 f"{self.prototype} {{",
                     f"""\tGDEXTENSION_LITE_LAZY_INIT_VARIANT_INDEXING(get, {
                             self.indexed_or_keyed

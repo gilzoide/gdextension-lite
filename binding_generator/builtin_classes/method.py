@@ -62,11 +62,11 @@ class BuiltinClassMethod(CodeGenerator):
         )
         return BindingCode(
             '\n'.join(line for line in [
-                f"{self.prototype};",
+                f"static {self.prototype};",
                 vararg_macro,
             ] if line.strip()),
             '\n'.join(line for line in [
-                f"{self.ptr_prototype};",
+                f"static {self.ptr_prototype};",
                 f"{self.prototype} {{",
                     f"""\tGDEXTENSION_LITE_LAZY_INIT_VARIANT_METHOD({
                             self.class_name
