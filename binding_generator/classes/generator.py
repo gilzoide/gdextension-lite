@@ -38,8 +38,10 @@ def generate_class_enums(
 def generate_class_stub(
     cls: Class,
 ) -> BindingCode:
+    structdef = OpaqueStruct(cls['name']).get_c_code()
+    structdef.surround_prototype("#ifndef GDEXTENSION_LITE_NO_CLASSES", "#endif", add_indent=False)
     return BindingCode.merge([
-        OpaqueStruct(cls['name']).get_c_code(),
+        structdef,
         generate_class_constants(cls),
         generate_class_enums(cls),
     ])
@@ -107,9 +109,13 @@ def generate_initialize_all_classes(
 ) -> BindingCode:
     class_names = [cls["name"] for cls in classes]
     includes = [
+        "#ifdef GDEXTENSION_LITE_NO_CLASSES",
+        '#include "object.h"',
+        "#else",
+    ] + [
         f'#include "{format_type_snake_case(name)}.h"'
         for name in class_names
-    ]
+    ] + ["#endif"]
     return BindingCode(
         "",
         "",

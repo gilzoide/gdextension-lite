@@ -106,7 +106,7 @@ class HeaderWriter:
     @classmethod
     def process_include(cls, header_path: Path, include: str) -> str:
         include = include.strip()
-        if include.startswith("#include"):
+        if include.startswith("#"):
             return include
         elif include.startswith("<"):
             return f'#include {include}'
