@@ -29,4 +29,4 @@ typedef struct godot_Vector4 {
 	};
 } godot_Vector4;
 
-#endif
+#endif  // __GDEXTENSION_LITE_VECTOR4_H__

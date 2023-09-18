@@ -14,4 +14,4 @@ typedef struct godot_Plane {
 	};
 } godot_Plane;
 
-#endif
+#endif  // __GDEXTENSION_LITE_PLANE_H__

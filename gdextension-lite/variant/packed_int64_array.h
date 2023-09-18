@@ -10,4 +10,4 @@ typedef struct godot_PackedInt64Array {
 	uint8_t _[2 * sizeof(void *)];
 } godot_PackedInt64Array;
 
-#endif
+#endif  // __GDEXTENSION_LITE_PACKED_INT64_ARRAY_H__

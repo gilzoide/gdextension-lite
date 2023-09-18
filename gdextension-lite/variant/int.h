@@ -8,4 +8,4 @@
 
 typedef GDExtensionInt godot_int;
 
-#endif
+#endif  // __GDEXTENSION_LITE_INT_H__

@@ -12,4 +12,4 @@ typedef struct godot_Transform3D {
 	godot_Vector3 origin;
 } godot_Transform3D;
 
-#endif
+#endif  // __GDEXTENSION_LITE_TRANSFORM3D_H__

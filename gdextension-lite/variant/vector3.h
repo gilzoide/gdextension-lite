@@ -27,4 +27,4 @@ typedef struct godot_Vector3 {
 	};
 } godot_Vector3;
 
-#endif
+#endif  // __GDEXTENSION_LITE_VECTOR3_H__

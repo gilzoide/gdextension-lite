@@ -34,7 +34,7 @@ void godot_destroy_StringName(godot_StringName *self);
 }
 #endif
 
-#endif  // __GDEXTENSION_LITE_STRING_NAME_H__
+#endif  // __GDEXTENSION_LITE_STRING_NAME_H__  // __GDEXTENSION_LITE_STRING_NAME_H__
 
 #ifdef GDEXTENSION_LITE_IMPLEMENTATION
 #ifndef __GDEXTENSION_LITE_STRING_NAME_H_IMPLEMENTATION__

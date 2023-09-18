@@ -20,4 +20,4 @@ typedef struct godot_Vector4i {
 	};
 } godot_Vector4i;
 
-#endif
+#endif  // __GDEXTENSION_LITE_VECTOR4I_H__

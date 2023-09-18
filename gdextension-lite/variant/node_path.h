@@ -10,4 +10,4 @@ typedef struct godot_NodePath {
 	uint8_t _[sizeof(void *)];
 } godot_NodePath;
 
-#endif
+#endif  // __GDEXTENSION_LITE_NODE_PATH_H__

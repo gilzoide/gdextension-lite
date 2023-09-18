@@ -11,4 +11,4 @@ typedef struct godot_Color {
 	};
 } godot_Color;
 
-#endif
+#endif  // __GDEXTENSION_LITE_COLOR_H__

@@ -12,4 +12,4 @@ typedef struct godot_Array {
 
 #define godot_TypedArray(type)  godot_Array
 
-#endif
+#endif  // __GDEXTENSION_LITE_ARRAY_H__

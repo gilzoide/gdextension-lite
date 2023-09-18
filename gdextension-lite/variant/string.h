@@ -32,7 +32,7 @@ godot_String godot_new_String_from_wide_chars_and_len(const wchar_t *p_contents,
 }
 #endif
 
-#endif  // __GDEXTENSION_LITE_STRING_H__
+#endif  // __GDEXTENSION_LITE_STRING_H__  // __GDEXTENSION_LITE_STRING_H__
 
 #ifdef GDEXTENSION_LITE_IMPLEMENTATION
 #ifndef __GDEXTENSION_LITE_STRING_H_IMPLEMENTATION__

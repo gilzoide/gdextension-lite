@@ -18,7 +18,7 @@ typedef struct godot_Variant {
 
 void godot_destroy_Variant(godot_Variant *self);
 
-#endif
+#endif  // __GDEXTENSION_LITE_VARIANT_H__
 
 #ifdef GDEXTENSION_LITE_IMPLEMENTATION
 #ifndef __GDEXTENSION_LITE_VARIANT_H_IMPLEMENTATION__

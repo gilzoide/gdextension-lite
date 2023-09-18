@@ -22,7 +22,7 @@ void gdextension_lite_initialize(const GDExtensionInterfaceGetProcAddress get_pr
 }
 #endif
 
-#endif
+#endif  // __GDEXTENSION_LITE_H__
 
 #ifdef GDEXTENSION_LITE_IMPLEMENTATION
 #ifndef __GDEXTENSION_LITE_H_IMPLEMENTATION__

@@ -11,4 +11,4 @@ typedef struct godot_AABB {
 	godot_Vector3 size;
 } godot_AABB;
 
-#endif
+#endif  // __GDEXTENSION_LITE_AABB_H__

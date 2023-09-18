@@ -10,4 +10,4 @@ typedef struct godot_Dictionary {
 	uint8_t _[sizeof(void *)];
 } godot_Dictionary;
 
-#endif
+#endif  // __GDEXTENSION_LITE_DICTIONARY_H__

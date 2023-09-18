@@ -10,4 +10,4 @@ typedef struct godot_RID {
 	uint64_t id;
 } godot_RID;
 
-#endif
+#endif  // __GDEXTENSION_LITE_RID_H__

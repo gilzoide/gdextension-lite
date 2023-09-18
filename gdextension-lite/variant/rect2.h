@@ -14,4 +14,4 @@ typedef struct godot_Rect2 {
 	};
 } godot_Rect2;
 
-#endif
+#endif  // __GDEXTENSION_LITE_RECT2_H__

@@ -24,7 +24,7 @@ godot_Variant godot_Variant_from_Object(godot_Object **object);
 }
 #endif
 
-#endif
+#endif  // __GDEXTENSION_LITE_OBJECT_H__
 
 #ifdef GDEXTENSION_LITE_IMPLEMENTATION
 #ifndef __GDEXTENSION_LITE_OBJECT_H_IMPLEMENTATION__
