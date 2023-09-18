@@ -34,8 +34,6 @@ extern "C" {
 
 void gdextension_lite_initialize(const GDExtensionInterfaceGetProcAddress get_proc_address) {
 	gdextension_lite_initialize_interface(get_proc_address);
-	godot_ptr_Object_from_Variant = godot_get_variant_to_type_constructor(GDEXTENSION_VARIANT_TYPE_OBJECT);
-	godot_ptr_Variant_from_Object = godot_get_variant_from_type_constructor(GDEXTENSION_VARIANT_TYPE_OBJECT);
 }
 
 #ifdef __cplusplus
