@@ -11,7 +11,7 @@ namespace gdextension_lite {
 template<class... Args>
 inline void fill_variadic_array(const godot_Variant *array[], const godot_Variant& var, Args... args) {
 	*array = &var;
-	fill_variadic_array(array, args...);
+	fill_variadic_array(array + 1, args...);
 }
 inline void fill_variadic_array(const godot_Variant *array[], const godot_Variant& var) {
 	*array = &var;
