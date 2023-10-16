@@ -38,11 +38,7 @@ void initialize(void *userdata, GDExtensionInitializationLevel p_level) {
 	}
 }
 
-void deinitialize(void *userdata, GDExtensionInitializationLevel p_level) {
-    if (p_level != GDEXTENSION_INITIALIZATION_SCENE) {
-        return;
-    }
-}
+void deinitialize(void *userdata, GDExtensionInitializationLevel p_level) {}
 
 extern "C" GDExtensionBool gdextension_entry(
     const GDExtensionInterfaceGetProcAddress p_get_proc_address,
