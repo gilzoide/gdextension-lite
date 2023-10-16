@@ -5,27 +5,27 @@ Generate bindings for Godot extension interface
 import re
 
 from common.binding_code import BindingCode
+from misc.extension_interface_function import ExtensionInterfaceFunction
 
 SYMBOL_RE = re.compile(r"@name\s+(\w+)")
-TYPE_RE = re.compile(r"typedef [^(]*\(\*(\w+)")
+FUNCTION_POINTER_TYPE_RE = re.compile(r"""
+    typedef\s+   # 'typedef '
+        ([^(]*)  # return type, may contain trailing whitespace
+    \(\s*\*\s*   # '(*'
+        (\w+)    # the defined name for the function pointer type
+    \s*\)\s*\(   # ')('
+        (.*)     # all arguments text
+    \);          # ');'
+""", re.VERBOSE)
 
 
-def generate_extension_binding(
-    symbol: str,
-    type_name: str,
+def generate_all_extension_bindings(
+    is_cpp: bool = False,
 ) -> BindingCode:
-    return BindingCode(
-        f"extern {type_name} godot_{symbol};",
-        f"{type_name} godot_{symbol};",
-        bind=[f'godot_{symbol} = ({type_name}) get_proc_address("{symbol}");'],
-    )
-
-
-def generate_all_extension_bindings() -> BindingCode:
     with open("gdextension-lite/gdextension/gdextension_interface.h") as header_file:
         lines = header_file.readlines()
 
-    bindings = []
+    functions: list[ExtensionInterfaceFunction] = []
     symbol = None
     for line in lines:
         line = line.rstrip()
@@ -34,19 +34,23 @@ def generate_all_extension_bindings() -> BindingCode:
             if n:
                 symbol = n
         else:
-            match = TYPE_RE.match(line)
+            match = FUNCTION_POINTER_TYPE_RE.match(line)
             if match:
-                bindings.append(generate_extension_binding(symbol, match.group(1)))
+                functions.append(ExtensionInterfaceFunction(symbol, match.group(2), match.group(1), match.group(3)))
                 symbol = None
 
-    merged = BindingCode.merge(bindings)
     return BindingCode.merge([
-        merged,
+        BindingCode(
+            "",
+            "GDExtensionInterfaceGetProcAddress gdextension_lite_get_proc_address;",
+        ),
+        *(f.get_code(is_cpp) for f in functions),
         BindingCode(
             "\nvoid gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddress get_proc_address);",
-            "\n" + "\n".join([
+            "\n".join([
+                "",
                 "void gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddress get_proc_address) {",
-                *[f"\t{line}" for line in merged['bind']],
+                "\tgdextension_lite_get_proc_address = get_proc_address;",
                 "}",
             ]),
             includes=["../gdextension/gdextension_interface.h"],

@@ -63,4 +63,9 @@
 		godot_destroy_StringName(&_class); \
 	}
 
+#define GDEXTENSION_LITE_LAZY_INIT_EXTENSION_INTERFACE(symbol) \
+	if (godot_##symbol == NULL) { \
+		*((void **) godot_##symbol) = (void *) gdextension_lite_get_proc_address(#symbol); \
+	}
+
 #endif  // __GDEXTENSION_LITE_IMPLEMENTATION_MACROS_H__
