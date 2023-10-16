@@ -44,13 +44,19 @@ class BindingCode:
 
     @classmethod
     def merge(cls, bindings: Sequence["BindingCode"], **kwargs: list[str]) -> "BindingCode":
+        prototype = []
+        implementation = []
         extras = defaultdict(list, **kwargs)
         for b in bindings:
+            if b.prototype:
+                prototype.append(b.prototype)
+            if b.implementation:
+                implementation.append(b.implementation)
             for k, v in b.extras.items():
                 extras[k].extend(v)
         return BindingCode(
-            "\n".join(b.prototype for b in bindings if b.prototype),
-            "\n".join(b.implementation for b in bindings if b.implementation),
+            "\n".join(prototype),
+            "\n".join(implementation),
             **extras,
         )
 
