@@ -16,4 +16,4 @@ def generate_enum(enum: GlobalEnumOrEnum) -> BindingCode:
 
 
 def generate_all_enums(enums: list[GlobalEnumOrEnum]) -> BindingCode:
-    return BindingCode.merge([generate_enum(e) for e in enums])
+    return BindingCode.merge(generate_enum(e) for e in enums)
