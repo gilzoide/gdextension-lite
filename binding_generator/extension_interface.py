@@ -42,7 +42,7 @@ def generate_all_extension_bindings(
     return BindingCode.merge([
         BindingCode(
             "",
-            "static GDExtensionInterfaceGetProcAddress gdextension_lite_get_proc_address;",
+            "static GDExtensionInterfaceGetProcAddress gdextension_lite_get_proc_address;\n",
         ),
         *(f.get_code(is_cpp) for f in functions),
         BindingCode(

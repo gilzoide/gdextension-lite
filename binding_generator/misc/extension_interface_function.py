@@ -25,9 +25,10 @@ class ExtensionInterfaceFunction(CodeGenerator):
         return BindingCode(
             f"{prototype};",
             "\n".join([
+                f"static {self.typedef_name} godot_ptr_{self.symbol};",
                 f"{prototype} {{",
                     f"\tGDEXTENSION_LITE_LAZY_INIT_EXTENSION_INTERFACE({self.symbol});",
-                    f"\t{'return ' if self.return_type != 'void' else ''}godot_{self.symbol}({call_args});",
+                    f"\t{'return ' if self.return_type != 'void' else ''}godot_ptr_{self.symbol}({call_args});",
                 f"}}"
             ]),
         )
