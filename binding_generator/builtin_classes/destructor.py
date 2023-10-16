@@ -1,9 +1,10 @@
-from format_utils import (BindingCode,
-                          format_type_to_variant_enum)
+from common.binding_code import BindingCode
+from common.code_generator import CodeGenerator
+from format_utils import format_type_to_variant_enum
 from json_types import *
 
 
-class BuiltinClassDestructor:
+class BuiltinClassDestructor(CodeGenerator):
     """
     Builtin classes (a.k.a Variants) Destructor structure
     """
@@ -20,8 +21,8 @@ class BuiltinClassDestructor:
     def get_c_code(self) -> BindingCode:
         return BindingCode(
             f"{self.prototype};",
-            '\n'.join([
-                f"{self.ptr_prototype};",
+            "\n".join([
+                f"static {self.ptr_prototype};",
                 f"{self.prototype} {{",
                     f"""\tGDEXTENSION_LITE_LAZY_INIT_VARIANT_DESTRUCTOR({
                             self.class_name
@@ -33,3 +34,12 @@ class BuiltinClassDestructor:
             ]),
         )
 
+    def get_cpp_code(self) -> BindingCode:
+        return BindingCode(
+            f"~{self.class_name}();",
+            "\n".join([
+                f"{self.class_name}::~{self.class_name}() {{",
+                    f"\t{self.function_name}(this);",
+                f"}}",
+            ]),
+        )

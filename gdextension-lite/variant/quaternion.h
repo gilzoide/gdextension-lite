@@ -18,4 +18,4 @@ typedef struct godot_Quaternion {
 	};
 } godot_Quaternion;
 
-#endif
+#endif  // __GDEXTENSION_LITE_QUATERNION_H__

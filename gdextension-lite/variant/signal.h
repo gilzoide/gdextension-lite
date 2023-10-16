@@ -10,4 +10,4 @@ typedef struct godot_Signal {
 	uint8_t _[16];
 } godot_Signal;
 
-#endif
+#endif  // __GDEXTENSION_LITE_SIGNAL_H__

@@ -1,12 +1,13 @@
-from format_utils import (BindingCode,
-                          format_parameter,
+from common.binding_code import BindingCode
+from common.code_generator import CodeGenerator
+from format_utils import (format_parameter,
                           format_parameter_const,
                           format_type_to_variant_enum,
                           format_value_to_ptr)
 from json_types import *
 
 
-class BuiltinClassIndexing:
+class BuiltinClassIndexing(CodeGenerator):
     """
     Builtin classes (a.k.a Variants) indexing operators
     """
@@ -17,9 +18,6 @@ class BuiltinClassIndexing:
         self.indexed_or_keyed = "keyed" if is_keyed else "indexed"
         self.key_type = "Variant" if is_keyed else "int"
         self.return_type = return_type
-
-    def get_c_code(self) -> BindingCode:
-        return BindingCode("", "")
 
     @classmethod
     def get_all_indexers(
@@ -62,7 +60,7 @@ class BuiltinClassIndexingSetter(BuiltinClassIndexing):
         return BindingCode(
             f"{self.prototype};",
             '\n'.join([
-                f"{self.ptr_prototype};",
+                f"static {self.ptr_prototype};",
                 f"{self.prototype} {{",
                     f"""\tGDEXTENSION_LITE_LAZY_INIT_VARIANT_INDEXING(set, {
                             self.indexed_or_keyed
@@ -101,7 +99,7 @@ class BuiltinClassIndexingGetter(BuiltinClassIndexing):
         return BindingCode(
             f"{self.prototype};",
             '\n'.join([
-                f"{self.ptr_prototype};",
+                f"static {self.ptr_prototype};",
                 f"{self.prototype} {{",
                     f"""\tGDEXTENSION_LITE_LAZY_INIT_VARIANT_INDEXING(get, {
                             self.indexed_or_keyed

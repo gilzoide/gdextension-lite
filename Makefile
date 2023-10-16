@@ -2,6 +2,7 @@
 GODOT_BIN ?= godot
 PYTHON_BIN ?= python
 PYCODESTYLE_BIN ?= pycodestyle
+SCONS_BIN ?= scons
 
 # Constants
 GDEXTENSION_DIR = gdextension-lite/gdextension
@@ -28,6 +29,18 @@ build/gdextension-lite.zip: generate-bindings | build
 	zip $@ $(shell find . -type f -name '*.h' -or -name '*.hpp')
 dist: build/gdextension-lite.zip
 
+# Sample
+sample/.godot:
+	$(GODOT_BIN) --headless --quit --editor --path sample || true
+
+sample:
+	$(SCONS_BIN) -C sample
+
+run-sample: sample/.godot
+	$(GODOT_BIN) --headless --quit --path sample
+
 # Miscelaneous
 clean:
 	$(RM) -r $(GENERATED_FOLDERS)
+
+.PHONY: clean sample run-sample

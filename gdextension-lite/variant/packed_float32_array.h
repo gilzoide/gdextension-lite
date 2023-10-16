@@ -10,4 +10,4 @@ typedef struct godot_PackedFloat32Array {
 	uint8_t _[2 * sizeof(void *)];
 } godot_PackedFloat32Array;
 
-#endif
+#endif  // __GDEXTENSION_LITE_PACKED_FLOAT32_ARRAY_H__

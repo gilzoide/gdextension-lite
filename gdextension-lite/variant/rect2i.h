@@ -15,4 +15,4 @@ typedef struct godot_Rect2i {
 	};
 } godot_Rect2i;
 
-#endif
+#endif  // __GDEXTENSION_LITE_RECT2I_H__

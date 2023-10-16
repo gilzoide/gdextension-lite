@@ -5,6 +5,8 @@ This is not meant to be a replacement for the [godot-cpp](https://github.com/god
 but rather an alternative for those who want the full API matching `extension_api.json` in a C-compatible interface,
 for example for creating bindings for other programming languages.
 
+Warning: C++ specific bindings are not ready to use, please use C bindings in C++ for now
+
 
 ## Features
 - Header-only, easily embeddable in any project

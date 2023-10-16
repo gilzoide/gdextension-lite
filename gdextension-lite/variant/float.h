@@ -16,4 +16,4 @@ typedef double godot_float;
 
 #define godot_inf INFINITY
 
-#endif
+#endif  // __GDEXTENSION_LITE_FLOAT_H__

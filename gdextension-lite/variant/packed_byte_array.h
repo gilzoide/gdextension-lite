@@ -10,4 +10,4 @@ typedef struct godot_PackedByteArray {
 	uint8_t _[2 * sizeof(void *)];
 } godot_PackedByteArray;
 
-#endif
+#endif  // __GDEXTENSION_LITE_PACKED_BYTE_ARRAY_H__

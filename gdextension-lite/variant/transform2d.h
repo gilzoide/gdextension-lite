@@ -14,4 +14,4 @@ typedef struct godot_Transform2D {
 	};
 } godot_Transform2D;
 
-#endif
+#endif  // __GDEXTENSION_LITE_TRANSFORM2D_H__

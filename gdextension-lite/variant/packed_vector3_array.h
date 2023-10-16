@@ -10,4 +10,4 @@ typedef struct godot_PackedVector3Array {
 	uint8_t _[2 * sizeof(void *)];
 } godot_PackedVector3Array;
 
-#endif
+#endif  // __GDEXTENSION_LITE_PACKED_VECTOR3_ARRAY_H__

@@ -1,11 +1,12 @@
-from format_utils import (BindingCode,
-                          format_parameter,
+from common.binding_code import BindingCode
+from common.code_generator import CodeGenerator
+from format_utils import (format_parameter,
                           format_type_to_variant_enum,
                           format_value_to_ptr)
 from json_types import *
 
 
-class BuiltinClassFromVariantConversion:
+class BuiltinClassFromVariantConversion(CodeGenerator):
     """
     Conversion from Variant to builtin class
     """
@@ -26,7 +27,7 @@ class BuiltinClassFromVariantConversion:
         return BindingCode(
             f"{self.prototype};",
             '\n'.join([
-                f"{self.ptr_prototype};",
+                f"static {self.ptr_prototype};",
                 f"{self.prototype} {{",
                     f"""\tGDEXTENSION_LITE_LAZY_INIT_TYPE_FROM_VARIANT({
                             self.class_name
@@ -41,7 +42,7 @@ class BuiltinClassFromVariantConversion:
         )
 
 
-class BuiltinClassToVariantConversion:
+class BuiltinClassToVariantConversion(CodeGenerator):
     """
     Conversion from builtin class to Variant
     """
@@ -62,7 +63,7 @@ class BuiltinClassToVariantConversion:
         return BindingCode(
             f"{self.prototype};",
             '\n'.join([
-                f"{self.ptr_prototype};",
+                f"static {self.ptr_prototype};",
                 f"{self.prototype} {{",
                     f"""\tGDEXTENSION_LITE_LAZY_INIT_VARIANT_FROM_TYPE({
                             self.class_name

@@ -22,4 +22,4 @@ typedef struct godot_Vector2 {
 	};
 } godot_Vector2;
 
-#endif
+#endif  // __GDEXTENSION_LITE_VECTOR2_H__

@@ -1,4 +1,4 @@
-from format_utils import BindingCode
+from .binding_code import BindingCode
 
 
 class OpaqueStruct:
@@ -9,6 +9,5 @@ class OpaqueStruct:
     def get_c_code(self) -> BindingCode:
         return BindingCode(
             f"typedef struct {self.struct_name} {self.struct_name};",
-            ""
         )
 

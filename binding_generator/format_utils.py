@@ -2,11 +2,8 @@
 Internal utilities for Godot types
 """
 
-from __future__ import annotations
-from collections import defaultdict
 import re
 from textwrap import dedent
-from typing import Sequence
 
 from json_types import *
 
@@ -30,14 +27,14 @@ VARIANT_TYPES = (
     'Rect2i',
     'Vector3',
     'Vector3i',
-    'Transform2d',
+    'Transform2D',
     'Vector4',
     'Vector4i',
     'Plane',
     'Quaternion',
     'AABB',
     'Basis',
-    'Transform3d',
+    'Transform3D',
     'Projection',
     'Color',
     'StringName',
@@ -136,37 +133,6 @@ def should_generate_method(
         return True
 
 
-class BindingCode:
-    """Object that contains the code necessary for each function binding"""
-    def __init__(self, prototype: str, implementation: str, **extras: str):
-        self.prototype = prototype
-        self.implementation = implementation
-        self.extras = extras
-
-    def __getitem__(self, key: str) -> str:
-        return self.extras.get(key, "")
-
-    def prepend_section_comment(self, comment: str):
-        if self.prototype:
-            self.prototype = f"// {comment}\n{self.prototype}"
-        if self.implementation:
-            self.implementation = f"// {comment}\n{self.implementation}"
-
-    @classmethod
-    def merge(cls, bindings: Sequence[BindingCode]) -> BindingCode: 
-        extras: dict = defaultdict(list)
-        for b in bindings:
-            for k, v in b.extras.items():
-                extras[k].append(v)
-        for k, v in extras.items():
-            extras[k] = '\n'.join(v)
-        return BindingCode(
-            "\n\n".join(b.prototype for b in bindings if b.prototype),
-            "\n\n".join(b.implementation for b in bindings if b.implementation),
-            **extras,
-        )
-
-
 ############################################################
 # Parameter helpers
 ############################################################
@@ -174,33 +140,70 @@ def format_parameter(
     type_name: str,
     parameter_name: str,
     is_const: bool = False,
+    is_cpp: bool = False,
+    default_value: str | None = None,
 ) -> str:
-    parameter_name = IDENTIFIER_OVERRIDES.get(parameter_name, parameter_name)
+    if is_cpp and default_value and default_value != 'null' and not default_value.startswith('"'):
+        # TODO: support `null` (empty Variant) and defult strings
+        default_value = f" = {default_value}"
+    else:
+        default_value = ""
+
+    parameter_name = format_identifier(parameter_name)
     if type_name in NON_STRUCT_TYPES:
-        return f"godot_{type_name} {parameter_name}"
+        return f"godot_{type_name} {parameter_name}{default_value}"
     elif type_name.startswith("enum::"):
-        return f"godot_{type_name[6:].replace('.', '_')} {parameter_name}"
+        return f"godot_{type_name[6:].replace('.', '_')} {parameter_name}{default_value}"
     elif type_name.endswith("*"):
         if 'void' in type_name or '_t' in type_name:
-            return f"{type_name} {parameter_name}"
+            return f"{type_name} {parameter_name}{default_value}"
         else:
-            return f"godot_{type_name} {parameter_name}"
+            return f"godot_{type_name} {parameter_name}{default_value}"
     
     if type_name.startswith("typedarray::"):
         type_name = f"TypedArray(godot_{type_name[len('typedarray::'):]})"
     if type_name.startswith("bitfield::"):
         type_name = type_name[len("bitfield::"):].replace('.', '_')
     if is_const:
-        return f"const godot_{type_name} *{parameter_name or ''}"
+        if is_cpp:
+            return f"const godot_{type_name}& {parameter_name or ''}{default_value}"
+        else:
+            return f"const godot_{type_name} *{parameter_name or ''}"
     else:
-        return f"godot_{type_name} *{parameter_name or ''}"
+        if is_cpp:
+            return f"godot_{type_name}& {parameter_name or ''}{default_value}"
+        else:
+            return f"godot_{type_name} *{parameter_name or ''}"
 
 
 def format_parameter_const(
     type_name: str,
     parameter_name: str,
+    is_cpp: bool = False,
 ) -> str:
-    return format_parameter(type_name, parameter_name, is_const=True)
+    return format_parameter(type_name, parameter_name, is_const=True, is_cpp=is_cpp)
+
+
+def format_identifier(
+    identifier: str,
+) -> str:
+    return IDENTIFIER_OVERRIDES.get(identifier, identifier)
+
+
+def format_cpp_argument_forward(
+    type_name: str,
+    identifier: str,
+) -> str:
+    identifier = format_identifier(identifier)
+    if (
+        type_name in NON_STRUCT_TYPES
+        or type_name.startswith("enum")
+        or type_name.endswith("*")
+        or type_name.startswith("bitfield::")
+    ):
+        return identifier
+    else:
+        return "&" + identifier
 
 
 def format_return_type(
@@ -272,7 +275,11 @@ def format_arguments_array(
         to_ptr = format_value_to_ptr(arg['type'], arg['name'])
         lines.append(f"{array_name}[{i}] = {to_ptr};")
     if is_vararg:
-        lines.append(f"if (argc > 0) memcpy({array_name} + {args_len}, argv, argc * sizeof(const godot_Variant *));")
+        lines.extend([
+            f"for (int _i = 0; _i < argc; _i++) {{",
+                f"\t{array_name}[{args_len} + _i] = argv[_i];",
+            f"}}",
+        ])
     return "\n".join(lines)
 
 

@@ -23,3 +23,6 @@ venv/
 *.so
 *.dll
 *.dylib
+
+# Godot stuff
+.godot

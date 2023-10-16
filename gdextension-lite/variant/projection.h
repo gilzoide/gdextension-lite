@@ -14,4 +14,4 @@ typedef struct godot_Projection {
 	};
 } godot_Projection;
 
-#endif
+#endif  // __GDEXTENSION_LITE_PROJECTION_H__

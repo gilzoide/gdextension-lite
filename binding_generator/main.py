@@ -12,7 +12,7 @@ Usage:
 import json
 import sys
 
-from builtin_classes.generator import generate_builtin_class, generate_initialize_all_builtin_classes
+from builtin_classes.generator import generate_builtin_class, generate_initialize_all_builtin_classes, generate_initialize_all_builtin_classes_cpp_stub
 from classes.generator import generate_class_stub_header, generate_all_class_stubs, generate_class_method_header, generate_initialize_all_classes
 from enums import generate_all_enums
 from extension_interface import generate_all_extension_bindings
@@ -42,11 +42,9 @@ def main():
     )
 
     # Extension Interface
-    contents, implementation = generate_all_extension_bindings()
     header_writer.write_header(
-        contents,
+        generate_all_extension_bindings(),
         "extension_interface",
-        implementation=implementation,
     )
 
     # Builtin Classes (a.k.a Variants)
@@ -56,19 +54,35 @@ def main():
         if cls["name"] != "Nil"
     ]
     for builtin_class in builtin_classes:
-        contents, implementation = generate_builtin_class(builtin_class)
-        header_writer.write_header(contents,
-                                   "variant", format_type_snake_case(builtin_class["name"]),
-                                   implementation=implementation)
-    contents, implementation = generate_initialize_all_builtin_classes(builtin_classes)
-    header_writer.write_header(contents,
-                               "variant", "all",
-                               implementation=implementation)
+        header_writer.write_header(
+            generate_builtin_class(builtin_class),
+            "variant", format_type_snake_case(builtin_class["name"]),
+        )
+        header_writer.write_header(
+            generate_builtin_class(builtin_class, is_cpp=True),
+            "cpp", "variant", format_type_snake_case(builtin_class["name"]),
+            is_cpp=True,
+        )
+    header_writer.write_header(
+        generate_initialize_all_builtin_classes(builtin_classes),
+        "variant", "all",
+    )
+    header_writer.write_header(
+        generate_initialize_all_builtin_classes_cpp_stub(builtin_classes),
+        "cpp", "variant", "all-stubs",
+        is_cpp=True,
+    )
+    header_writer.write_header(
+        generate_initialize_all_builtin_classes(builtin_classes, is_cpp=True),
+        "cpp", "variant", "all",
+        is_cpp=True,
+    )
 
-    contents, implementation = generate_utility_functions(extension_api["utility_functions"])
-    header_writer.write_header(contents,
-                               "utility_functions",
-                               implementation=implementation)
+    # Utility functions
+    header_writer.write_header(
+        generate_utility_functions(extension_api["utility_functions"]),
+        "utility_functions",
+    )
 
     # Native Structures
     contents = generate_all_native_structures(extension_api["native_structures"])
@@ -76,22 +90,22 @@ def main():
 
     # Classes
     for cls in extension_api["classes"]:
-        contents, implementation = generate_class_stub_header(cls)
-        header_writer.write_header(contents,
-                                   "class-stubs", format_type_snake_case(cls["name"]),
-                                   implementation=implementation)
-        contents, implementation = generate_class_method_header(cls)
-        header_writer.write_header(contents,
-                                   "class-methods", format_type_snake_case(cls["name"]),
-                                   implementation=implementation)
-    contents, implementation = generate_all_class_stubs(extension_api["classes"])
-    header_writer.write_header(contents,
-                               "class-stubs", "all",
-                               implementation=implementation)
-    contents, implementation = generate_initialize_all_classes(extension_api["classes"])
-    header_writer.write_header(contents,
-                               "class-methods", "all",
-                               implementation=implementation)
+        header_writer.write_header(
+            generate_class_stub_header(cls),
+            "class-stubs", format_type_snake_case(cls["name"]),
+        )
+        header_writer.write_header(
+            generate_class_method_header(cls),
+            "class-methods", format_type_snake_case(cls["name"]),
+        )
+    header_writer.write_header(
+        generate_all_class_stubs(extension_api["classes"]),
+        "class-stubs", "all",
+    )
+    header_writer.write_header(
+        generate_initialize_all_classes(extension_api["classes"]),
+        "class-methods", "all",
+    )
 
 
 if __name__ == "__main__":

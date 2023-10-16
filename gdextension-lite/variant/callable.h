@@ -10,4 +10,4 @@ typedef struct godot_Callable {
 	uint8_t _[16];
 } godot_Callable;
 
-#endif
+#endif  // __GDEXTENSION_LITE_CALLABLE_H__

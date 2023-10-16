@@ -2,106 +2,122 @@
 Generates bindings for Godot classes
 """
 
-from typing import Tuple
-
 from .method import ClassMethod
+from common.binding_code import BindingCode
 from common.constant import Constant
 from common.opaque_struct import OpaqueStruct
 from common.scoped_enum import ScopedEnum
-from format_utils import BindingCode, format_type_snake_case
+from format_utils import format_type_snake_case
 from json_types import Class
 
 
 def generate_class_constants(
     cls: Class,
-) -> list[BindingCode]:
-    constants = [
+) -> BindingCode:
+    constants = BindingCode.merge([
         constant.get_c_code()
         for constant in Constant.get_all_constants(cls)
-    ]
+    ])
     if constants:
-        constants[0].prepend_section_comment("Constants")
+        constants.format_as_section("Constants")
     return constants
 
 
 def generate_class_enums(
     cls: Class,
-) -> list[BindingCode]:
-    enums = [
+) -> BindingCode:
+    enums = BindingCode.merge([
         enum.get_c_code()
         for enum in ScopedEnum.get_all_scoped_enums(cls)
-    ]
+    ])
     if enums:
-        enums[0].prepend_section_comment("Enums")
+        enums.format_as_section("Enums")
     return enums
 
 
 def generate_class_stub(
     cls: Class,
-) -> list[BindingCode]:
-    return ([OpaqueStruct(cls['name']).get_c_code()]
-            + generate_class_constants(cls)
-            + generate_class_enums(cls))
+) -> BindingCode:
+    structdef = OpaqueStruct(cls['name']).get_c_code()
+    structdef.surround_prototype("#ifndef GDEXTENSION_LITE_NO_CLASSES", "#endif", add_indent=False)
+    return BindingCode.merge([
+        structdef,
+        generate_class_constants(cls),
+        generate_class_enums(cls),
+    ])
 
 
 def generate_class_stub_header(
     cls: Class,
-) -> Tuple[str, str]:
-    merged = BindingCode.merge(generate_class_stub(cls))
-    return (
-        merged.prototype,
-        "",
+) -> BindingCode:
+    includes = (
+        ["../variant/int.h"]
+        if cls.get('constants')
+        else []
     )
+    stub = generate_class_stub(cls)
+    stub.add_extras(includes=includes)
+    return stub
 
 
 def generate_all_class_stubs(
     classes: list[Class],
-) -> Tuple[str, str]:
-    includes = (f'#include "{format_type_snake_case(cls["name"])}.h"'
-                for cls in classes)
-    return (
-        "\n".join(includes),
+) -> BindingCode:
+    includes = [
+        f'#include "{format_type_snake_case(cls["name"])}.h"'
+        for cls in classes
+    ]
+    return BindingCode(
         "",
+        "",
+        includes=includes,
     )
+
 
 def generate_class_methods(
     cls: Class,
-) -> list[BindingCode]:
-    methods = [
-        method.get_c_code()
+    is_cpp: bool,
+) -> BindingCode:
+    methods = BindingCode.merge([
+        method.get_code(is_cpp)
         for method in ClassMethod.get_all_methods(cls)
-    ]
+    ])
     if methods:
-        methods[0].prepend_section_comment("Methods")
+        methods.format_as_section("Methods")
     return methods
 
 
 def generate_class_method_header(
     cls: Class,
-) -> Tuple[str, str]:
-    definitions = (generate_class_methods(cls))
-    merged = BindingCode.merge(definitions)
+    is_cpp: bool = False,
+) -> BindingCode:
     includes = [
-        '#include "../class-stubs/all.h"',
-        '#include "../global_enums.h"',
-        '#include "../native_structures.h"',
-        '#include "../variant/all.h"',
-        '#include "../../gdextension/gdextension_interface.h"',
-        '#include "../../variant/all.h"',
+        "class-stubs/all.h",
+        "global_enums.h",
+        "native_structures.h",
+        "variant/all.h",
+        "../gdextension/gdextension_interface.h",
+        "../variant/all.h",
     ]
-    return (
-        "\n".join(includes) + "\n\n" + merged.prototype,
-        merged.implementation,
-    )
+    definitions = generate_class_methods(cls, is_cpp=is_cpp)
+    definitions.add_extras(includes=includes)
+    return definitions
 
 
 def generate_initialize_all_classes(
     classes: list[Class],
-) -> Tuple[str, str]:
+) -> BindingCode:
     class_names = [cls["name"] for cls in classes]
-    includes = "\n".join(f'#include "{format_type_snake_case(name)}.h"'
-                         for name in class_names)
-    return (
-        includes,
+    includes = [
+        "#ifdef GDEXTENSION_LITE_NO_CLASSES",
+        '#include "object.h"',
+        "#else",
+    ] + [
+        f'#include "{format_type_snake_case(name)}.h"'
+        for name in class_names
+    ] + ["#endif"]
+    return BindingCode(
         "",
+        "",
+        includes=includes,
     )

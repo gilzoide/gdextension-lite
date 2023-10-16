@@ -8,4 +8,4 @@
 
 typedef GDExtensionBool godot_bool;
 
-#endif
+#endif  // __GDEXTENSION_LITE_BOOL_H__

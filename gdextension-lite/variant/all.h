@@ -43,4 +43,4 @@
 #include "vector4.h"
 #include "vector4i.h"
 
-#endif
+#endif  // __GDEXTENSION_LITE_VARIANT_ALL_H__

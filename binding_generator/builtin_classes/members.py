@@ -1,4 +1,6 @@
-from format_utils import (BindingCode,
+from common.binding_code import BindingCode
+from common.code_generator import CodeGenerator
+from format_utils import (format_cpp_argument_forward,
                           format_parameter,
                           format_parameter_const,
                           format_type_to_variant_enum,
@@ -6,7 +8,7 @@ from format_utils import (BindingCode,
 from json_types import *
 
 
-class BuiltinClassMember:
+class BuiltinClassMember(CodeGenerator):
     """
     Builtin classes (a.k.a. Variants) member
     """
@@ -14,9 +16,7 @@ class BuiltinClassMember:
         self.class_name = type_name
         self.variant_type_enum = format_type_to_variant_enum(type_name)
         self.member = member
-
-    def get_c_code(self) -> BindingCode:
-        return BindingCode("", "")
+        self.member_name, self.member_type = member['name'], member['type']
 
     @classmethod
     def get_all_members(
@@ -37,14 +37,13 @@ class BuiltinClassMemberSetter(BuiltinClassMember):
     """
     def __init__(self, type_name: str, member: ArgumentOrSingletonOrMember):
         super().__init__(type_name, member)
-        member_name, member_type = member['name'], member['type']
 
-        self.set_name = f"{type_name}_set_{member_name}"
+        self.set_name = f"{type_name}_set_{self.member_name}"
         self.function_name = f"godot_{self.set_name}"
         self.prototype = f"""void {self.function_name}({
                                 format_parameter(type_name, 'self')
                             }, {
-                                format_parameter_const(member_type, 'value')
+                                format_parameter_const(self.member_type, 'value')
                             })"""
         self.ptr_function_name = f"godot_ptr_{self.set_name}"
         self.ptr_prototype = f"GDExtensionPtrSetter {self.ptr_function_name}"
@@ -53,7 +52,7 @@ class BuiltinClassMemberSetter(BuiltinClassMember):
         return BindingCode(
             f"{self.prototype};",
             '\n'.join([
-                f"{self.ptr_prototype};",
+                f"static {self.ptr_prototype};",
                 f"{self.prototype} {{",
                     f"""\tGDEXTENSION_LITE_LAZY_INIT_VARIANT_MEMBER(set, {
                             self.class_name
@@ -63,6 +62,20 @@ class BuiltinClassMemberSetter(BuiltinClassMember):
                             self.member['name']
                         });""",
                     f"\t{self.ptr_function_name}(self, {format_value_to_ptr(self.member['type'], 'value')});",
+                f"}}",
+            ]),
+        )
+
+    def get_cpp_code(self) -> BindingCode:
+        arg_name = 'value'
+        prototype_argument = format_parameter_const(self.member_type, arg_name, is_cpp=True)
+        return BindingCode(
+            "\n".join([
+                f"void set_{self.member_name}({prototype_argument});",
+            ]),
+            "\n".join([
+                f"void {self.class_name}::set_{self.member_name}({prototype_argument}) {{",
+                    f"\t{self.function_name}(this, {format_cpp_argument_forward(self.member_type,  arg_name)});",
                 f"}}",
             ]),
         )
@@ -89,7 +102,7 @@ class BuiltinClassMemberGetter(BuiltinClassMember):
         return BindingCode(
             f"{self.prototype};",
             '\n'.join([
-                f"{self.ptr_prototype};",
+                f"static {self.ptr_prototype};",
                 f"{self.prototype} {{",
                     f"""\tGDEXTENSION_LITE_LAZY_INIT_VARIANT_MEMBER(get, {
                             self.class_name
@@ -101,6 +114,18 @@ class BuiltinClassMemberGetter(BuiltinClassMember):
                     f"\t{self.return_type} value;",
                     f"\t{self.ptr_function_name}(self, &value);",
                     f"\treturn value;",
+                f"}}",
+            ]),
+        )
+
+    def get_cpp_code(self) -> BindingCode:
+        return BindingCode(
+            "\n".join([
+                f"{self.member_type} get_{self.member_name}() const;",
+            ]),
+            "\n".join([
+                f"{self.member_type} {self.class_name}::get_{self.member_name}() const {{",
+                    f"\treturn {self.function_name}(this);",
                 f"}}",
             ]),
         )

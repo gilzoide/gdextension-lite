@@ -10,4 +10,4 @@ typedef struct godot_PackedColorArray {
 	uint8_t _[2 * sizeof(void *)];
 } godot_PackedColorArray;
 
-#endif
+#endif  // __GDEXTENSION_LITE_PACKED_COLOR_ARRAY_H__

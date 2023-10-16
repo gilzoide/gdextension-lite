@@ -1,5 +1,6 @@
-from format_utils import (BindingCode,
-                          format_operator_to_enum,
+from common.binding_code import BindingCode
+from common.code_generator import CodeGenerator
+from format_utils import (format_operator_to_enum,
                           format_parameter_const,
                           format_type_to_variant_enum,
                           format_value_to_ptr,
@@ -8,7 +9,7 @@ from format_utils import (BindingCode,
 from json_types import *
 
 
-class BuiltinClassOperator:
+class BuiltinClassOperator(CodeGenerator):
     """
     Builtin classes (a.k.a Variants) operator
     """
@@ -40,7 +41,7 @@ class BuiltinClassOperator:
         return BindingCode(
             f"{self.prototype};",
             '\n'.join([
-                f"{self.ptr_prototype};",
+                f"static {self.ptr_prototype};",
                 f"{self.prototype} {{",
                     f"""\tGDEXTENSION_LITE_LAZY_INIT_VARIANT_OPERATOR({
                             self.operator_function_name

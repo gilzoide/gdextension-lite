@@ -2,8 +2,6 @@
 Generates bindings for Godot's builtin classes (a.k.a. Variants)
 """
 
-from typing import Tuple
-
 from .constructor import BuiltinClassConstructor
 from .destructor import BuiltinClassDestructor
 from .indexing import BuiltinClassIndexing
@@ -12,146 +10,185 @@ from .method import BuiltinClassMethod
 from .operator import BuiltinClassOperator
 from .variant_conversion import (BuiltinClassFromVariantConversion,
                                  BuiltinClassToVariantConversion)
+from common.binding_code import BindingCode
 from common.constant import Constant
 from common.scoped_enum import ScopedEnum
-from format_utils import BindingCode, format_type_snake_case
+from format_utils import NON_STRUCT_TYPES, format_type_snake_case
 from json_types import BuiltinClass
 
 
 def generate_constants(
     builtin_class: BuiltinClass,
-) -> list[BindingCode]:
-    constants = [
-        constant.get_c_code()
+    is_cpp: bool,
+) -> BindingCode:
+    constants = BindingCode.merge([
+        constant.get_code(is_cpp)
         for constant in Constant.get_all_constants(builtin_class)
-    ]
+    ])
     if constants:
-        constants[0].prepend_section_comment("Constants")
+        constants.format_as_section("Constants")
     return constants
 
 
 def generate_enums(
     builtin_class: BuiltinClass,
-) -> list[BindingCode]:
-    enums = [
-        enum.get_c_code()
+    is_cpp: bool,
+) -> BindingCode:
+    enums = BindingCode.merge([
+        enum.get_code(is_cpp)
         for enum in ScopedEnum.get_all_scoped_enums(builtin_class)
-    ]
+    ])
     if enums:
-        enums[0].prepend_section_comment("Enums")
+        enums.format_as_section("Enums")
     return enums
 
 
 def generate_operators(
     builtin_class: BuiltinClass,
-) -> list[BindingCode]:
-    operators = [
-        op.get_c_code()
+    is_cpp: bool,
+) -> BindingCode:
+    operators = BindingCode.merge([
+        op.get_code(is_cpp)
         for op in BuiltinClassOperator.get_all_operators(builtin_class)
-    ]
+    ])
     if operators:
-        operators[0].prepend_section_comment("Operators")
+        operators.format_as_section("Operators")
     return operators
 
 
 def generate_constructors(
     builtin_class: BuiltinClass,
-) -> list[BindingCode]:
-    ctors = [
-        ctor.get_c_code()
+    is_cpp: bool,
+) -> BindingCode:
+    ctors = BindingCode.merge([
+        ctor.get_code(is_cpp)
         for ctor in BuiltinClassConstructor.get_all_constructors(builtin_class)
-    ]
+    ])
     if ctors:
-        ctors[0].prepend_section_comment("Constructors")
+        ctors.format_as_section("Constructors")
     return ctors
 
 
 def generate_variant_from_to(
     builtin_class: BuiltinClass,
-) -> list[BindingCode]:
-    return [
-        BuiltinClassToVariantConversion(builtin_class["name"]).get_c_code(),
-        BuiltinClassFromVariantConversion(builtin_class["name"]).get_c_code(),
-    ]
+    is_cpp: bool,
+) -> BindingCode:
+    return BindingCode.merge([
+        BuiltinClassToVariantConversion(builtin_class["name"]).get_code(is_cpp),
+        BuiltinClassFromVariantConversion(builtin_class["name"]).get_code(is_cpp),
+    ])
 
 
 def generate_destructor(
     builtin_class: BuiltinClass,
-) -> list[BindingCode]:
+    is_cpp: bool,
+) -> BindingCode:
     if builtin_class["has_destructor"]:
-        dtor = BuiltinClassDestructor(builtin_class["name"]).get_c_code()
-        dtor.prepend_section_comment("Destructor")
-        return [dtor]
+        dtor = BuiltinClassDestructor(builtin_class["name"]).get_code(is_cpp)
+        dtor.format_as_section("Destructor")
+        return dtor
     else:
-        return []
+        return BindingCode()
 
 
 def generate_members(
     builtin_class: BuiltinClass,
-) -> list[BindingCode]:
-    members = [member.get_c_code()
-               for member in BuiltinClassMember.get_all_members(builtin_class)]
+    is_cpp: bool,
+) -> BindingCode:
+    members = BindingCode.merge([
+        member.get_code(is_cpp)
+        for member in BuiltinClassMember.get_all_members(builtin_class)
+    ])
     if members:
-        members[0].prepend_section_comment("Members")
+        members.format_as_section("Members")
     return members
 
 
 def generate_indexing(
     builtin_class: BuiltinClass,
-) -> list[BindingCode]:
-    indexers = [
-        indexer.get_c_code()
+    is_cpp: bool,
+) -> BindingCode:
+    indexers = BindingCode.merge([
+        indexer.get_code(is_cpp)
         for indexer
         in BuiltinClassIndexing.get_all_indexers(builtin_class)
-    ]
+    ])
     if indexers:
-        indexers[0].prepend_section_comment("Indexing")
+        indexers.format_as_section("Indexing")
     return indexers
 
 
 def generate_methods(
     builtin_class: BuiltinClass,
-) -> list[BindingCode]:
-    methods = [
-        method.get_c_code()
+    is_cpp: bool,
+) -> BindingCode:
+    methods = BindingCode.merge([
+        method.get_code(is_cpp)
         for method in BuiltinClassMethod.get_all_methods(builtin_class)
-    ]
+    ])
     if methods:
-        methods[0].prepend_section_comment("Methods")
+        methods.format_as_section("Methods")
     return methods
 
 
 def generate_builtin_class(
     builtin_class: BuiltinClass,
-) -> Tuple[str, str]:
-    definitions = (generate_constants(builtin_class)
-                   + generate_enums(builtin_class)
-                   + generate_constructors(builtin_class)
-                   + generate_variant_from_to(builtin_class)
-                   + generate_destructor(builtin_class)
-                   + generate_members(builtin_class)
-                   + generate_indexing(builtin_class)
-                   + generate_operators(builtin_class)
-                   + generate_methods(builtin_class))
-
-    merged = BindingCode.merge(definitions)
-    includes = [
-        '#include "../../gdextension/gdextension_interface.h"',
-        '#include "../../variant/all.h"',
+    is_cpp: bool = False,
+) -> BindingCode:
+    definitions = [
+        generate_constants(builtin_class, is_cpp),
+        generate_enums(builtin_class, is_cpp),
+        generate_constructors(builtin_class, is_cpp),
+        generate_variant_from_to(builtin_class, is_cpp),
+        generate_destructor(builtin_class, is_cpp),
+        generate_members(builtin_class, is_cpp),
+        generate_indexing(builtin_class, is_cpp),
+        generate_operators(builtin_class, is_cpp),
+        generate_methods(builtin_class, is_cpp),
     ]
-    return (
-        "\n".join(includes) + "\n\n" +  merged.prototype,
-        merged.implementation,
-    )
+
+    includes = [
+        "../gdextension/gdextension_interface.h",
+        "../variant/all.h",
+    ]
+    merged = BindingCode.merge(definitions, includes=includes)
+    type_name = builtin_class['name']
+    if is_cpp:
+        merged.add_extras(implementation_includes=[f"variant/{format_type_snake_case(type_name)}.h"],
+                          includes=["cpp/variant/all-stubs.hpp"])
+        if type_name not in NON_STRUCT_TYPES:
+            merged.surround_prototype(
+                f"struct {type_name} : public godot_{type_name} {{",
+                "};",
+            )
+    return merged
 
 
 def generate_initialize_all_builtin_classes(
     builtin_classes: list[BuiltinClass],
-) -> Tuple[str, str]:
+    is_cpp: bool = False,
+) -> BindingCode:
     class_names = [cls["name"] for cls in builtin_classes]
-    includes = "\n".join(f'#include "{format_type_snake_case(name)}.h"'
-                         for name in class_names)
-    return (
-        includes,
+    h_or_hpp = "hpp" if is_cpp else "h"
+    includes = [
+        f'#include "{format_type_snake_case(name)}.{h_or_hpp}"'
+        for name in class_names
+    ]
+    return BindingCode(
         "",
+        "",
+        includes=includes,
+    )
+
+
+def generate_initialize_all_builtin_classes_cpp_stub(
+    builtin_classes: list[BuiltinClass],
+) -> BindingCode:
+    forward_declarations = [
+        f"struct {cls['name']};"
+        for cls in builtin_classes
+        if cls['name'] not in NON_STRUCT_TYPES
+    ] + ["struct Object;", "struct Variant;"]
+    return BindingCode(
+        "\n".join(forward_declarations),
     )
