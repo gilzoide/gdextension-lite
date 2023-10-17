@@ -33,7 +33,7 @@ dist: build/gdextension-lite.zip
 sample/.godot:
 	$(GODOT_BIN) --headless --quit --editor --path sample || true
 
-sample:
+sample: generate-bindings
 	$(SCONS_BIN) -C sample
 
 run-sample: sample/.godot
