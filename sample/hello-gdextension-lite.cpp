@@ -3,9 +3,9 @@
 using namespace godot;
 
 void initialize(void *userdata, GDExtensionInitializationLevel p_level) {
-    if (p_level != GDEXTENSION_INITIALIZATION_SCENE) {
-        return;
-    }
+	if (p_level != GDEXTENSION_INITIALIZATION_SCENE) {
+		return;
+	}
 
 	// print("Hello from GDExtension Lite!")
 	{
@@ -41,13 +41,13 @@ void initialize(void *userdata, GDExtensionInitializationLevel p_level) {
 void deinitialize(void *userdata, GDExtensionInitializationLevel p_level) {}
 
 extern "C" GDExtensionBool gdextension_entry(
-    const GDExtensionInterfaceGetProcAddress p_get_proc_address,
-    GDExtensionClassLibraryPtr p_library,
-    GDExtensionInitialization *r_initialization
+	const GDExtensionInterfaceGetProcAddress p_get_proc_address,
+	GDExtensionClassLibraryPtr p_library,
+	GDExtensionInitialization *r_initialization
 ) {
 	gdextension_lite_initialize(p_get_proc_address);
-    r_initialization->initialize = &initialize;
-    r_initialization->deinitialize = &deinitialize;
-    return 1;
+	r_initialization->initialize = &initialize;
+	r_initialization->deinitialize = &deinitialize;
+	return 1;
 }
 
