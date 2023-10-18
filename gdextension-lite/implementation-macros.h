@@ -68,4 +68,9 @@
 		*((void **) &godot_ptr_##symbol) = (void *) gdextension_lite_get_proc_address(#symbol); \
 	}
 
+#define GDEXTENSION_LITE_RETURN_PLACEMENT_NEW(return_type, placement_new, ...) \
+	return_type _ret; \
+	placement_new(&_ret, ##__VA_ARGS__); \
+	return _ret
+
 #endif  // __GDEXTENSION_LITE_IMPLEMENTATION_MACROS_H__
