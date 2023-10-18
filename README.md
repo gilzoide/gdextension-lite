@@ -1,5 +1,5 @@
 # GDExtension Lite
-Automatically generated header-only GDExtension bindings for C/C++
+Automatically generated GDExtension bindings for C/C++
 
 This is not meant to be a replacement for the [godot-cpp](https://github.com/godotengine/godot-cpp) project,
 but rather an alternative for those who want the full API matching `extension_api.json` in a C-compatible interface,
@@ -9,7 +9,7 @@ Warning: C++ specific bindings are not ready to use, please use C bindings in C+
 
 
 ## Features
-- Header-only, easily embeddable in any project
+- Easily embeddable in any project: include `gdextension-lite.h`, compile and link `gdextension-lite-one.c` and you're good to go
 - Automatically generated from `extension_api.json` file, so new Godot APIs are added in a matter of regenerating the bindings
 - Bindings for all Godot classes, variant types, methods, operators, utility functions, enums, GDExtension interface functions
 - Supports Godot 4.1+
@@ -17,16 +17,10 @@ Warning: C++ specific bindings are not ready to use, please use C bindings in C+
 
 
 ## How to use
-First, create a C file for compiling the GDExtension Lite implementation.
-This must be done in **exactly** one C/C++ file across your project.
+Implement your extension in C/C++:
 ```c
-// @file gdextension-lite-implementation.c
-#define GDEXTENSION_LITE_IMPLEMENTATION
-#include <gdextension-lite/gdextension-lite.h>
-```
+// @file my-extension.c
 
-Now, for the extension implementation:
-```c
 // 1. Include gdextension-lite.h: the whole API is accessible through it
 #include <gdextension-lite/gdextension-lite.h>
 
@@ -66,6 +60,15 @@ void initialize(void *userdata, GDExtensionInitializationLevel p_level) {
 void deinitialize(void *userdata, GDExtensionInitializationLevel p_level) {
    // no-op
 }
+```
+
+Now compile `gdextension-lite-one.c` and link it to your own code.
+Example SConstruct:
+```python
+SharedLibrary("my-extension", [
+  'my-extension.c',
+  'path-to-gdextension-lite/gdextension-lite/gdextension-lite-one.c',
+])
 ```
 
 Sample code is also available at the [sample](sample) folder.
