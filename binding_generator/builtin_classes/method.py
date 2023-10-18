@@ -62,7 +62,7 @@ class BuiltinClassMethod(CodeGenerator):
         )
         return BindingCode(
             '\n'.join(line for line in [
-                f"static {self.prototype};",
+                f"{self.prototype};",
                 vararg_macro,
             ] if line.strip()),
             '\n'.join(line for line in [

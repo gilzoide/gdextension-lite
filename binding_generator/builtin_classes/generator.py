@@ -155,7 +155,7 @@ def generate_builtin_class(
     merged = BindingCode.merge(definitions, includes=includes)
     type_name = builtin_class['name']
     if is_cpp:
-        merged.add_extras(implementation_includes=[f"variant/{format_type_snake_case(type_name)}.h"],
+        merged.add_extras(implementation_includes=[f"variant/{format_type_snake_case(type_name)}.h", "cpp/variant/all.hpp"],
                           includes=["cpp/variant/all-stubs.hpp"])
         if type_name not in NON_STRUCT_TYPES:
             merged.surround_prototype(
