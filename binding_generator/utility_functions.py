@@ -70,9 +70,5 @@ def generate_utility_functions(
         "../gdextension/gdextension_interface.h",
         "../variant/all.h",
     ]
-    implementation_includes = [
-        "<string.h>",
-    ]
     return BindingCode.merge(definitions,
-                             includes=includes,
-                             implementation_includes=implementation_includes)
+                             includes=includes)

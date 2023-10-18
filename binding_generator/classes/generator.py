@@ -71,6 +71,7 @@ def generate_all_class_stubs(
         "",
         "",
         includes=includes,
+        implementation_includes=[line.replace(".h", ".c") for line in includes],
     )
 
 
@@ -120,4 +121,5 @@ def generate_initialize_all_classes(
         "",
         "",
         includes=includes,
+        implementation_includes=[line.replace(".h", ".c") for line in includes],
     )

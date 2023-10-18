@@ -2,6 +2,7 @@
 Generates bindings for Godot's builtin classes (a.k.a. Variants)
 """
 
+from sys import implementation
 from .constructor import BuiltinClassConstructor
 from .destructor import BuiltinClassDestructor
 from .indexing import BuiltinClassIndexing
@@ -174,10 +175,12 @@ def generate_initialize_all_builtin_classes(
         f'#include "{format_type_snake_case(name)}.{h_or_hpp}"'
         for name in class_names
     ]
+    c_or_cpp = "cpp" if is_cpp else "c"
     return BindingCode(
         "",
         "",
         includes=includes,
+        implementation_includes=[line.replace(f".{h_or_hpp}", f".{c_or_cpp}") for line in includes],
     )
 
 

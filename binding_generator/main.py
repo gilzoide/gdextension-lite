@@ -17,7 +17,7 @@ from classes.generator import generate_class_stub_header, generate_all_class_stu
 from enums import generate_all_enums
 from extension_interface import generate_all_extension_bindings
 from format_utils import format_type_snake_case
-from header import HeaderWriter
+from header import CodeWriter
 from json_types import ExtensionApi
 from native_structures import generate_all_native_structures
 from utility_functions import generate_utility_functions
@@ -33,16 +33,16 @@ def main():
 
     with open(extension_api_path, 'r') as file:
         extension_api: ExtensionApi = json.load(file)
-    header_writer = HeaderWriter(*output_dir.split("/"))
+    code_writer = CodeWriter(*output_dir.split("/"))
 
     # Global Enums
-    header_writer.write_header(
+    code_writer.write_file(
         generate_all_enums(extension_api["global_enums"]),
         "global_enums",
     )
 
     # Extension Interface
-    header_writer.write_header(
+    code_writer.write_file(
         generate_all_extension_bindings(),
         "extension_interface",
     )
@@ -54,55 +54,55 @@ def main():
         if cls["name"] != "Nil"
     ]
     for builtin_class in builtin_classes:
-        header_writer.write_header(
+        code_writer.write_file(
             generate_builtin_class(builtin_class),
             "variant", format_type_snake_case(builtin_class["name"]),
         )
-        header_writer.write_header(
+        code_writer.write_file(
             generate_builtin_class(builtin_class, is_cpp=True),
             "cpp", "variant", format_type_snake_case(builtin_class["name"]),
             is_cpp=True,
         )
-    header_writer.write_header(
+    code_writer.write_file(
         generate_initialize_all_builtin_classes(builtin_classes),
         "variant", "all",
     )
-    header_writer.write_header(
+    code_writer.write_file(
         generate_initialize_all_builtin_classes_cpp_stub(builtin_classes),
         "cpp", "variant", "all-stubs",
         is_cpp=True,
     )
-    header_writer.write_header(
+    code_writer.write_file(
         generate_initialize_all_builtin_classes(builtin_classes, is_cpp=True),
         "cpp", "variant", "all",
         is_cpp=True,
     )
 
     # Utility functions
-    header_writer.write_header(
+    code_writer.write_file(
         generate_utility_functions(extension_api["utility_functions"]),
         "utility_functions",
     )
 
     # Native Structures
     contents = generate_all_native_structures(extension_api["native_structures"])
-    header_writer.write_header(contents, "native_structures")
+    code_writer.write_file(contents, "native_structures")
 
     # Classes
     for cls in extension_api["classes"]:
-        header_writer.write_header(
+        code_writer.write_file(
             generate_class_stub_header(cls),
             "class-stubs", format_type_snake_case(cls["name"]),
         )
-        header_writer.write_header(
+        code_writer.write_file(
             generate_class_method_header(cls),
             "class-methods", format_type_snake_case(cls["name"]),
         )
-    header_writer.write_header(
+    code_writer.write_file(
         generate_all_class_stubs(extension_api["classes"]),
         "class-stubs", "all",
     )
-    header_writer.write_header(
+    code_writer.write_file(
         generate_initialize_all_classes(extension_api["classes"]),
         "class-methods", "all",
     )
