@@ -1,0 +1,7 @@
+#include "gdextension-lite.c"
+#include "variant/all.c"
+#include "generated/class-methods/all.c"
+#include "generated/class-stubs/all.c"
+#include "generated/extension_interface.c"
+#include "generated/utility_functions.c"
+#include "generated/variant/all.c"
