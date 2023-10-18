@@ -152,7 +152,10 @@ def generate_builtin_class(
         "../gdextension/gdextension_interface.h",
         "../variant/all.h",
     ]
-    merged = BindingCode.merge(definitions, includes=includes)
+    implementation_includes = [
+        "variant/all.h",
+    ]
+    merged = BindingCode.merge(definitions, includes=includes, implementation_includes=implementation_includes)
     type_name = builtin_class['name']
     if is_cpp:
         merged.add_extras(implementation_includes=[f"variant/{format_type_snake_case(type_name)}.h", "cpp/variant/all.hpp"],
