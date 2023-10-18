@@ -23,23 +23,3 @@ void gdextension_lite_initialize(const GDExtensionInterfaceGetProcAddress get_pr
 #endif
 
 #endif  // __GDEXTENSION_LITE_H__
-
-#ifdef GDEXTENSION_LITE_IMPLEMENTATION
-#ifndef __GDEXTENSION_LITE_H_IMPLEMENTATION__
-#define __GDEXTENSION_LITE_H_IMPLEMENTATION__
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void gdextension_lite_initialize(const GDExtensionInterfaceGetProcAddress get_proc_address) {
-	gdextension_lite_initialize_interface(get_proc_address);
-}
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif  // __GDEXTENSION_LITE_H_IMPLEMENTATION__
-#endif  // GDEXTENSION_LITE_IMPLEMENTATION
-
