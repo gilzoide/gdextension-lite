@@ -15,11 +15,11 @@ typedef struct godot_Object godot_Object;
 extern "C" {
 #endif
 
-void godot_placement_new_Variant_from_Object(godot_Variant *self, godot_Object **object);
-godot_Variant godot_new_Variant_from_Object(godot_Object **object);
+void godot_placement_new_Variant_from_Object(godot_Variant *self, const godot_Object *object);
+godot_Variant godot_new_Variant_from_Object(const godot_Object *object);
 
-void godot_placement_new_Object_from_Variant(godot_Object ** self, godot_Variant *variant);
-godot_Object *godot_new_Object_from_Variant(godot_Variant *variant);
+void godot_placement_new_Object_from_Variant(godot_Object ** self, const godot_Variant *variant);
+godot_Object *godot_new_Object_from_Variant(const godot_Variant *variant);
 
 #ifdef __cplusplus
 }
