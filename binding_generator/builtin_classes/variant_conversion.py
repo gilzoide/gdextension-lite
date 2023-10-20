@@ -1,6 +1,6 @@
 from common.binding_code import BindingCode
 from common.code_generator import CodeGenerator
-from format_utils import (format_parameter,
+from format_utils import (format_parameter_const,
                           format_type_to_variant_enum,
                           format_value_to_ptr)
 from json_types import *
@@ -16,7 +16,7 @@ class BuiltinClassFromVariantConversion(CodeGenerator):
         self.return_type = f"godot_{type_name}"
 
         self.function_name = f"godot_new_{type_name}_from_Variant"
-        parameter = format_parameter('Variant', 'value')
+        parameter = format_parameter_const('Variant', 'value')
         self.prototype = f"{self.return_type} {self.function_name}({parameter})"
 
         self.ptr_function_name = f"godot_ptr_new_{type_name}_from_Variant"
@@ -35,7 +35,7 @@ class BuiltinClassFromVariantConversion(CodeGenerator):
                             self.variant_type_enum
                         });""",
                     f"\t{self.return_type} self;",
-                    f"\t{self.ptr_function_name}(&self, value);",
+                    f"\t{self.ptr_function_name}(&self, (GDExtensionVariantPtr) value);",
                     f"\treturn self;",
                 f"}}",
             ]),
@@ -52,7 +52,7 @@ class BuiltinClassToVariantConversion(CodeGenerator):
         self.return_type = f"godot_Variant"
 
         self.function_name = f"godot_new_Variant_from_{type_name}"
-        parameter = format_parameter(type_name, 'value')
+        parameter = format_parameter_const(type_name, 'value')
         self.prototype = f"{self.return_type} {self.function_name}({parameter})"
 
         self.ptr_function_name = f"godot_ptr_new_Variant_from_{type_name}"
@@ -71,7 +71,7 @@ class BuiltinClassToVariantConversion(CodeGenerator):
                             self.variant_type_enum
                         });""",
                     f"\t{self.return_type} self;",
-                    f"""\t{self.ptr_function_name}(&self, {
+                    f"""\t{self.ptr_function_name}(&self, (GDExtensionTypePtr) {
                             format_value_to_ptr(self.class_name, 'value')
                         });""",
                     f"\treturn self;",
