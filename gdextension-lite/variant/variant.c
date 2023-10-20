@@ -23,7 +23,7 @@ godot_Variant godot_new_Variant_from_Variant(const godot_Variant *other) {
 	GDEXTENSION_LITE_RETURN_PLACEMENT_NEW(godot_Variant, godot_placement_new_Variant_from_Variant, other);
 }
 
-void godot_destroy_Variant(godot_Variant *self) {
+void godot_Variant_destroy(godot_Variant *self) {
 	godot_variant_destroy(self);
 }
 

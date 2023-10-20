@@ -19,15 +19,15 @@
 		}
 
 #define GDEXTENSION_LITE_LAZY_INIT_VARIANT_DESTRUCTOR(name, type) \
-		if (godot_ptr_destroy_##name == NULL) { \
-			godot_ptr_destroy_##name = godot_variant_get_ptr_destructor(type); \
+		if (godot_ptr_##name##_destroy == NULL) { \
+			godot_ptr_##name##_destroy = godot_variant_get_ptr_destructor(type); \
 		}
 
 #define GDEXTENSION_LITE_LAZY_INIT_VARIANT_MEMBER(get_or_set, name, type, member) \
 	if (godot_ptr_##name##_##get_or_set##_##member == NULL) { \
 		godot_StringName _member = godot_new_StringName_from_latin1_chars(#name); \
 		godot_ptr_##name##_##get_or_set##_##member = godot_variant_get_ptr_##get_or_set##ter(type, &_member); \
-		godot_destroy_StringName(&_member); \
+		godot_StringName_destroy(&_member); \
 	}
 
 #define GDEXTENSION_LITE_LAZY_INIT_VARIANT_INDEXING(get_or_set, indexed_or_keyed, name, type) \
@@ -44,14 +44,14 @@
 	if (godot_ptr_##name##_##method == NULL) { \
 		godot_StringName _method = godot_new_StringName_from_latin1_chars(#method); \
 		godot_ptr_##name##_##method = godot_variant_get_ptr_builtin_method(type, &_method, hash); \
-		godot_destroy_StringName(&_method); \
+		godot_StringName_destroy(&_method); \
 	}
 
 #define GDEXTENSION_LITE_LAZY_INIT_UTILITY_FUNCTION(name, hash) \
 	if (godot_ptr_##name == NULL) { \
 		godot_StringName _name = godot_new_StringName_from_latin1_chars(#name); \
 		godot_ptr_##name = godot_variant_get_ptr_utility_function(&_name, hash); \
-		godot_destroy_StringName(&_name); \
+		godot_StringName_destroy(&_name); \
 	}
 
 #define GDEXTENSION_LITE_LAZY_INIT_CLASS_METHOD(name, method, hash) \
@@ -59,8 +59,8 @@
 		godot_StringName _class = godot_new_StringName_from_latin1_chars(#name); \
 		godot_StringName _method = godot_new_StringName_from_latin1_chars(#method); \
 		godot_ptr_##name##_##method = godot_classdb_get_method_bind(&_class, &_method, hash); \
-		godot_destroy_StringName(&_method); \
-		godot_destroy_StringName(&_class); \
+		godot_StringName_destroy(&_method); \
+		godot_StringName_destroy(&_class); \
 	}
 
 #define GDEXTENSION_LITE_LAZY_INIT_EXTENSION_INTERFACE(symbol) \

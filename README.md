@@ -53,8 +53,8 @@ void initialize(void *userdata, GDExtensionInitializationLevel p_level) {
     // This avoids having to pass argc/argv parameters manually
     godot_print_v(&msg_var);
     // As always in C, you are responsible for freeing objects
-    godot_destroy_Variant(&msg_var);
-    godot_destroy_String(&msg);
+    godot_Variant_destroy(&msg_var);
+    godot_String_destroy(&msg);
 }
 
 void deinitialize(void *userdata, GDExtensionInitializationLevel p_level) {
@@ -78,7 +78,7 @@ Sample code is also available at the [sample](sample) folder.
 1. Every type and function binding from Godot have the prefix `godot_`
 2. Every GDExtension Lite function have the prefix `gdextension_lite_`
 3. Constructors have the format `godot_new_<type name>` or `godot_new_<type name>_from_<arg1 type>_<arg2 type>...`
-4. Destructors have the format `godot_destroy_<type name>`
+4. Destructors have the format `godot_<type name>_destroy`
 5. Member getters have the format `godot_<type name>_get_<member name>`
 6. Member setters have the format `godot_<type name>_set_<member name>`
 7. Indexed getters have the format `godot_<type name>_indexed_get`

@@ -28,7 +28,7 @@ void godot_placement_new_Variant_from_Variant(godot_Variant *self, const godot_V
 godot_Variant godot_new_Variant_from_Variant(const godot_Variant *other);
 
 // Destructor
-void godot_destroy_Variant(godot_Variant *self);
+void godot_Variant_destroy(godot_Variant *self);
 
 #ifdef __cplusplus
 }

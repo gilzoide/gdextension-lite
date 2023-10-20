@@ -11,7 +11,7 @@ class BuiltinClassDestructor(CodeGenerator):
     def __init__(self, type_name: str):
         self.class_name = type_name
         self.variant_type_enum = format_type_to_variant_enum(type_name)
-        self.destructor_name = f"destroy_{type_name}"
+        self.destructor_name = f"{type_name}_destroy"
         self.function_name = f"godot_{self.destructor_name}"
         self.prototype = f"void {self.function_name}(godot_{type_name} *self)"
         
