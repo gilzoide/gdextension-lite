@@ -9,7 +9,7 @@ from format_utils import (format_arguments_array,
                           format_parameter_const,
                           format_return_type,
                           format_type_to_variant_enum,
-                          format_vararg_macro,
+                          format_value_to_ptr,
                           should_generate_method)
 from json_types import *
 
@@ -55,48 +55,19 @@ class BuiltinClassMethod(CodeGenerator):
         self.ptr_prototype = f"GDExtensionPtrBuiltInMethod {self.ptr_function_name}"
 
     def get_c_code(self) -> BindingCode:
-        vararg_macro = (
-            format_vararg_macro(self.function_name, self.non_vararg_argc)
-            if self.is_vararg
-            else ""
-        )
+        impl_macro = "GDEXTENSION_LITE_VARIANT_METHOD_IMPL"
+        if self.is_vararg:
+            impl_macro += "_VARIADIC"
+        if self.return_type == "void":
+            impl_macro += "_VOID"
+        null_or_self = "NULL" if self.is_static else "self"
+        call_arguments = "".join([", " + format_value_to_ptr(arg['type'], arg['name']) for arg in self.arguments])
         return BindingCode(
-            '\n'.join(line for line in [
-                f"{self.prototype};",
-                vararg_macro,
-            ] if line.strip()),
-            '\n'.join(line for line in [
-                f"static {self.ptr_prototype};",
-                f"{self.prototype} {{",
-                    f"""\tGDEXTENSION_LITE_LAZY_INIT_VARIANT_METHOD({
-                            self.class_name
-                        }, {
-                            self.variant_type_enum
-                        }, {
-                            self.method['name']
-                        }, {
-                            self.method['hash']
-                        });""",
-                    (f"\t{self.return_type} _ret;"
-                     if self.return_type != "void"
-                     else ""),
-                    f"{indent(format_arguments_array('_args', self.arguments, self.is_vararg), '	')}",
-                    f"""\t{self.ptr_function_name}({
-                        "NULL"
-                        if self.is_static
-                        else "(GDExtensionTypePtr) self"
-                    }, _args, {
-                        "&_ret"
-                        if self.return_type != "void"
-                        else "NULL"
-                    }, {
-                        format_arguments_count(self.arguments, self.is_vararg)
-                    });""",
-                    (f"\treturn _ret;"
-                     if self.return_type != "void"
-                     else ""),
+            '\n'.join([
+                f"static inline {self.prototype} {{",
+                    f"\t{impl_macro}({self.class_name}, {self.method['name']}, {self.method['hash']}, {self.variant_type_enum}, {self.return_type}, {null_or_self}{call_arguments})",
                 f"}}",
-            ] if line.strip()),
+            ]),
         )
 
     def get_cpp_code(self) -> BindingCode:
