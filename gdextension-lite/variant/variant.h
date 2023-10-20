@@ -22,8 +22,8 @@ extern "C" {
 #endif
 
 // Constructors
-void godot_placement_new_Variant(godot_Variant *self);
-godot_Variant godot_new_Variant();
+void godot_placement_new_Variant_nil(godot_Variant *self);
+godot_Variant godot_new_Variant_nil();
 void godot_placement_new_Variant_from_Variant(godot_Variant *self, const godot_Variant *other);
 godot_Variant godot_new_Variant_from_Variant(const godot_Variant *other);
 

@@ -11,6 +11,7 @@ from .method import BuiltinClassMethod
 from .operator import BuiltinClassOperator
 from .variant_conversion import (BuiltinClassFromVariantConversion,
                                  BuiltinClassToVariantConversion)
+from .variant import VariantCode
 from common.binding_code import BindingCode
 from common.constant import Constant
 from common.scoped_enum import ScopedEnum
@@ -168,11 +169,18 @@ def generate_builtin_class(
     return merged
 
 
+def generate_variant(
+    builtin_classes: list[BuiltinClass],
+    is_cpp: bool = False,
+) -> BindingCode:
+    return VariantCode(builtin_classes).get_code(is_cpp=is_cpp)
+
+
 def generate_initialize_all_builtin_classes(
     builtin_classes: list[BuiltinClass],
     is_cpp: bool = False,
 ) -> BindingCode:
-    class_names = [cls["name"] for cls in builtin_classes]
+    class_names = [cls["name"] for cls in builtin_classes] + ["Variant"]
     h_or_hpp = "hpp" if is_cpp else "h"
     includes = [
         f'#include "{format_type_snake_case(name)}.{h_or_hpp}"'

@@ -7,12 +7,12 @@
 extern "C" {
 #endif
 
-void godot_placement_new_Variant(godot_Variant *self) {
+void godot_placement_new_Variant_nil(godot_Variant *self) {
 	godot_variant_new_nil(self);
 }
 
-godot_Variant godot_new_Variant() {
-	GDEXTENSION_LITE_RETURN_PLACEMENT_NEW(godot_Variant, godot_placement_new_Variant);
+godot_Variant godot_new_Variant_nil() {
+	GDEXTENSION_LITE_RETURN_PLACEMENT_NEW(godot_Variant, godot_placement_new_Variant_nil);
 }
 
 void godot_placement_new_Variant_from_Variant(godot_Variant *self, const godot_Variant *other) {
