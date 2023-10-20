@@ -37,7 +37,7 @@ sample: generate-bindings
 	$(SCONS_BIN) -C sample
 
 run-sample: sample/.godot
-	$(GODOT_BIN) --headless --quit --path sample
+	$(GODOT_BIN) --headless --quit --path sample --script test_entrypoint.gd
 
 # Miscelaneous
 clean:
