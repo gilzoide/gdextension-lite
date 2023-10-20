@@ -68,6 +68,13 @@
 		*((void **) &godot_ptr_##symbol) = (void *) gdextension_lite_get_proc_address(#symbol); \
 	}
 
+#define GDEXTENSION_LITE_EXTENSION_INTERFACE_IMPL(symbol_type, symbol, ...) \
+	static symbol_type godot_ptr_##symbol = NULL; \
+	if (godot_ptr_##symbol == NULL) { \
+		godot_ptr_##symbol = (symbol_type) gdextension_lite_get_proc_address(#symbol); \
+	} \
+	return godot_ptr_##symbol(__VA_ARGS__)
+
 #define GDEXTENSION_LITE_RETURN_PLACEMENT_NEW(return_type, placement_new, ...) \
 	return_type _ret; \
 	placement_new(&_ret, ##__VA_ARGS__); \
