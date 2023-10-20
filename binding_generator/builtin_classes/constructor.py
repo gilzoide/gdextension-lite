@@ -3,12 +3,11 @@ from textwrap import indent
 from common.binding_code import BindingCode
 from common.code_generator import CodeGenerator
 from format_utils import (NON_STRUCT_TYPES,
-                          format_arguments_array,
                           format_cpp_argument_forward,
-                          format_identifier,
                           format_parameter,
                           format_parameter_const,
                           format_type_to_variant_enum,
+                          format_value_to_ptr,
                           should_generate_constructor)
 from json_types import *
 
@@ -34,32 +33,16 @@ class BuiltinClassConstructor(CodeGenerator):
         self.prototype = f"godot_{type_name} godot_{self.function_name}({', '.join(proto_arguments)})"
         self.placement_prototype = f"void godot_placement_{self.function_name}({', '.join([f'godot_{type_name} *self'] + proto_arguments)})"
 
-        self.ptr_function_name = f"godot_ptr_{self.function_name}"
-        self.ptr_prototype = f"GDExtensionPtrConstructor {self.ptr_function_name}"
-
     def get_c_code(self) -> BindingCode:
+        call_arguments = "".join([", " + format_value_to_ptr(arg['type'], arg['name']) for arg in self.arguments])
+        forward_arguments = "".join([", " + arg['name'] for arg in self.arguments])
         return BindingCode(
             "\n".join([
-                f"{self.placement_prototype};",
-                f"{self.prototype};",
-            ]),
-            "\n".join([
-                f"static {self.ptr_prototype};",
-                f"{self.placement_prototype} {{",
-                    f"""\tGDEXTENSION_LITE_LAZY_INIT_VARIANT_CONSTRUCTOR({
-                            self.function_name
-                        }, {
-                            format_type_to_variant_enum(self.class_name)
-                        }, {
-                            self.constructor['index']
-                        });""",
-                    f"{indent(format_arguments_array('_args', self.arguments), '	')}",
-                    f"\t{self.ptr_function_name}(self, _args);",
+                f"static inline {self.placement_prototype} {{",
+                    f"\tGDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL({self.function_name}, {format_type_to_variant_enum(self.class_name)}, {self.constructor['index']}{call_arguments});",
                 f"}}",
-                f"{self.prototype} {{",
-                    f"\tgodot_{self.class_name} self;",
-                    f"\tgodot_placement_{self.function_name}({', '.join(['&self'] + [format_identifier(arg['name']) for arg in self.arguments])});",
-                    f"\treturn self;",
+                f"static inline {self.prototype} {{",
+                    f"\tGDEXTENSION_LITE_RETURN_PLACEMENT_NEW(godot_{self.class_name}, godot_placement_{self.function_name}{forward_arguments});",
                 f"}}",
             ]),
         )

@@ -67,6 +67,15 @@ void godot_StringName_destroy(struct godot_StringName *string_name);
 		_args[_fixed_argc + _i] = argv[_i]; \
 	}
 
+// Variant constructor
+#define GDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL(ctor_name, type, index, ...) \
+	static GDExtensionPtrConstructor godot_ptr_##ctor_name = NULL; \
+	if (godot_ptr_##ctor_name == NULL) { \
+		godot_ptr_##ctor_name = godot_variant_get_ptr_constructor(type, index); \
+	} \
+	GDEXTENSION_LITE_DEFINE_ARGS(__VA_ARGS__) \
+	godot_ptr_##ctor_name(self, _args);
+
 // Variant methods
 #define GDEXTENSION_LITE_DECLARE_VARIANT_METHOD(cls, method, hash, variant_type_enum) \
 	static GDExtensionPtrBuiltInMethod godot_ptr_##cls##_##method = NULL; \
@@ -144,11 +153,7 @@ void godot_StringName_destroy(struct godot_StringName *string_name);
 	godot_object_method_bind_call(godot_ptr_##cls##_##method, (GDExtensionObjectPtr) self, _args, _final_argc, NULL, &_error); \
 
 
-#define GDEXTENSION_LITE_LAZY_INIT_VARIANT_CONSTRUCTOR(name, type, index) \
-	if (godot_ptr_##name == NULL) { \
-		godot_ptr_##name = godot_variant_get_ptr_constructor(type, index); \
-	}
-
+// misc
 #define GDEXTENSION_LITE_LAZY_INIT_TYPE_FROM_VARIANT(name, type) \
 		if (godot_ptr_new_##name##_from_Variant == NULL) { \
 			godot_ptr_new_##name##_from_Variant = godot_get_variant_to_type_constructor(type); \
@@ -187,21 +192,16 @@ void godot_StringName_destroy(struct godot_StringName *string_name);
 		godot_StringName_destroy(&_name); \
 	}
 
-#define GDEXTENSION_LITE_LAZY_INIT_EXTENSION_INTERFACE(symbol) \
-	if (godot_ptr_##symbol == NULL) { \
-		*((void **) &godot_ptr_##symbol) = (void *) gdextension_lite_get_proc_address(#symbol); \
-	}
-
 #define GDEXTENSION_LITE_EXTENSION_INTERFACE_IMPL(symbol_type, symbol, ...) \
 	static symbol_type godot_ptr_##symbol = NULL; \
 	if (godot_ptr_##symbol == NULL) { \
 		godot_ptr_##symbol = (symbol_type) gdextension_lite_get_proc_address(#symbol); \
 	} \
-	return godot_ptr_##symbol(__VA_ARGS__)
+	return godot_ptr_##symbol(__VA_ARGS__);
 
 #define GDEXTENSION_LITE_RETURN_PLACEMENT_NEW(return_type, placement_new, ...) \
 	return_type _ret; \
 	placement_new(&_ret, ##__VA_ARGS__); \
-	return _ret
+	return _ret;
 
 #endif  // __GDEXTENSION_LITE_IMPLEMENTATION_MACROS_H__

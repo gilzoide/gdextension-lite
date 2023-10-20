@@ -51,9 +51,6 @@ class BuiltinClassMethod(CodeGenerator):
                                 ', '.join(proto_arguments)
                             })"""
 
-        self.ptr_function_name = f"godot_ptr_{type_name}_{method['name']}"
-        self.ptr_prototype = f"GDExtensionPtrBuiltInMethod {self.ptr_function_name}"
-
     def get_c_code(self) -> BindingCode:
         impl_macro = "GDEXTENSION_LITE_VARIANT_METHOD_IMPL"
         if self.is_vararg:
