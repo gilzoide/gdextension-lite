@@ -180,27 +180,11 @@ void godot_StringName_destroy(struct godot_StringName *string_name);
 		godot_ptr_##name = godot_variant_get_ptr_operator_evaluator(op, type1, type2); \
 	}
 
-#define GDEXTENSION_LITE_LAZY_INIT_VARIANT_METHOD(name, type, method, hash) \
-	if (godot_ptr_##name##_##method == NULL) { \
-		godot_StringName _method = godot_new_StringName_from_latin1_chars(#method); \
-		godot_ptr_##name##_##method = godot_variant_get_ptr_builtin_method(type, &_method, hash); \
-		godot_StringName_destroy(&_method); \
-	}
-
 #define GDEXTENSION_LITE_LAZY_INIT_UTILITY_FUNCTION(name, hash) \
 	if (godot_ptr_##name == NULL) { \
 		godot_StringName _name = godot_new_StringName_from_latin1_chars(#name); \
 		godot_ptr_##name = godot_variant_get_ptr_utility_function(&_name, hash); \
 		godot_StringName_destroy(&_name); \
-	}
-
-#define GDEXTENSION_LITE_LAZY_INIT_CLASS_METHOD(name, method, hash) \
-	if (godot_ptr_##name##_##method == NULL) { \
-		godot_StringName _class = godot_new_StringName_from_latin1_chars(#name); \
-		godot_StringName _method = godot_new_StringName_from_latin1_chars(#method); \
-		godot_ptr_##name##_##method = godot_classdb_get_method_bind(&_class, &_method, hash); \
-		godot_StringName_destroy(&_method); \
-		godot_StringName_destroy(&_class); \
 	}
 
 #define GDEXTENSION_LITE_LAZY_INIT_EXTENSION_INTERFACE(symbol) \
