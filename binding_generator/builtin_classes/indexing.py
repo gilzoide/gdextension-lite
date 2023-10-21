@@ -60,7 +60,7 @@ class BuiltinClassIndexingSetter(BuiltinClassIndexing):
         ]
         return BindingCode(
             "\n".join([
-                f"static inline {self.prototype} {{",
+                f"GDEXTENSION_LITE_INLINE {self.prototype} {{",
                     f"\t{impl_macro}({', '.join(macro_args)});",
                 f"}}",
             ]),
@@ -89,7 +89,7 @@ class BuiltinClassIndexingGetter(BuiltinClassIndexing):
         ]
         return BindingCode(
             "\n".join([
-                f"static inline {self.prototype} {{",
+                f"GDEXTENSION_LITE_INLINE {self.prototype} {{",
                     f"\t{impl_macro}({', '.join(macro_args)});",
                 f"}}",
             ]),

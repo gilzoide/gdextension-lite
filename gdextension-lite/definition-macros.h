@@ -7,4 +7,7 @@
 #define GDCLEANUP(godot_Type) \
 	__attribute__((cleanup(godot_Type##_destroy))) godot_Type
 
+#define GDEXTENSION_LITE_INLINE \
+	static inline
+
 #endif

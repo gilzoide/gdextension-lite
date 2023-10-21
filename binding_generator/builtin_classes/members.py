@@ -55,7 +55,7 @@ class BuiltinClassMemberSetter(BuiltinClassMember):
         ]
         return BindingCode(
             "\n".join([
-                f"static inline {self.prototype} {{",
+                f"GDEXTENSION_LITE_INLINE {self.prototype} {{",
                     f"\tGDEXTENSION_LITE_VARIANT_MEMBER_SET_IMPL({', '.join(macro_args)});",
                 f"}}",
             ]),
@@ -99,7 +99,7 @@ class BuiltinClassMemberGetter(BuiltinClassMember):
         ]
         return BindingCode(
             "\n".join([
-                f"static inline {self.prototype} {{",
+                f"GDEXTENSION_LITE_INLINE {self.prototype} {{",
                     f"\tGDEXTENSION_LITE_VARIANT_MEMBER_GET_IMPL({', '.join(macro_args)});",
                 f"}}",
             ]),

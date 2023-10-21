@@ -4,6 +4,8 @@
 #ifndef __GDEXTENSION_LITE_IMPLEMENTATION_MACROS_H__
 #define __GDEXTENSION_LITE_IMPLEMENTATION_MACROS_H__
 
+#include "definition-macros.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

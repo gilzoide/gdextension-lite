@@ -28,7 +28,7 @@ class BuiltinClassDestructor(CodeGenerator):
         else:
             return BindingCode(
                 "\n".join([
-                    f"static inline {self.prototype} {{",
+                    f"GDEXTENSION_LITE_INLINE {self.prototype} {{",
                         f"\tGDEXTENSION_LITE_VARIANT_DESTRUCTOR_IMPL({self.variant_type_enum});",
                     f"}}",
                 ]),
