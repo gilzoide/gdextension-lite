@@ -2,12 +2,9 @@ from textwrap import indent
 
 from common.binding_code import BindingCode
 from common.code_generator import CodeGenerator
-from format_utils import (format_arguments_array,
-                          format_arguments_count,
-                          format_parameter,
+from format_utils import (format_parameter,
                           format_parameter_const,
                           format_return_type,
-                          format_type_to_variant_enum,
                           format_value_to_ptr)
 from json_types import *
 
@@ -55,15 +52,19 @@ class ClassMethod(CodeGenerator):
             impl_macro += "_VARIADIC"
         if self.return_type == "void":
             impl_macro += "_VOID"
-        null_or_self = "NULL" if self.is_static else "self"
-        call_arguments = "".join([
-            ", " + (arg['name'] if self.is_vararg else format_value_to_ptr(arg['type'], arg['name']))
-            for arg in self.arguments
-        ])
+        macro_args = [
+            self.class_name,
+            self.method['name'],
+            str(self.method.get('hash', 0)),
+            self.return_type,
+            "NULL" if self.is_static else "self",
+            *(arg['name'] if self.is_vararg else format_value_to_ptr(arg['type'], arg['name'])
+              for arg in self.arguments),
+        ]
         return BindingCode(
             '\n'.join([
                 f"static inline {self.prototype} {{",
-                    f"\t{impl_macro}({self.class_name}, {self.method['name']}, {self.method.get('hash', 0)}, {self.return_type}, {null_or_self}{call_arguments})",
+                    f"\t{impl_macro}({', '.join(macro_args)})",
                 f"}}",
             ]),
         )

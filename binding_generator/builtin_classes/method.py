@@ -2,9 +2,7 @@ from textwrap import indent
 
 from common.binding_code import BindingCode
 from common.code_generator import CodeGenerator
-from format_utils import (format_arguments_array,
-                          format_arguments_count,
-                          format_cpp_argument_forward,
+from format_utils import (format_cpp_argument_forward,
                           format_parameter,
                           format_parameter_const,
                           format_return_type,
@@ -57,12 +55,18 @@ class BuiltinClassMethod(CodeGenerator):
             impl_macro += "_VARIADIC"
         if self.return_type == "void":
             impl_macro += "_VOID"
-        null_or_self = "NULL" if self.is_static else "self"
-        call_arguments = "".join([", " + format_value_to_ptr(arg['type'], arg['name']) for arg in self.arguments])
+        macro_args = [
+            self.method['name'],
+            str(self.method.get('hash', 0)),
+            self.variant_type_enum,
+            self.return_type,
+            "NULL" if self.is_static else "self",
+            *(format_value_to_ptr(arg['type'], arg['name']) for arg in self.arguments),
+        ]
         return BindingCode(
             '\n'.join([
                 f"static inline {self.prototype} {{",
-                    f"\t{impl_macro}({self.method['name']}, {self.method['hash']}, {self.variant_type_enum}, {self.return_type}, {null_or_self}{call_arguments})",
+                    f"\t{impl_macro}({', '.join(macro_args)})",
                 f"}}",
             ]),
         )
