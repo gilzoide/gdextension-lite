@@ -45,23 +45,19 @@ class BuiltinClassMemberSetter(BuiltinClassMember):
                             }, {
                                 format_parameter_const(self.member_type, 'value')
                             })"""
-        self.ptr_function_name = f"godot_ptr_{self.set_name}"
-        self.ptr_prototype = f"GDExtensionPtrSetter {self.ptr_function_name}"
 
     def get_c_code(self) -> BindingCode:
+        macro_args = [
+            self.class_name,
+            self.variant_type_enum,
+            self.member_type,
+            self.member_name,
+            format_value_to_ptr(self.member_type, 'value'),
+        ]
         return BindingCode(
-            f"{self.prototype};",
-            '\n'.join([
-                f"static {self.ptr_prototype};",
-                f"{self.prototype} {{",
-                    f"""\tGDEXTENSION_LITE_LAZY_INIT_VARIANT_MEMBER(set, {
-                            self.class_name
-                        }, {
-                            self.variant_type_enum
-                        }, {
-                            self.member['name']
-                        });""",
-                    f"\t{self.ptr_function_name}(self, {format_value_to_ptr(self.member['type'], 'value')});",
+            "\n".join([
+                f"static inline {self.prototype} {{",
+                    f"\tGDEXTENSION_LITE_VARIANT_MEMBER_SET_IMPL({', '.join(macro_args)});",
                 f"}}",
             ]),
         )
@@ -95,25 +91,18 @@ class BuiltinClassMemberGetter(BuiltinClassMember):
         self.prototype = f"""{self.return_type} {self.function_name}({
                                 format_parameter_const(type_name, 'self')
                             })"""
-        self.ptr_function_name = f"godot_ptr_{self.get_name}"
-        self.ptr_prototype = f"GDExtensionPtrGetter {self.ptr_function_name}"
 
     def get_c_code(self) -> BindingCode:
+        macro_args = [
+            self.class_name,
+            self.variant_type_enum,
+            self.member_type,
+            self.member_name,
+        ]
         return BindingCode(
-            f"{self.prototype};",
-            '\n'.join([
-                f"static {self.ptr_prototype};",
-                f"{self.prototype} {{",
-                    f"""\tGDEXTENSION_LITE_LAZY_INIT_VARIANT_MEMBER(get, {
-                            self.class_name
-                        }, {
-                            self.variant_type_enum
-                        }, {
-                            self.member['name']
-                        });""",
-                    f"\t{self.return_type} value;",
-                    f"\t{self.ptr_function_name}(self, &value);",
-                    f"\treturn value;",
+            "\n".join([
+                f"static inline {self.prototype} {{",
+                    f"\tGDEXTENSION_LITE_VARIANT_MEMBER_GET_IMPL({', '.join(macro_args)});",
                 f"}}",
             ]),
         )

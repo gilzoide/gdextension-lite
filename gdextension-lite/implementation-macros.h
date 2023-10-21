@@ -64,6 +64,11 @@ void godot_StringName_destroy(struct godot_StringName *string_name);
 	}
 
 // Variant constructor/destructor
+#define GDEXTENSION_LITE_RETURN_PLACEMENT_NEW(return_type, placement_new, ...) \
+	return_type _ret; \
+	placement_new(&_ret, ##__VA_ARGS__); \
+	return _ret;
+
 #define GDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL(ctor_name, type, index, ...) \
 	static GDExtensionPtrConstructor godot_ptr_##ctor_name = NULL; \
 	if (godot_ptr_##ctor_name == NULL) { \
@@ -72,12 +77,33 @@ void godot_StringName_destroy(struct godot_StringName *string_name);
 	GDEXTENSION_LITE_DEFINE_ARGS(__VA_ARGS__) \
 	godot_ptr_##ctor_name(self, _args);
 
-#define GDEXTENSION_LITE_VARIANT_DESTRUCTOR_IMPL(name, type) \
-	static GDExtensionPtrDestructor godot_ptr_##name##_destroy = NULL; \
-	if (godot_ptr_##name##_destroy == NULL) { \
-		godot_ptr_##name##_destroy = godot_variant_get_ptr_destructor(type); \
+#define GDEXTENSION_LITE_VARIANT_DESTRUCTOR_IMPL(cls, type) \
+	static GDExtensionPtrDestructor godot_ptr_##cls##_destroy = NULL; \
+	if (godot_ptr_##cls##_destroy == NULL) { \
+		godot_ptr_##cls##_destroy = godot_variant_get_ptr_destructor(type); \
 	} \
-	godot_ptr_##name##_destroy(self);
+	godot_ptr_##cls##_destroy(self);
+
+// Variant members
+#define GDEXTENSION_LITE_VARIANT_MEMBER_SET_IMPL(cls, variant_type_enum, type, member, value) \
+	static GDExtensionPtrSetter godot_ptr_##cls##_set_##member = NULL; \
+	if (godot_ptr_##cls##_set_##member == NULL) { \
+		godot_StringName _member = godot_new_StringName_from_latin1_chars(#member); \
+		godot_ptr_##cls##_set_##member = godot_variant_get_ptr_setter(variant_type_enum, &_member); \
+		godot_StringName_destroy(&_member); \
+	} \
+	godot_ptr_##cls##_set_##member(self, value);
+
+#define GDEXTENSION_LITE_VARIANT_MEMBER_GET_IMPL(cls, variant_type_enum, type, member) \
+	static GDExtensionPtrGetter godot_ptr_##cls##_get_##member = NULL; \
+	if (godot_ptr_##cls##_get_##member == NULL) { \
+		godot_StringName _member = godot_new_StringName_from_latin1_chars(#member); \
+		godot_ptr_##cls##_get_##member = godot_variant_get_ptr_getter(variant_type_enum, &_member); \
+		godot_StringName_destroy(&_member); \
+	} \
+	godot_##type _value; \
+	godot_ptr_##cls##_get_##member(self, &_value); \
+	return _value;
 
 // Variant methods
 #define GDEXTENSION_LITE_DECLARE_VARIANT_METHOD(cls, method, hash, variant_type_enum) \
@@ -166,13 +192,6 @@ void godot_StringName_destroy(struct godot_StringName *string_name);
 			godot_ptr_new_Variant_from_##name = godot_get_variant_from_type_constructor(type); \
 		}
 
-#define GDEXTENSION_LITE_LAZY_INIT_VARIANT_MEMBER(get_or_set, name, type, member) \
-	if (godot_ptr_##name##_##get_or_set##_##member == NULL) { \
-		godot_StringName _member = godot_new_StringName_from_latin1_chars(#name); \
-		godot_ptr_##name##_##get_or_set##_##member = godot_variant_get_ptr_##get_or_set##ter(type, &_member); \
-		godot_StringName_destroy(&_member); \
-	}
-
 #define GDEXTENSION_LITE_LAZY_INIT_VARIANT_INDEXING(get_or_set, indexed_or_keyed, name, type) \
 	if (godot_ptr_##name##_##indexed_or_keyed##_##get_or_set == NULL) { \
 		godot_ptr_##name##_##indexed_or_keyed##_##get_or_set = godot_variant_get_ptr_##indexed_or_keyed##_##get_or_set##ter(type); \
@@ -190,17 +209,13 @@ void godot_StringName_destroy(struct godot_StringName *string_name);
 		godot_StringName_destroy(&_name); \
 	}
 
+// GDExtension API
 #define GDEXTENSION_LITE_EXTENSION_INTERFACE_IMPL(symbol_type, symbol, ...) \
 	static symbol_type godot_ptr_##symbol = NULL; \
 	if (godot_ptr_##symbol == NULL) { \
 		godot_ptr_##symbol = (symbol_type) gdextension_lite_get_proc_address(#symbol); \
 	} \
 	return godot_ptr_##symbol(__VA_ARGS__);
-
-#define GDEXTENSION_LITE_RETURN_PLACEMENT_NEW(return_type, placement_new, ...) \
-	return_type _ret; \
-	placement_new(&_ret, ##__VA_ARGS__); \
-	return _ret;
 
 #ifdef __cplusplus
 }
