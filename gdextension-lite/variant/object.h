@@ -7,9 +7,6 @@
 #define __GDEXTENSION_LITE_OBJECT_H__
 
 #include "variant.h"
-#include "../gdextension/gdextension_interface.h"
-#include "../generated/extension_interface.h"
-#include "../implementation-macros.h"
 
 typedef struct godot_Object godot_Object;
 
@@ -17,13 +14,8 @@ typedef struct godot_Object godot_Object;
 extern "C" {
 #endif
 
-GDEXTENSION_LITE_INLINE godot_Variant godot_new_Variant_from_Object(const godot_Object *value) {
-	GDEXTENSION_LITE_VARIANT_FROM_TYPE_IMPL(Object*, GDEXTENSION_VARIANT_TYPE_OBJECT, &value);
-}
-
-GDEXTENSION_LITE_INLINE godot_Object *godot_new_Object_from_Variant(const godot_Variant *value) {
-	GDEXTENSION_LITE_TYPE_FROM_VARIANT_IMPL(Object*, GDEXTENSION_VARIANT_TYPE_OBJECT, value);
-}
+godot_Variant godot_new_Variant_from_Object(const godot_Object *value);
+godot_Object *godot_new_Object_from_Variant(const godot_Variant *value);
 
 #ifdef __cplusplus
 }
