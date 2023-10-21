@@ -13,30 +13,19 @@ class BuiltinClassFromVariantConversion(CodeGenerator):
     def __init__(self, type_name: str):
         self.class_name = type_name
         self.variant_type_enum = format_type_to_variant_enum(type_name)
-        self.return_type = f"godot_{type_name}"
-
-        self.function_name = f"godot_new_{type_name}_from_Variant"
         parameter = format_parameter_const('Variant', 'value')
-        self.prototype = f"{self.return_type} {self.function_name}({parameter})"
-
-        self.ptr_function_name = f"godot_ptr_new_{type_name}_from_Variant"
-        ptr_type = "GDExtensionTypeFromVariantConstructorFunc"
-        self.ptr_prototype = f"{ptr_type} {self.ptr_function_name}"
+        self.prototype = f"godot_{type_name} godot_new_{type_name}_from_Variant({parameter})"
 
     def get_c_code(self) -> BindingCode:
+        macro_args = [
+            self.class_name,
+            self.variant_type_enum,
+            "value",
+        ]
         return BindingCode(
-            f"{self.prototype};",
-            '\n'.join([
-                f"static {self.ptr_prototype};",
-                f"{self.prototype} {{",
-                    f"""\tGDEXTENSION_LITE_LAZY_INIT_TYPE_FROM_VARIANT({
-                            self.class_name
-                        }, {
-                            self.variant_type_enum
-                        });""",
-                    f"\t{self.return_type} self;",
-                    f"\t{self.ptr_function_name}(&self, (GDExtensionVariantPtr) value);",
-                    f"\treturn self;",
+            "\n".join([
+                f"static inline {self.prototype} {{",
+                    f"\tGDEXTENSION_LITE_TYPE_FROM_VARIANT_IMPL({', '.join(macro_args)});",
                 f"}}",
             ]),
         )
@@ -49,32 +38,19 @@ class BuiltinClassToVariantConversion(CodeGenerator):
     def __init__(self, type_name: str):
         self.class_name = type_name
         self.variant_type_enum = format_type_to_variant_enum(type_name)
-        self.return_type = f"godot_Variant"
-
-        self.function_name = f"godot_new_Variant_from_{type_name}"
         parameter = format_parameter_const(type_name, 'value')
-        self.prototype = f"{self.return_type} {self.function_name}({parameter})"
-
-        self.ptr_function_name = f"godot_ptr_new_Variant_from_{type_name}"
-        ptr_type = "GDExtensionVariantFromTypeConstructorFunc"
-        self.ptr_prototype = f"{ptr_type} {self.ptr_function_name}"
+        self.prototype = f"godot_Variant godot_new_Variant_from_{type_name}({parameter})"
 
     def get_c_code(self) -> BindingCode:
+        macro_args = [
+            self.class_name,
+            self.variant_type_enum,
+            format_value_to_ptr(self.class_name, 'value'),
+        ]
         return BindingCode(
-            f"{self.prototype};",
-            '\n'.join([
-                f"static {self.ptr_prototype};",
-                f"{self.prototype} {{",
-                    f"""\tGDEXTENSION_LITE_LAZY_INIT_VARIANT_FROM_TYPE({
-                            self.class_name
-                        }, {
-                            self.variant_type_enum
-                        });""",
-                    f"\t{self.return_type} self;",
-                    f"""\t{self.ptr_function_name}(&self, (GDExtensionTypePtr) {
-                            format_value_to_ptr(self.class_name, 'value')
-                        });""",
-                    f"\treturn self;",
+            "\n".join([
+                f"static inline {self.prototype} {{",
+                    f"\tGDEXTENSION_LITE_VARIANT_FROM_TYPE_IMPL({', '.join(macro_args)});",
                 f"}}",
             ]),
         )
