@@ -18,7 +18,7 @@ class BuiltinClassOperator(CodeGenerator):
         self.operator_name = OPERATOR_TO_C.get(operator['name'], operator['name'])
 
         function_name = f"{type_name}_op_{self.operator_name}"
-        self.return_type = operator['return_type']
+        self.return_type = f"godot_{operator['return_type']}"
         self.right_type = operator.get('right_type')
         if self.right_type:
             function_name += "_" + self.right_type
@@ -26,40 +26,30 @@ class BuiltinClassOperator(CodeGenerator):
         else:
             right_parameter = ""
 
-        self.operator_function_name = function_name
-        self.function_name = f"godot_{self.operator_function_name}"
-        self.prototype = f"""godot_{self.return_type} {self.function_name}({
+        self.prototype = f"""{self.return_type} godot_{function_name}({
                                 format_parameter_const(type_name, "a")
                             }{
                                 right_parameter
                             })"""
 
-        self.ptr_function_name = f"godot_ptr_{function_name}"
-        self.ptr_prototype = f"GDExtensionPtrOperatorEvaluator {self.ptr_function_name}"
-
     def get_c_code(self) -> BindingCode:
+        impl_macro = "GDEXTENSION_LITE_VARIANT_BINARY_OPERATOR_IMPL" if self.right_type else "GDEXTENSION_LITE_VARIANT_UNARY_OPERATOR_IMPL"
+        macro_args = [
+            self.return_type,
+            format_operator_to_enum(self.operator_name),
+            format_type_to_variant_enum(self.class_name),
+            format_value_to_ptr(self.class_name, "a")
+        ]
+        if self.right_type:
+            macro_args.extend([
+                format_type_to_variant_enum(self.class_name),
+                format_value_to_ptr(self.right_type, "b")
+            ])
         return BindingCode(
-            f"{self.prototype};",
-            '\n'.join([
-                f"static {self.ptr_prototype};",
-                f"{self.prototype} {{",
-                    f"""\tGDEXTENSION_LITE_LAZY_INIT_VARIANT_OPERATOR({
-                            self.operator_function_name
-                        }, {
-                            format_operator_to_enum(self.operator_name)
-                        }, {
-                            format_type_to_variant_enum(self.class_name)
-                        }, {
-                            format_type_to_variant_enum(self.right_type)
-                        });""",
-                    f"\tgodot_{self.return_type} _ret;",
-                    f"""\t{self.ptr_function_name}({
-                            format_value_to_ptr(self.class_name, "a")
-                        }, {
-                            format_value_to_ptr(self.right_type, "b")
-                        }, &_ret);""",
-                    f"\treturn _ret;",
-                "}",
+            "\n".join([
+                f"static inline {self.prototype} {{",
+                    f"\t{impl_macro}({', '.join(macro_args)});",
+                f"}}",
             ]),
         )
 

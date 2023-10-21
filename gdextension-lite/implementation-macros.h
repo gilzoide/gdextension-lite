@@ -123,6 +123,25 @@ void godot_StringName_destroy(struct godot_StringName *string_name);
 	_getter(self, &_value); \
 	return _value;
 
+// Variant operator
+#define GDEXTENSION_LITE_VARIANT_UNARY_OPERATOR_IMPL(return_type, operator_enum, variant_type_enum, value) \
+	static GDExtensionPtrOperatorEvaluator _operator = NULL; \
+	if (_operator == NULL) { \
+		_operator = godot_variant_get_ptr_operator_evaluator(operator_enum, variant_type_enum, GDEXTENSION_VARIANT_TYPE_NIL); \
+	} \
+	return_type _ret; \
+	_operator(value, NULL, &_ret); \
+	return _ret;
+
+#define GDEXTENSION_LITE_VARIANT_BINARY_OPERATOR_IMPL(return_type, operator_enum, variant_type_enum1, value1, variant_type_enum2, value2) \
+	static GDExtensionPtrOperatorEvaluator _operator = NULL; \
+	if (_operator == NULL) { \
+		_operator = godot_variant_get_ptr_operator_evaluator(operator_enum, variant_type_enum1, variant_type_enum2); \
+	} \
+	return_type _ret; \
+	_operator(value1, value2, &_ret); \
+	return _ret;
+
 // Variant methods
 #define GDEXTENSION_LITE_DECLARE_VARIANT_METHOD(method, hash, variant_type_enum) \
 	static GDExtensionPtrBuiltInMethod _method = NULL; \
@@ -204,11 +223,6 @@ void godot_StringName_destroy(struct godot_StringName *string_name);
 #define GDEXTENSION_LITE_LAZY_INIT_VARIANT_INDEXING(get_or_set, indexed_or_keyed, name, type) \
 	if (godot_ptr_##name##_##indexed_or_keyed##_##get_or_set == NULL) { \
 		godot_ptr_##name##_##indexed_or_keyed##_##get_or_set = godot_variant_get_ptr_##indexed_or_keyed##_##get_or_set##ter(type); \
-	}
-
-#define GDEXTENSION_LITE_LAZY_INIT_VARIANT_OPERATOR(name, op, type1, type2) \
-	if (godot_ptr_##name == NULL) { \
-		godot_ptr_##name = godot_variant_get_ptr_operator_evaluator(op, type1, type2); \
 	}
 
 #define GDEXTENSION_LITE_LAZY_INIT_UTILITY_FUNCTION(name, hash) \
