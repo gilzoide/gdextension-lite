@@ -252,13 +252,38 @@ void godot_StringName_destroy(struct godot_StringName *string_name);
 	godot_object_method_bind_call(_method, (GDExtensionObjectPtr) self, _args, _final_argc, NULL, &_error); \
 
 
-// misc
-#define GDEXTENSION_LITE_LAZY_INIT_UTILITY_FUNCTION(name, hash) \
-	if (godot_ptr_##name == NULL) { \
-		godot_StringName _name = godot_new_StringName_from_latin1_chars(#name); \
-		godot_ptr_##name = godot_variant_get_ptr_utility_function(&_name, hash); \
-		godot_StringName_destroy(&_name); \
+// Utility functions
+#define GDEXTENSION_LITE_DECLARE_UTILITY_FUNCTION(name, hash) \
+	static GDExtensionPtrUtilityFunction _func = NULL; \
+	if (_func == NULL) { \
+		godot_StringName _func_name = godot_new_StringName_from_latin1_chars(#name); \
+		_func = godot_variant_get_ptr_utility_function(&_func_name, hash); \
+		godot_StringName_destroy(&_func_name); \
 	}
+
+#define GDEXTENSION_LITE_UTILITY_FUNCTION_IMPL(name, hash, return_type, ...) \
+	GDEXTENSION_LITE_DECLARE_UTILITY_FUNCTION(name, hash); \
+	GDEXTENSION_LITE_DEFINE_ARGS(__VA_ARGS__); \
+	return_type _ret; \
+	_func(&_ret, _args, _final_argc); \
+	return _ret;
+
+#define GDEXTENSION_LITE_UTILITY_FUNCTION_IMPL_VARIADIC(name, hash, return_type, ...) \
+	GDEXTENSION_LITE_DECLARE_UTILITY_FUNCTION(name, hash); \
+	GDEXTENSION_LITE_DEFINE_ARGS_VARIADIC(__VA_ARGS__); \
+	return_type _ret; \
+	_func(&_ret, _args, _final_argc); \
+	return _ret;
+
+#define GDEXTENSION_LITE_UTILITY_FUNCTION_IMPL_VOID(name, hash, return_type, ...) \
+	GDEXTENSION_LITE_DECLARE_UTILITY_FUNCTION(name, hash); \
+	GDEXTENSION_LITE_DEFINE_ARGS(__VA_ARGS__); \
+	_func(NULL, _args, _final_argc);
+
+#define GDEXTENSION_LITE_UTILITY_FUNCTION_IMPL_VARIADIC_VOID(name, hash, return_type, ...) \
+	GDEXTENSION_LITE_DECLARE_UTILITY_FUNCTION(name, hash); \
+	GDEXTENSION_LITE_DEFINE_ARGS_VARIADIC(__VA_ARGS__); \
+	_func(NULL, _args, _final_argc);
 
 // GDExtension API
 #define GDEXTENSION_LITE_EXTENSION_INTERFACE_IMPL(symbol_type, symbol, ...) \
