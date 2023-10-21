@@ -62,8 +62,9 @@ class ClassMethod(CodeGenerator):
               for arg in self.arguments),
         ]
         return BindingCode(
+            f"GDEXTENSION_LITE_DECL {self.prototype};",
             '\n'.join([
-                f"GDEXTENSION_LITE_INLINE {self.prototype} {{",
+                f"{self.prototype} {{",
                     f"\t{impl_macro}({', '.join(macro_args)})",
                 f"}}",
             ]),

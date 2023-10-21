@@ -16,23 +16,14 @@ class BuiltinClassDestructor(CodeGenerator):
         self.prototype = f"void {self.function_name}(godot_{type_name} *self)"
 
     def get_c_code(self) -> BindingCode:
-        if self.class_name == "StringName":
-            return BindingCode(
-                f"{self.prototype};",
-                "\n".join([
-                    f"{self.prototype} {{",
-                        f"\tGDEXTENSION_LITE_VARIANT_DESTRUCTOR_IMPL({self.variant_type_enum});",
-                    f"}}",
-                ]),
-            )
-        else:
-            return BindingCode(
-                "\n".join([
-                    f"GDEXTENSION_LITE_INLINE {self.prototype} {{",
-                        f"\tGDEXTENSION_LITE_VARIANT_DESTRUCTOR_IMPL({self.variant_type_enum});",
-                    f"}}",
-                ]),
-            )
+        return BindingCode(
+            f"GDEXTENSION_LITE_DECL {self.prototype};",
+            "\n".join([
+                f"{self.prototype} {{",
+                    f"\tGDEXTENSION_LITE_VARIANT_DESTRUCTOR_IMPL({self.variant_type_enum});",
+                f"}}",
+            ]),
+        )
 
     def get_cpp_code(self) -> BindingCode:
         return BindingCode(

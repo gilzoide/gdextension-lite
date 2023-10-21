@@ -7,6 +7,7 @@
 #define __GDEXTENSION_LITE_OBJECT_H__
 
 #include "variant.h"
+#include "../definition-macros.h"
 
 typedef struct godot_Object godot_Object;
 
@@ -14,8 +15,8 @@ typedef struct godot_Object godot_Object;
 extern "C" {
 #endif
 
-godot_Variant godot_new_Variant_from_Object(const godot_Object *value);
-godot_Object *godot_new_Object_from_Variant(const godot_Variant *value);
+GDEXTENSION_LITE_DECL godot_Variant godot_new_Variant_from_Object(const godot_Object *value);
+GDEXTENSION_LITE_DECL godot_Object *godot_new_Object_from_Variant(const godot_Variant *value);
 
 #ifdef __cplusplus
 }

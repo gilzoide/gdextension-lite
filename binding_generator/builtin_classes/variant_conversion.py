@@ -23,8 +23,9 @@ class BuiltinClassFromVariantConversion(CodeGenerator):
             "value",
         ]
         return BindingCode(
+            f"GDEXTENSION_LITE_DECL {self.prototype};",
             "\n".join([
-                f"GDEXTENSION_LITE_INLINE {self.prototype} {{",
+                f"{self.prototype} {{",
                     f"\tGDEXTENSION_LITE_TYPE_FROM_VARIANT_IMPL({', '.join(macro_args)});",
                 f"}}",
             ]),
@@ -48,8 +49,9 @@ class BuiltinClassToVariantConversion(CodeGenerator):
             format_value_to_ptr(self.class_name, 'value'),
         ]
         return BindingCode(
+            f"GDEXTENSION_LITE_DECL {self.prototype};",
             "\n".join([
-                f"GDEXTENSION_LITE_INLINE {self.prototype} {{",
+                f"{self.prototype} {{",
                     f"\tGDEXTENSION_LITE_VARIANT_FROM_TYPE_IMPL({', '.join(macro_args)});",
                 f"}}",
             ]),

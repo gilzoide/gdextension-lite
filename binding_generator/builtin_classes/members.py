@@ -54,8 +54,9 @@ class BuiltinClassMemberSetter(BuiltinClassMember):
             format_value_to_ptr(self.member_type, 'value'),
         ]
         return BindingCode(
+            f"GDEXTENSION_LITE_DECL {self.prototype};",
             "\n".join([
-                f"GDEXTENSION_LITE_INLINE {self.prototype} {{",
+                f"{self.prototype} {{",
                     f"\tGDEXTENSION_LITE_VARIANT_MEMBER_SET_IMPL({', '.join(macro_args)});",
                 f"}}",
             ]),
@@ -98,8 +99,9 @@ class BuiltinClassMemberGetter(BuiltinClassMember):
             self.member_name,
         ]
         return BindingCode(
+            f"GDEXTENSION_LITE_DECL {self.prototype};",
             "\n".join([
-                f"GDEXTENSION_LITE_INLINE {self.prototype} {{",
+                f"{self.prototype} {{",
                     f"\tGDEXTENSION_LITE_VARIANT_MEMBER_GET_IMPL({', '.join(macro_args)});",
                 f"}}",
             ]),

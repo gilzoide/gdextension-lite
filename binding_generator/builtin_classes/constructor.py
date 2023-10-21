@@ -38,10 +38,14 @@ class BuiltinClassConstructor(CodeGenerator):
         forward_arguments = "".join([", " + arg['name'] for arg in self.arguments])
         return BindingCode(
             "\n".join([
-                f"GDEXTENSION_LITE_INLINE {self.placement_prototype} {{",
+                f"GDEXTENSION_LITE_DECL {self.placement_prototype};",
+                f"GDEXTENSION_LITE_DECL {self.prototype};",
+            ]),
+            "\n".join([
+                f"{self.placement_prototype} {{",
                     f"\tGDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL({format_type_to_variant_enum(self.class_name)}, {self.constructor['index']}{call_arguments});",
                 f"}}",
-                f"GDEXTENSION_LITE_INLINE {self.prototype} {{",
+                f"{self.prototype} {{",
                     f"\tGDEXTENSION_LITE_RETURN_PLACEMENT_NEW(godot_{self.class_name}, godot_placement_{self.function_name}{forward_arguments});",
                 f"}}",
             ]),

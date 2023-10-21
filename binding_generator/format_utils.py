@@ -302,13 +302,3 @@ def format_operator_to_enum(
     name: str,
 ) -> str:
     return "GDEXTENSION_VARIANT_OP_" + OPERATOR_TO_C.get(name, name).upper()
-
-
-def format_vararg_macro(
-    name: str,
-    non_vararg_arg_count: int,
-) -> str:
-    args = ", ".join(f"arg{i}" for i in range(non_vararg_arg_count))
-    argv = "(const godot_Variant *[]){ __VA_ARGS__ }"
-    argc = f"sizeof({argv}) / sizeof(const godot_Variant *)"
-    return f"#define godot_{name}_v({args}, ...) godot_{name}({args}, {argc}, {argv})"

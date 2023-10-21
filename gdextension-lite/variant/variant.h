@@ -5,6 +5,7 @@
 #define __GDEXTENSION_LITE_VARIANT_H__
 
 #include <stdint.h>
+#include "../definition-macros.h"
 
 #ifdef REAL_T_IS_DOUBLE
 	#define GODOT_VARIANT_SIZE 40
@@ -22,13 +23,13 @@ extern "C" {
 #endif
 
 // Constructors
-void godot_placement_new_Variant_nil(godot_Variant *self);
-godot_Variant godot_new_Variant_nil();
-void godot_placement_new_Variant_from_Variant(godot_Variant *self, const godot_Variant *other);
-godot_Variant godot_new_Variant_from_Variant(const godot_Variant *other);
+GDEXTENSION_LITE_DECL void godot_placement_new_Variant_nil(godot_Variant *self);
+GDEXTENSION_LITE_DECL godot_Variant godot_new_Variant_nil();
+GDEXTENSION_LITE_DECL void godot_placement_new_Variant_from_Variant(godot_Variant *self, const godot_Variant *other);
+GDEXTENSION_LITE_DECL godot_Variant godot_new_Variant_from_Variant(const godot_Variant *other);
 
 // Destructor
-void godot_Variant_destroy(godot_Variant *self);
+GDEXTENSION_LITE_DECL void godot_Variant_destroy(godot_Variant *self);
 
 #ifdef __cplusplus
 }

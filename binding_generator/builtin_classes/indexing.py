@@ -59,8 +59,9 @@ class BuiltinClassIndexingSetter(BuiltinClassIndexing):
             format_value_to_ptr(self.return_type, 'value'),
         ]
         return BindingCode(
+            f"GDEXTENSION_LITE_DECL {self.prototype};",
             "\n".join([
-                f"GDEXTENSION_LITE_INLINE {self.prototype} {{",
+                f"{self.prototype} {{",
                     f"\t{impl_macro}({', '.join(macro_args)});",
                 f"}}",
             ]),
@@ -88,8 +89,9 @@ class BuiltinClassIndexingGetter(BuiltinClassIndexing):
             f"godot_{self.return_type}",
         ]
         return BindingCode(
+            f"GDEXTENSION_LITE_DECL {self.prototype};",
             "\n".join([
-                f"GDEXTENSION_LITE_INLINE {self.prototype} {{",
+                f"{self.prototype} {{",
                     f"\t{impl_macro}({', '.join(macro_args)});",
                 f"}}",
             ]),

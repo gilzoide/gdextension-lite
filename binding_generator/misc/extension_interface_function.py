@@ -23,8 +23,9 @@ class ExtensionInterfaceFunction(CodeGenerator):
         prototype = f"{self.return_type} godot_{self.symbol}({self.arguments})"
         call_args = ", ".join(self.ARGUMENT_NAME_RE.search(arg).group(1) for arg in self.argument_list)
         return BindingCode(
+            f"GDEXTENSION_LITE_DECL {prototype};",
             "\n".join([
-                f"GDEXTENSION_LITE_INLINE {prototype} {{",
+                f"{prototype} {{",
                     f"\tGDEXTENSION_LITE_EXTENSION_INTERFACE_IMPL({self.typedef_name}, {self.symbol}, {call_args});",
                 f"}}",
             ]),

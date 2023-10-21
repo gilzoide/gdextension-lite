@@ -11,7 +11,7 @@ extern "C" {
 #endif
 
 struct godot_StringName;
-void godot_StringName_destroy(struct godot_StringName *string_name);
+GDEXTENSION_LITE_DECL void godot_StringName_destroy(struct godot_StringName *string_name);
 
 // Macro magic to get the number of variable arguments
 // Ref: https://groups.google.com/g/comp.std.c/c/d-6Mj5Lko_s

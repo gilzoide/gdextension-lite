@@ -10,4 +10,13 @@
 #define GDEXTENSION_LITE_INLINE \
 	static inline
 
+#ifndef GDEXTENSION_LITE_DECL
+	#ifndef GDEXTENSION_LITE_VISIBILITY
+		#define GDEXTENSION_LITE_VISIBILITY "hidden"
+	#endif
+
+	#define GDEXTENSION_LITE_DECL \
+		__attribute__((__visibility__(GDEXTENSION_LITE_VISIBILITY)))
+#endif
+
 #endif

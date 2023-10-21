@@ -26,7 +26,7 @@ class Constant(CodeGenerator):
 
     def get_c_code(self) -> BindingCode:
         return BindingCode(
-            f"extern const {self.return_type} godot_{self.constant_name};  // {self.value}",
+            f"GDEXTENSION_LITE_DECL const {self.return_type} godot_{self.constant_name};  // {self.value}",
             f"const {self.return_type} godot_{self.constant_name} = {self.value};"
         )
 
