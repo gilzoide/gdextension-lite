@@ -14,25 +14,25 @@ class BuiltinClassDestructor(CodeGenerator):
         self.destructor_name = f"{type_name}_destroy"
         self.function_name = f"godot_{self.destructor_name}"
         self.prototype = f"void {self.function_name}(godot_{type_name} *self)"
-        
-        self.ptr_function_name = f"godot_ptr_{self.destructor_name}"
-        self.ptr_prototype = f"GDExtensionPtrDestructor {self.ptr_function_name}"
 
     def get_c_code(self) -> BindingCode:
-        return BindingCode(
-            f"{self.prototype};",
-            "\n".join([
-                f"static {self.ptr_prototype};",
-                f"{self.prototype} {{",
-                    f"""\tGDEXTENSION_LITE_LAZY_INIT_VARIANT_DESTRUCTOR({
-                            self.class_name
-                        }, {
-                            self.variant_type_enum
-                        });""",
-                    f"\t{self.ptr_function_name}(self);",
-                "}",
-            ]),
-        )
+        if self.class_name == "StringName":
+            return BindingCode(
+                f"{self.prototype};",
+                "\n".join([
+                    f"{self.prototype} {{",
+                        f"\tGDEXTENSION_LITE_VARIANT_DESTRUCTOR_IMPL({self.class_name}, {self.variant_type_enum});",
+                    f"}}",
+                ]),
+            )
+        else:
+            return BindingCode(
+                "\n".join([
+                    f"static inline {self.prototype} {{",
+                        f"\tGDEXTENSION_LITE_VARIANT_DESTRUCTOR_IMPL({self.class_name}, {self.variant_type_enum});",
+                    f"}}",
+                ]),
+            )
 
     def get_cpp_code(self) -> BindingCode:
         return BindingCode(
