@@ -70,9 +70,9 @@ GDEXTENSION_LITE_DECL void godot_StringName_destroy(struct godot_StringName *str
 
 // Variant constructor/destructor
 #define GDEXTENSION_LITE_RETURN_PLACEMENT_NEW(return_type, placement_new, ...) \
-	return_type _ret; \
-	placement_new(&_ret, ##__VA_ARGS__); \
-	return _ret;
+	return_type self; \
+	placement_new(&self, ##__VA_ARGS__); \
+	return self;
 
 #define GDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL(type, index, ...) \
 	static GDExtensionPtrConstructor _ctor = NULL; \
@@ -122,7 +122,7 @@ GDEXTENSION_LITE_DECL void godot_StringName_destroy(struct godot_StringName *str
 		GDCLEANUP(godot_StringName) _member = godot_new_StringName_from_latin1_chars(#member); \
 		_getter = godot_variant_get_ptr_getter(variant_type_enum, &_member); \
 	} \
-	godot_##type _value; \
+	godot_##type _value = { 0 }; \
 	_getter(self, &_value); \
 	return _value;
 
@@ -139,7 +139,7 @@ GDEXTENSION_LITE_DECL void godot_StringName_destroy(struct godot_StringName *str
 	if (_getter == NULL) { \
 		_getter = godot_variant_get_ptr_indexed_getter(variant_type_enum); \
 	} \
-	return_type value; \
+	return_type value = { 0 }; \
 	_getter(self, index, &value); \
 	return value;
 
@@ -155,7 +155,7 @@ GDEXTENSION_LITE_DECL void godot_StringName_destroy(struct godot_StringName *str
 	if (_getter == NULL) { \
 		_getter = godot_variant_get_ptr_keyed_getter(variant_type_enum); \
 	} \
-	return_type value; \
+	return_type value = { 0 }; \
 	_getter(self, key, &value); \
 	return value;
 
@@ -165,7 +165,7 @@ GDEXTENSION_LITE_DECL void godot_StringName_destroy(struct godot_StringName *str
 	if (_operator == NULL) { \
 		_operator = godot_variant_get_ptr_operator_evaluator(operator_enum, variant_type_enum, GDEXTENSION_VARIANT_TYPE_NIL); \
 	} \
-	return_type _ret; \
+	return_type _ret = { 0 }; \
 	_operator(value, NULL, &_ret); \
 	return _ret;
 
@@ -174,7 +174,7 @@ GDEXTENSION_LITE_DECL void godot_StringName_destroy(struct godot_StringName *str
 	if (_operator == NULL) { \
 		_operator = godot_variant_get_ptr_operator_evaluator(operator_enum, variant_type_enum1, variant_type_enum2); \
 	} \
-	return_type _ret; \
+	return_type _ret = { 0 }; \
 	_operator(value1, value2, &_ret); \
 	return _ret;
 
@@ -189,14 +189,14 @@ GDEXTENSION_LITE_DECL void godot_StringName_destroy(struct godot_StringName *str
 #define GDEXTENSION_LITE_VARIANT_METHOD_IMPL(method, hash, variant_type_enum, return_type, self, ...) \
 	GDEXTENSION_LITE_DECLARE_VARIANT_METHOD(method, hash, variant_type_enum) \
 	GDEXTENSION_LITE_DEFINE_ARGS(__VA_ARGS__) \
-	return_type _ret; \
+	return_type _ret = { 0 }; \
 	_method((GDExtensionTypePtr) self, _args, &_ret, _final_argc); \
 	return _ret;
 
 #define GDEXTENSION_LITE_VARIANT_METHOD_IMPL_VARIADIC(method, hash, variant_type_enum, return_type, self, ...) \
 	GDEXTENSION_LITE_DECLARE_VARIANT_METHOD(method, hash, variant_type_enum) \
 	GDEXTENSION_LITE_DEFINE_ARGS_VARIADIC(__VA_ARGS__) \
-	return_type _ret; \
+	return_type _ret = { 0 }; \
 	_method((GDExtensionTypePtr) self, _args, &_ret, _final_argc); \
 	return _ret;
 
@@ -220,14 +220,14 @@ GDEXTENSION_LITE_DECL void godot_StringName_destroy(struct godot_StringName *str
 	}
 
 #define GDEXTENSION_LITE_METHOD_BIND_CALL_VARIADIC(cls, method, return_type, self) \
-	return_type _ret; \
+	return_type _ret = { 0 }; \
 	godot_object_method_bind_call(_method, (GDExtensionObjectPtr) self, _args, &_ret); \
 	return _ret
 
 #define GDEXTENSION_LITE_CLASS_METHOD_IMPL(cls, method, hash, return_type, self, ...) \
 	GDEXTENSION_LITE_DEFINE_CLASS_METHOD_BIND(cls, method, hash) \
 	GDEXTENSION_LITE_DEFINE_ARGS(__VA_ARGS__) \
-	return_type _ret; \
+	return_type _ret = { 0 }; \
 	godot_object_method_bind_ptrcall(_method, (GDExtensionObjectPtr) self, _args, &_ret); \
 	return _ret;
 
@@ -240,7 +240,7 @@ GDEXTENSION_LITE_DECL void godot_StringName_destroy(struct godot_StringName *str
 #define GDEXTENSION_LITE_CLASS_METHOD_IMPL_VARIADIC(cls, method, hash, return_type, self, ...) \
 	GDEXTENSION_LITE_DEFINE_CLASS_METHOD_BIND(cls, method, hash) \
 	GDEXTENSION_LITE_DEFINE_VARIANT_ARGS_VARIADIC(__VA_ARGS__) \
-	return_type _ret; \
+	return_type _ret = { 0 }; \
 	GDExtensionCallError _error; \
 	godot_object_method_bind_call(_method, (GDExtensionObjectPtr) self, _args, _final_argc, &_ret, &_error); \
 	return _ret;
@@ -263,14 +263,14 @@ GDEXTENSION_LITE_DECL void godot_StringName_destroy(struct godot_StringName *str
 #define GDEXTENSION_LITE_UTILITY_FUNCTION_IMPL(name, hash, return_type, ...) \
 	GDEXTENSION_LITE_DECLARE_UTILITY_FUNCTION(name, hash); \
 	GDEXTENSION_LITE_DEFINE_ARGS(__VA_ARGS__); \
-	return_type _ret; \
+	return_type _ret = { 0 }; \
 	_func(&_ret, _args, _final_argc); \
 	return _ret;
 
 #define GDEXTENSION_LITE_UTILITY_FUNCTION_IMPL_VARIADIC(name, hash, return_type, ...) \
 	GDEXTENSION_LITE_DECLARE_UTILITY_FUNCTION(name, hash); \
 	GDEXTENSION_LITE_DEFINE_ARGS_VARIADIC(__VA_ARGS__); \
-	return_type _ret; \
+	return_type _ret = { 0 }; \
 	_func(&_ret, _args, _final_argc); \
 	return _ret;
 
@@ -286,11 +286,11 @@ GDEXTENSION_LITE_DECL void godot_StringName_destroy(struct godot_StringName *str
 
 // GDExtension API
 #define GDEXTENSION_LITE_EXTENSION_INTERFACE_IMPL(symbol_type, symbol, ...) \
-	static symbol_type godot_ptr_##symbol = NULL; \
-	if (godot_ptr_##symbol == NULL) { \
-		godot_ptr_##symbol = (symbol_type) gdextension_lite_get_proc_address(#symbol); \
+	static symbol_type _func = NULL; \
+	if (_func == NULL) { \
+		_func = (symbol_type) gdextension_lite_get_proc_address(#symbol); \
 	} \
-	return godot_ptr_##symbol(__VA_ARGS__);
+	return _func(__VA_ARGS__);
 
 #ifdef __cplusplus
 }
