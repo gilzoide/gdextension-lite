@@ -62,7 +62,7 @@ class BuiltinClassMethod(CodeGenerator):
         return BindingCode(
             '\n'.join([
                 f"static inline {self.prototype} {{",
-                    f"\t{impl_macro}({self.class_name}, {self.method['name']}, {self.method['hash']}, {self.variant_type_enum}, {self.return_type}, {null_or_self}{call_arguments})",
+                    f"\t{impl_macro}({self.method['name']}, {self.method['hash']}, {self.variant_type_enum}, {self.return_type}, {null_or_self}{call_arguments})",
                 f"}}",
             ]),
         )

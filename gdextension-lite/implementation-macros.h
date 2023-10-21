@@ -69,20 +69,20 @@ void godot_StringName_destroy(struct godot_StringName *string_name);
 	placement_new(&_ret, ##__VA_ARGS__); \
 	return _ret;
 
-#define GDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL(ctor_name, type, index, ...) \
-	static GDExtensionPtrConstructor godot_ptr_##ctor_name = NULL; \
-	if (godot_ptr_##ctor_name == NULL) { \
-		godot_ptr_##ctor_name = godot_variant_get_ptr_constructor(type, index); \
+#define GDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL(type, index, ...) \
+	static GDExtensionPtrConstructor _ctor = NULL; \
+	if (_ctor == NULL) { \
+		_ctor = godot_variant_get_ptr_constructor(type, index); \
 	} \
 	GDEXTENSION_LITE_DEFINE_ARGS(__VA_ARGS__) \
-	godot_ptr_##ctor_name(self, _args);
+	_ctor(self, _args);
 
-#define GDEXTENSION_LITE_VARIANT_DESTRUCTOR_IMPL(cls, type) \
-	static GDExtensionPtrDestructor godot_ptr_##cls##_destroy = NULL; \
-	if (godot_ptr_##cls##_destroy == NULL) { \
-		godot_ptr_##cls##_destroy = godot_variant_get_ptr_destructor(type); \
+#define GDEXTENSION_LITE_VARIANT_DESTRUCTOR_IMPL(type) \
+	static GDExtensionPtrDestructor _dtor = NULL; \
+	if (_dtor == NULL) { \
+		_dtor = godot_variant_get_ptr_destructor(type); \
 	} \
-	godot_ptr_##cls##_destroy(self);
+	_dtor(self);
 
 #define GDEXTENSION_LITE_VARIANT_FROM_TYPE_IMPL(cls, variant_type_enum, value) \
 	static GDExtensionVariantFromTypeConstructorFunc _ctor = NULL; \
@@ -103,86 +103,86 @@ void godot_StringName_destroy(struct godot_StringName *string_name);
 	return self;
 
 // Variant members
-#define GDEXTENSION_LITE_VARIANT_MEMBER_SET_IMPL(cls, variant_type_enum, type, member, value) \
-	static GDExtensionPtrSetter godot_ptr_##cls##_set_##member = NULL; \
-	if (godot_ptr_##cls##_set_##member == NULL) { \
+#define GDEXTENSION_LITE_VARIANT_MEMBER_SET_IMPL(variant_type_enum, type, member, value) \
+	static GDExtensionPtrSetter _setter = NULL; \
+	if (_setter == NULL) { \
 		godot_StringName _member = godot_new_StringName_from_latin1_chars(#member); \
-		godot_ptr_##cls##_set_##member = godot_variant_get_ptr_setter(variant_type_enum, &_member); \
+		_setter = godot_variant_get_ptr_setter(variant_type_enum, &_member); \
 		godot_StringName_destroy(&_member); \
 	} \
-	godot_ptr_##cls##_set_##member(self, value);
+	_setter(self, value);
 
-#define GDEXTENSION_LITE_VARIANT_MEMBER_GET_IMPL(cls, variant_type_enum, type, member) \
-	static GDExtensionPtrGetter godot_ptr_##cls##_get_##member = NULL; \
-	if (godot_ptr_##cls##_get_##member == NULL) { \
+#define GDEXTENSION_LITE_VARIANT_MEMBER_GET_IMPL(variant_type_enum, type, member) \
+	static GDExtensionPtrGetter _getter = NULL; \
+	if (_getter == NULL) { \
 		godot_StringName _member = godot_new_StringName_from_latin1_chars(#member); \
-		godot_ptr_##cls##_get_##member = godot_variant_get_ptr_getter(variant_type_enum, &_member); \
+		_getter = godot_variant_get_ptr_getter(variant_type_enum, &_member); \
 		godot_StringName_destroy(&_member); \
 	} \
 	godot_##type _value; \
-	godot_ptr_##cls##_get_##member(self, &_value); \
+	_getter(self, &_value); \
 	return _value;
 
 // Variant methods
-#define GDEXTENSION_LITE_DECLARE_VARIANT_METHOD(cls, method, hash, variant_type_enum) \
-	static GDExtensionPtrBuiltInMethod godot_ptr_##cls##_##method = NULL; \
-	if (godot_ptr_##cls##_##method == NULL) { \
-		godot_StringName _method = godot_new_StringName_from_latin1_chars(#method); \
-		godot_ptr_##cls##_##method = godot_variant_get_ptr_builtin_method(variant_type_enum, &_method, hash); \
-		godot_StringName_destroy(&_method); \
+#define GDEXTENSION_LITE_DECLARE_VARIANT_METHOD(method, hash, variant_type_enum) \
+	static GDExtensionPtrBuiltInMethod _method = NULL; \
+	if (_method == NULL) { \
+		godot_StringName _method_name = godot_new_StringName_from_latin1_chars(#method); \
+		_method = godot_variant_get_ptr_builtin_method(variant_type_enum, &_method_name, hash); \
+		godot_StringName_destroy(&_method_name); \
 	}
 
-#define GDEXTENSION_LITE_VARIANT_METHOD_IMPL(cls, method, hash, variant_type_enum, return_type, self, ...) \
-	GDEXTENSION_LITE_DECLARE_VARIANT_METHOD(cls, method, hash, variant_type_enum) \
+#define GDEXTENSION_LITE_VARIANT_METHOD_IMPL(method, hash, variant_type_enum, return_type, self, ...) \
+	GDEXTENSION_LITE_DECLARE_VARIANT_METHOD(method, hash, variant_type_enum) \
 	GDEXTENSION_LITE_DEFINE_ARGS(__VA_ARGS__) \
 	return_type _ret; \
-	godot_ptr_##cls##_##method((GDExtensionTypePtr) self, _args, &_ret, _final_argc); \
+	_method((GDExtensionTypePtr) self, _args, &_ret, _final_argc); \
 	return _ret;
 
-#define GDEXTENSION_LITE_VARIANT_METHOD_IMPL_VARIADIC(cls, method, hash, variant_type_enum, return_type, self, ...) \
-	GDEXTENSION_LITE_DECLARE_VARIANT_METHOD(cls, method, hash, variant_type_enum) \
+#define GDEXTENSION_LITE_VARIANT_METHOD_IMPL_VARIADIC(method, hash, variant_type_enum, return_type, self, ...) \
+	GDEXTENSION_LITE_DECLARE_VARIANT_METHOD(method, hash, variant_type_enum) \
 	GDEXTENSION_LITE_DEFINE_ARGS_VARIADIC(__VA_ARGS__) \
 	return_type _ret; \
-	godot_ptr_##cls##_##method((GDExtensionTypePtr) self, _args, &_ret, _final_argc); \
+	_method((GDExtensionTypePtr) self, _args, &_ret, _final_argc); \
 	return _ret;
 
-#define GDEXTENSION_LITE_VARIANT_METHOD_IMPL_VOID(cls, method, hash, variant_type_enum, return_type, self, ...) \
-	GDEXTENSION_LITE_DECLARE_VARIANT_METHOD(cls, method, hash, variant_type_enum) \
+#define GDEXTENSION_LITE_VARIANT_METHOD_IMPL_VOID(method, hash, variant_type_enum, return_type, self, ...) \
+	GDEXTENSION_LITE_DECLARE_VARIANT_METHOD(method, hash, variant_type_enum) \
 	GDEXTENSION_LITE_DEFINE_ARGS(__VA_ARGS__) \
-	godot_ptr_##cls##_##method((GDExtensionTypePtr) self, _args, NULL, _final_argc);
+	_method((GDExtensionTypePtr) self, _args, NULL, _final_argc);
 
-#define GDEXTENSION_LITE_VARIANT_METHOD_IMPL_VARIADIC_VOID(cls, method, hash, variant_type_enum, return_type, self, ...) \
-	GDEXTENSION_LITE_DECLARE_VARIANT_METHOD(cls, method, hash, variant_type_enum) \
+#define GDEXTENSION_LITE_VARIANT_METHOD_IMPL_VARIADIC_VOID(method, hash, variant_type_enum, return_type, self, ...) \
+	GDEXTENSION_LITE_DECLARE_VARIANT_METHOD(method, hash, variant_type_enum) \
 	GDEXTENSION_LITE_DEFINE_ARGS_VARIADIC(__VA_ARGS__) \
-	godot_ptr_##cls##_##method((GDExtensionTypePtr) self, _args, NULL, _final_argc);
+	_method((GDExtensionTypePtr) self, _args, NULL, _final_argc);
 
 // Class methods
 #define GDEXTENSION_LITE_DEFINE_CLASS_METHOD_BIND(cls, method, hash) \
-	static GDExtensionMethodBindPtr godot_ptr_##cls##_##method = NULL; \
-	if (godot_ptr_##cls##_##method == NULL) { \
+	static GDExtensionMethodBindPtr _method = NULL; \
+	if (_method == NULL) { \
 		godot_StringName _class = godot_new_StringName_from_latin1_chars(#cls); \
-		godot_StringName _method = godot_new_StringName_from_latin1_chars(#method); \
-		godot_ptr_##cls##_##method = godot_classdb_get_method_bind(&_class, &_method, hash); \
-		godot_StringName_destroy(&_method); \
+		godot_StringName _method_name = godot_new_StringName_from_latin1_chars(#method); \
+		_method = godot_classdb_get_method_bind(&_class, &_method_name, hash); \
+		godot_StringName_destroy(&_method_name); \
 		godot_StringName_destroy(&_class); \
 	}
 
 #define GDEXTENSION_LITE_METHOD_BIND_CALL_VARIADIC(cls, method, return_type, self) \
 	return_type _ret; \
-	godot_object_method_bind_call(godot_ptr_##cls##_##method, (GDExtensionObjectPtr) self, _args, &_ret); \
+	godot_object_method_bind_call(_method, (GDExtensionObjectPtr) self, _args, &_ret); \
 	return _ret
 
 #define GDEXTENSION_LITE_CLASS_METHOD_IMPL(cls, method, hash, return_type, self, ...) \
 	GDEXTENSION_LITE_DEFINE_CLASS_METHOD_BIND(cls, method, hash) \
 	GDEXTENSION_LITE_DEFINE_ARGS(__VA_ARGS__) \
 	return_type _ret; \
-	godot_object_method_bind_ptrcall(godot_ptr_##cls##_##method, (GDExtensionObjectPtr) self, _args, &_ret); \
+	godot_object_method_bind_ptrcall(_method, (GDExtensionObjectPtr) self, _args, &_ret); \
 	return _ret;
 
 #define GDEXTENSION_LITE_CLASS_METHOD_IMPL_VOID(cls, method, hash, return_type, self, ...) \
 	GDEXTENSION_LITE_DEFINE_CLASS_METHOD_BIND(cls, method, hash) \
 	GDEXTENSION_LITE_DEFINE_ARGS(__VA_ARGS__) \
-	godot_object_method_bind_ptrcall(godot_ptr_##cls##_##method, (GDExtensionObjectPtr) self, _args, NULL);
+	godot_object_method_bind_ptrcall(_method, (GDExtensionObjectPtr) self, _args, NULL);
 
 
 #define GDEXTENSION_LITE_CLASS_METHOD_IMPL_VARIADIC(cls, method, hash, return_type, self, ...) \
@@ -190,14 +190,14 @@ void godot_StringName_destroy(struct godot_StringName *string_name);
 	GDEXTENSION_LITE_DEFINE_VARIANT_ARGS_VARIADIC(__VA_ARGS__) \
 	return_type _ret; \
 	GDExtensionCallError _error; \
-	godot_object_method_bind_call(godot_ptr_##cls##_##method, (GDExtensionObjectPtr) self, _args, _final_argc, &_ret, &_error); \
+	godot_object_method_bind_call(_method, (GDExtensionObjectPtr) self, _args, _final_argc, &_ret, &_error); \
 	return _ret;
 
 #define GDEXTENSION_LITE_CLASS_METHOD_IMPL_VARIADIC_VOID(cls, method, hash, return_type, self, ...) \
 	GDEXTENSION_LITE_DEFINE_CLASS_METHOD_BIND(cls, method, hash) \
 	GDEXTENSION_LITE_DEFINE_VARIANT_ARGS_VARIADIC(__VA_ARGS__) \
 	GDExtensionCallError _error; \
-	godot_object_method_bind_call(godot_ptr_##cls##_##method, (GDExtensionObjectPtr) self, _args, _final_argc, NULL, &_error); \
+	godot_object_method_bind_call(_method, (GDExtensionObjectPtr) self, _args, _final_argc, NULL, &_error); \
 
 
 // misc

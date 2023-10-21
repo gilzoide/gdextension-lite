@@ -48,7 +48,6 @@ class BuiltinClassMemberSetter(BuiltinClassMember):
 
     def get_c_code(self) -> BindingCode:
         macro_args = [
-            self.class_name,
             self.variant_type_enum,
             self.member_type,
             self.member_name,
@@ -94,7 +93,6 @@ class BuiltinClassMemberGetter(BuiltinClassMember):
 
     def get_c_code(self) -> BindingCode:
         macro_args = [
-            self.class_name,
             self.variant_type_enum,
             self.member_type,
             self.member_name,

@@ -21,7 +21,7 @@ class BuiltinClassDestructor(CodeGenerator):
                 f"{self.prototype};",
                 "\n".join([
                     f"{self.prototype} {{",
-                        f"\tGDEXTENSION_LITE_VARIANT_DESTRUCTOR_IMPL({self.class_name}, {self.variant_type_enum});",
+                        f"\tGDEXTENSION_LITE_VARIANT_DESTRUCTOR_IMPL({self.variant_type_enum});",
                     f"}}",
                 ]),
             )
@@ -29,7 +29,7 @@ class BuiltinClassDestructor(CodeGenerator):
             return BindingCode(
                 "\n".join([
                     f"static inline {self.prototype} {{",
-                        f"\tGDEXTENSION_LITE_VARIANT_DESTRUCTOR_IMPL({self.class_name}, {self.variant_type_enum});",
+                        f"\tGDEXTENSION_LITE_VARIANT_DESTRUCTOR_IMPL({self.variant_type_enum});",
                     f"}}",
                 ]),
             )

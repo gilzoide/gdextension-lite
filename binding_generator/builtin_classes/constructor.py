@@ -39,7 +39,7 @@ class BuiltinClassConstructor(CodeGenerator):
         return BindingCode(
             "\n".join([
                 f"static inline {self.placement_prototype} {{",
-                    f"\tGDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL({self.function_name}, {format_type_to_variant_enum(self.class_name)}, {self.constructor['index']}{call_arguments});",
+                    f"\tGDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL({format_type_to_variant_enum(self.class_name)}, {self.constructor['index']}{call_arguments});",
                 f"}}",
                 f"static inline {self.prototype} {{",
                     f"\tGDEXTENSION_LITE_RETURN_PLACEMENT_NEW(godot_{self.class_name}, godot_placement_{self.function_name}{forward_arguments});",
