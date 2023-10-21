@@ -68,6 +68,11 @@ def main():
         "variant", "variant",
     )
     code_writer.write_file(
+        generate_variant(builtin_classes, is_cpp=True),
+        "cpp", "variant", "variant",
+        is_cpp=True,
+    )
+    code_writer.write_file(
         generate_initialize_all_builtin_classes(builtin_classes),
         "variant", "all",
     )
