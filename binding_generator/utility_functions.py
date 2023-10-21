@@ -12,8 +12,8 @@ def generate_utility_functions(
 ) -> BindingCode:
     definitions = [UtilityFunctionCode(f).get_c_code() for f in utility_functions]
     includes = [
+        "../definition-macros.h",
         "../gdextension/gdextension_interface.h",
-        "../implementation-macros.h",
         "../variant/all.h",
     ]
     return BindingCode.merge(definitions, includes=includes)

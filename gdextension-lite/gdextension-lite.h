@@ -17,7 +17,7 @@
 extern "C" {
 #endif
 
-void gdextension_lite_initialize(const GDExtensionInterfaceGetProcAddress get_proc_address);
+GDEXTENSION_LITE_DECL void gdextension_lite_initialize(const GDExtensionInterfaceGetProcAddress get_proc_address);
 
 #ifdef __cplusplus
 }

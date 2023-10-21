@@ -151,7 +151,6 @@ def generate_builtin_class(
 
     includes = [
         "../gdextension/gdextension_interface.h",
-        "../implementation-macros.h",
         "../variant/all.h",
     ]
     merged = BindingCode.merge(definitions, includes=includes)

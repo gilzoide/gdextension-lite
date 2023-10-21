@@ -5,6 +5,9 @@
 #define __GDEXTENSION_LITE_IMPLEMENTATION_MACROS_H__
 
 #include "definition-macros.h"
+#include "generated/extension_interface.h"
+#include "generated/variant/all.h"
+#include "variant/all.h"
 
 #ifdef __cplusplus
 extern "C" {

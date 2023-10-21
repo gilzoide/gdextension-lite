@@ -41,18 +41,21 @@ def generate_all_extension_bindings(
 
     return BindingCode.merge([
         BindingCode(
-            "extern GDExtensionInterfaceGetProcAddress gdextension_lite_get_proc_address;",
+            "",
             "GDExtensionInterfaceGetProcAddress gdextension_lite_get_proc_address;\n",
         ),
         *(f.get_code(is_cpp) for f in functions),
         BindingCode(
-            "\nvoid gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddress get_proc_address);",
+            "\nGDEXTENSION_LITE_DECL void gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddress get_proc_address);",
             "\n".join([
                 "",
                 "void gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddress get_proc_address) {",
                 "\tgdextension_lite_get_proc_address = get_proc_address;",
                 "}",
             ]),
-            includes=["../gdextension/gdextension_interface.h", "../implementation-macros.h"],
+            includes=[
+                "../gdextension/gdextension_interface.h",
+                "../definition-macros.h",
+            ],
         )
     ])
