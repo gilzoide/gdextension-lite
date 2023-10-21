@@ -123,6 +123,39 @@ void godot_StringName_destroy(struct godot_StringName *string_name);
 	_getter(self, &_value); \
 	return _value;
 
+// Variant indexers
+#define GDEXTENSION_LITE_VARIANT_INDEXED_SET_IMPL(variant_type_enum, index, value) \
+	static GDExtensionPtrIndexedSetter _setter = NULL; \
+	if (_setter == NULL) { \
+		_setter = godot_variant_get_ptr_indexed_setter(variant_type_enum); \
+	} \
+	_setter(self, index, value);
+
+#define GDEXTENSION_LITE_VARIANT_INDEXED_GET_IMPL(variant_type_enum, index, return_type) \
+	static GDExtensionPtrIndexedGetter _getter = NULL; \
+	if (_getter == NULL) { \
+		_getter = godot_variant_get_ptr_indexed_getter(variant_type_enum); \
+	} \
+	return_type value; \
+	_getter(self, index, &value); \
+	return value;
+
+#define GDEXTENSION_LITE_VARIANT_KEYED_SET_IMPL(variant_type_enum, key, value) \
+	static GDExtensionPtrKeyedSetter _setter = NULL; \
+	if (_setter == NULL) { \
+		_setter = godot_variant_get_ptr_keyed_setter(variant_type_enum); \
+	} \
+	_setter(self, key, value);
+
+#define GDEXTENSION_LITE_VARIANT_KEYED_GET_IMPL(variant_type_enum, key, return_type) \
+	static GDExtensionPtrKeyedGetter _getter = NULL; \
+	if (_getter == NULL) { \
+		_getter = godot_variant_get_ptr_keyed_getter(variant_type_enum); \
+	} \
+	return_type value; \
+	_getter(self, key, &value); \
+	return value;
+
 // Variant operator
 #define GDEXTENSION_LITE_VARIANT_UNARY_OPERATOR_IMPL(return_type, operator_enum, variant_type_enum, value) \
 	static GDExtensionPtrOperatorEvaluator _operator = NULL; \
@@ -220,11 +253,6 @@ void godot_StringName_destroy(struct godot_StringName *string_name);
 
 
 // misc
-#define GDEXTENSION_LITE_LAZY_INIT_VARIANT_INDEXING(get_or_set, indexed_or_keyed, name, type) \
-	if (godot_ptr_##name##_##indexed_or_keyed##_##get_or_set == NULL) { \
-		godot_ptr_##name##_##indexed_or_keyed##_##get_or_set = godot_variant_get_ptr_##indexed_or_keyed##_##get_or_set##ter(type); \
-	}
-
 #define GDEXTENSION_LITE_LAZY_INIT_UTILITY_FUNCTION(name, hash) \
 	if (godot_ptr_##name == NULL) { \
 		godot_StringName _name = godot_new_StringName_from_latin1_chars(#name); \
