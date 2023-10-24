@@ -18,4 +18,6 @@ else:
     env.Append(CFLAGS=flags, CXXFLAGS=flags)
 if ARGUMENTS.get('ccache', 0):
     env.Prepend(CC="ccache ", CXX="ccache ")
-env.SharedLibrary(['hello-gdextension-lite.cpp', '../gdextension-lite/gdextension-lite-one.c'])
+library = env.SharedLibrary(['hello-gdextension-lite.cpp', '../gdextension-lite/gdextension-lite-one.c'])
+
+Default(library)
