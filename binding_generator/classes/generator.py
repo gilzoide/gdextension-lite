@@ -51,7 +51,7 @@ def generate_class_stub_header(
     cls: Class,
 ) -> BindingCode:
     includes = (
-        ["../variant/int.h"]
+        ["../variant/int.h", "../definition-macros.h"]
         if cls.get('constants')
         else []
     )
