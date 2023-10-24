@@ -18,7 +18,7 @@ def generate_native_structure(
     return BindingCode(
         '\n'.join([
             f"typedef struct godot_{name} {{",
-            *[f"\t{f};" for f in fields],
+            *(f"\t{f};" for f in fields),
             f"}} godot_{name};",
         ]),
         "",
@@ -31,7 +31,11 @@ def generate_all_native_structures(
 ) -> BindingCode:
     includes = [
         "class-stubs/all.h",
+        "../definition-macros.h",
         "../variant/all.h",
     ]
-    bindings = [generate_native_structure(struct) for struct in structs]
-    return BindingCode.merge(bindings, extra_newline=True, includes=includes)
+    return BindingCode.merge(
+        (generate_native_structure(struct) for struct in structs),
+        extra_newline=True,
+        includes=includes,
+    )

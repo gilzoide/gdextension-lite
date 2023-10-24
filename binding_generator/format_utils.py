@@ -229,7 +229,7 @@ def format_native_struct_field(
     field_declaration: str,
 ) -> str:
     if "=" in field_declaration:
-        field_declaration = re.sub(r"\s*=.*", "", field_declaration)
+        field_declaration = re.sub(r"\s*=\s*(.*)", r" DEFAULT_VALUE(\1)", field_declaration)
     if "::" in field_declaration:
         return f"godot_{field_declaration.replace('::', '_').replace('.', '_')}"
     elif field_declaration.startswith('int') or field_declaration.startswith('float') or field_declaration.startswith('uint'):
