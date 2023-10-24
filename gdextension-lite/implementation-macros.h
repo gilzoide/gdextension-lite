@@ -46,7 +46,7 @@ GDEXTENSION_LITE_DECL void godot_StringName_destroy(struct godot_StringName *str
 
 #define GDEXTENSION_LITE_DEFINE_ARGS(...) \
 	const int _final_argc = GDEXTENSION_LITE_NARG(__VA_ARGS__); \
-	GDExtensionConstTypePtr _args[_final_argc] = { __VA_ARGS__ };
+	GDExtensionConstTypePtr _args[] = { __VA_ARGS__ };
 
 #define GDEXTENSION_LITE_DEFINE_ARGS_VARIADIC(...) \
 	const int _fixed_argc = GDEXTENSION_LITE_NARG(__VA_ARGS__); \
