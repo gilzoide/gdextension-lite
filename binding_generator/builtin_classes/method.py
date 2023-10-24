@@ -40,8 +40,8 @@ class BuiltinClassMethod(CodeGenerator):
         self.non_vararg_argc = len(proto_arguments)
         self.is_vararg = method.get('is_vararg', False)
         if self.is_vararg:
-            proto_arguments.append("godot_int argc")
             proto_arguments.append("const godot_Variant **argv")
+            proto_arguments.append("godot_int argc")
 
         self.arguments = arguments
         self.function_name = f"{type_name}_{method['name']}"

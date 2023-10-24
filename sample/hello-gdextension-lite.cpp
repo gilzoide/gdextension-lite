@@ -10,7 +10,7 @@ void initialize(void *userdata, GDExtensionInitializationLevel p_level) {
 		GDCLEANUP(godot_String) msg = godot_new_String_from_latin1_chars("Hello from GDExtension Lite!");
 		GDCLEANUP(godot_Variant) msg_var = godot_new_Variant_from_String(&msg);
 
-		godot_print(&msg_var, 0, NULL);
+		godot_print(&msg_var, NULL, 0);
 	}
 
 	// prints("OS.get_name() ==", OS.get_name(), OS)
@@ -26,7 +26,7 @@ void initialize(void *userdata, GDExtensionInitializationLevel p_level) {
 		GDCLEANUP(godot_Variant) msg_var = godot_new_Variant_from_String(&msg);
 
 		const godot_Variant *args[] = { &os_name_var, &os_var };
-		godot_prints(&msg_var, 2, args);
+		godot_prints(&msg_var, args, 2);
 	}
 }
 

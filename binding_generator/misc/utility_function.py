@@ -30,8 +30,8 @@ class UtilityFunctionCode(CodeGenerator):
 
         self.is_vararg = function.get("is_vararg")
         if self.is_vararg:
-            proto_args.append("godot_int argc")
             proto_args.append("const godot_Variant **argv")
+            proto_args.append("godot_int argc")
 
         self.prototype = f"{self.return_type} godot_{function['name']}({', '.join(proto_args)})"
 
