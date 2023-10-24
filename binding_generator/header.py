@@ -32,21 +32,22 @@ class CodeWriter:
                 "}",
             )
         else:
-            contents.surround_prototype(
-                "\n".join([
-                    "#ifdef __cplusplus",
-                    'extern "C" {',
-                    "#endif",
-                    "",
-                ]),
-                "\n".join([
-                    "",
-                    "#ifdef __cplusplus",
-                    "}",
-                    "#endif",
-                ]),
-                add_indent=False,
-            )
+            if not contents["cpp_in_h"]:
+                contents.surround_prototype(
+                    "\n".join([
+                        "#ifdef __cplusplus",
+                        'extern "C" {',
+                        "#endif",
+                        "",
+                    ]),
+                    "\n".join([
+                        "",
+                        "#ifdef __cplusplus",
+                        "}",
+                        "#endif",
+                    ]),
+                    add_indent=False,
+                )
             contents.surround_implementation(
                 "\n".join([
                     "#ifdef __cplusplus",
