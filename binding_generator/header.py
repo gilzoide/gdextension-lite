@@ -85,7 +85,10 @@ class CodeWriter:
             file.write('\n'.join(lines))
 
         c_or_cpp = "cpp" if is_cpp else "c"
-        impl_lines = []
+        impl_lines = [
+            "// This file was automatically generated",
+            "// Do not modify this file",
+        ]
         if contents.implementation:
             implementation_macros_h = self.process_include(header_path, f"../implementation-macros.{h_or_hpp}")
             impl_lines.extend([
