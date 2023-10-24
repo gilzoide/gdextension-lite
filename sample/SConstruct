@@ -1,6 +1,9 @@
 VariantDir("build", ".", duplicate=False)
 
-env = Environment(CXXFLAGS=["-std=c++11"])
+env = Environment(
+    CXXFLAGS=["-std=c++11"],
+    CFLAGS=["-flto"],
+)
 
 # Add support for generating compilation database files
 env.Tool("compilation_db")
@@ -9,6 +12,9 @@ env.Alias("compiledb", compiledb)
 
 if ARGUMENTS.get('debug', 0):
     flags = ['-g', '-O0']
+    env.Append(CFLAGS=flags, CXXFLAGS=flags)
+else:
+    flags = ['-O2']
     env.Append(CFLAGS=flags, CXXFLAGS=flags)
 if ARGUMENTS.get('ccache', 0):
     env.Prepend(CC="ccache ", CXX="ccache ")

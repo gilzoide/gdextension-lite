@@ -65,11 +65,15 @@ void deinitialize(void *userdata, GDExtensionInitializationLevel p_level) {
 Now compile `gdextension-lite-one.c` and link it to your own code.
 Example SConstruct:
 ```python
-SharedLibrary("my-extension", [
-  'my-extension.c',
-  'path-to-gdextension-lite/gdextension-lite/gdextension-lite-one.c',
-])
+SharedLibrary(
+    [
+      'my-extension.c',
+      'path-to-gdextension-lite/gdextension-lite/gdextension-lite-one.c',
+    ],
+    CFLAGS=["-O2", "-flto"],
+)
 ```
+We recommend compiling `gdextension-lite-one.c` with `-O2 -flto` flags to avoid linking all Godot functions, but rather link only the ones you actually use.
 
 Sample code is also available at the [sample](sample) folder.
 
