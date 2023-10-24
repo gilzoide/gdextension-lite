@@ -48,7 +48,7 @@ class Constant(CodeGenerator):
                 f"static {type} {constant_name}(); // {self.value}",
                 "\n".join([
                     f"{type} {self.class_name}::{constant_name}() {{",
-                        f"\treturn godot_{self.constant_name};",
+                        f"\treturn godot_{self.constant_name}();",
                     f"}}"
                 ])
             )
