@@ -25,7 +25,6 @@ class ScopedEnum(CodeGenerator):
                 indent(self.values, "\t"),
                 f"}} {self.enum_name};",
             ]),
-            "",
         )
 
     @classmethod

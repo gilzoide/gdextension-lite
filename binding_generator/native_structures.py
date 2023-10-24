@@ -34,4 +34,4 @@ def generate_all_native_structures(
         "../variant/all.h",
     ]
     bindings = [generate_native_structure(struct) for struct in structs]
-    return BindingCode.merge(bindings, includes=includes)
+    return BindingCode.merge(bindings, extra_newline=True, includes=includes)

@@ -1,6 +1,6 @@
 from collections import defaultdict
+from collections.abc import Iterable
 from textwrap import indent
-from typing import Sequence
 
 
 class BindingCode:
@@ -43,7 +43,7 @@ class BindingCode:
         self.surround_implementation(f"// {comment}", "", add_indent=False)
 
     @classmethod
-    def merge(cls, bindings: Sequence["BindingCode"], **kwargs: list[str]) -> "BindingCode":
+    def merge(cls, bindings: Iterable["BindingCode"], extra_newline=False, **kwargs: list[str]) -> "BindingCode":
         prototype = []
         implementation = []
         extras = defaultdict(list, **kwargs)
@@ -54,9 +54,10 @@ class BindingCode:
                 implementation.append(b.implementation)
             for k, v in b.extras.items():
                 extras[k].extend(v)
+        separator = "\n\n" if extra_newline else "\n"
         return BindingCode(
-            "\n".join(prototype),
-            "\n".join(implementation),
+            separator.join(prototype),
+            separator.join(implementation),
             **extras,
         )
 

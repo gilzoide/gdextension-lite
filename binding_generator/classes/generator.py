@@ -17,7 +17,7 @@ def generate_class_constants(
     constants = BindingCode.merge([
         constant.get_c_code()
         for constant in Constant.get_all_constants(cls)
-    ])
+    ], extra_newline=True)
     if constants:
         constants.format_as_section("Constants")
     return constants
@@ -29,7 +29,7 @@ def generate_class_enums(
     enums = BindingCode.merge([
         enum.get_c_code()
         for enum in ScopedEnum.get_all_scoped_enums(cls)
-    ])
+    ], extra_newline=True)
     if enums:
         enums.format_as_section("Enums")
     return enums
@@ -44,7 +44,7 @@ def generate_class_stub(
         structdef,
         generate_class_constants(cls),
         generate_class_enums(cls),
-    ])
+    ], extra_newline=True)
 
 
 def generate_class_stub_header(
