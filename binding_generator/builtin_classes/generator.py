@@ -2,7 +2,6 @@
 Generates bindings for Godot's builtin classes (a.k.a. Variants)
 """
 
-from sys import implementation
 from .constructor import BuiltinClassConstructor
 from .destructor import BuiltinClassDestructor
 from .indexing import BuiltinClassIndexing
@@ -12,11 +11,12 @@ from .operator import BuiltinClassOperator
 from .variant_conversion import (BuiltinClassFromVariantConversion,
                                  BuiltinClassToVariantConversion)
 from .variant import VariantCode
+from .variant_size import VariantSizeCode
 from common.binding_code import BindingCode
 from common.constant import Constant
 from common.scoped_enum import ScopedEnum
 from format_utils import NON_STRUCT_TYPES, format_type_snake_case
-from json_types import BuiltinClass
+from json_types import BuiltinClass, BuiltinClassSize
 
 
 def generate_constants(
@@ -171,6 +171,12 @@ def generate_variant(
     is_cpp: bool = False,
 ) -> BindingCode:
     return VariantCode(builtin_classes).get_code(is_cpp=is_cpp)
+
+
+def generate_variant_sizes(
+    sizes: list[BuiltinClassSize],
+) -> BindingCode:
+    return VariantSizeCode.get_all_sizes(sizes)
 
 
 def generate_initialize_all_builtin_classes(

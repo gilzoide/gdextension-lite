@@ -12,7 +12,7 @@ Usage:
 import json
 import sys
 
-from builtin_classes.generator import generate_builtin_class, generate_initialize_all_builtin_classes, generate_initialize_all_builtin_classes_cpp_stub, generate_variant
+from builtin_classes.generator import generate_builtin_class, generate_initialize_all_builtin_classes, generate_initialize_all_builtin_classes_cpp_stub, generate_variant, generate_variant_sizes
 from classes.generator import generate_class_stub_header, generate_all_class_stubs, generate_class_method_header, generate_initialize_all_classes
 from enums import generate_all_enums
 from extension_interface import generate_all_extension_bindings
@@ -85,6 +85,11 @@ def main():
         generate_initialize_all_builtin_classes(builtin_classes, is_cpp=True),
         "cpp", "variant", "all",
         is_cpp=True,
+    )
+
+    code_writer.write_file(
+        generate_variant_sizes(extension_api["builtin_class_sizes"]),
+        "variant", "sizes"
     )
 
     # Utility functions
