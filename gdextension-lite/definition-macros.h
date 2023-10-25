@@ -10,12 +10,6 @@
 #define GDEXTENSION_LITE_INLINE \
 	static inline
 
-#if __cplusplus >= 201103L
-	#define DEFAULT_VALUE(value) = value
-#else
-	#define DEFAULT_VALUE(value)
-#endif
-
 #ifndef GDEXTENSION_LITE_DECL
 	#ifndef GDEXTENSION_LITE_VISIBILITY
 		#define GDEXTENSION_LITE_VISIBILITY "hidden"

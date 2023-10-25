@@ -31,11 +31,26 @@ def generate_all_native_structures(
 ) -> BindingCode:
     includes = [
         "class-stubs/all.h",
-        "../definition-macros.h",
         "../variant/all.h",
     ]
-    return BindingCode.merge(
+    code = BindingCode.merge(
         (generate_native_structure(struct) for struct in structs),
         extra_newline=True,
         includes=includes,
     )
+    code.surround_prototype(
+        "\n".join([
+            "#if __cplusplus >= 201103L",
+            "\t#define DEFAULT_VALUE(value) = value",
+            "#else",
+            "\t#define DEFAULT_VALUE(value)",
+            "#endif",
+            "",
+        ]),
+        "\n".join([
+            "",
+            "#undef DEFAULT_VALUE",
+        ]),
+        add_indent=False,
+    )
+    return code
