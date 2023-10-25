@@ -20,18 +20,21 @@ class BuiltinClassConstructor(CodeGenerator):
         self.class_name = type_name
         self.constructor = constructor
 
-        self.function_name = f"new_{type_name}"
-        arguments = constructor.get("arguments", [])
-        if arguments:
-            self.function_name += "_from" + "".join(f"_{arg['type']}"
-                                                    for arg in arguments)
-        self.arguments = arguments
+        self.arguments = constructor.get("arguments", [])
+        if self.arguments:
+            function_suffix = "_with" + "".join(f"_{arg['type']}"
+                                                for arg in self.arguments)
+        else:
+            function_suffix = ""
+        
         proto_arguments = [
             format_parameter_const(arg["type"], arg["name"])
-            for arg in arguments
+            for arg in self.arguments
         ]
-        self.prototype = f"godot_{type_name} godot_{self.function_name}({', '.join(proto_arguments)})"
-        self.placement_prototype = f"void godot_placement_{self.function_name}({', '.join([f'godot_{type_name} *self'] + proto_arguments)})"
+        self.new_name = f"godot_{type_name}_new{function_suffix}"
+        self.placement_new_name = f"godot_{self.class_name}_placement_new{function_suffix}"
+        self.prototype = f"godot_{type_name} {self.new_name}({', '.join(proto_arguments)})"
+        self.placement_prototype = f"void {self.placement_new_name}({', '.join([f'godot_{type_name} *self'] + proto_arguments)})"
 
     def get_c_code(self) -> BindingCode:
         call_arguments = "".join([", " + format_value_to_ptr(arg['type'], arg['name']) for arg in self.arguments])
@@ -46,7 +49,7 @@ class BuiltinClassConstructor(CodeGenerator):
                     f"\tGDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL({format_type_to_variant_enum(self.class_name)}, {self.constructor['index']}{call_arguments});",
                 f"}}",
                 f"{self.prototype} {{",
-                    f"\tGDEXTENSION_LITE_RETURN_PLACEMENT_NEW(godot_{self.class_name}, godot_placement_{self.function_name}{forward_arguments});",
+                    f"\tGDEXTENSION_LITE_RETURN_PLACEMENT_NEW(godot_{self.class_name}, {self.placement_new_name}{forward_arguments});",
                 f"}}",
             ]),
         )
@@ -66,7 +69,7 @@ class BuiltinClassConstructor(CodeGenerator):
             f"{self.class_name}({', '.join(proto_arguments)});",
             "\n".join([
                 f"{self.class_name}::{self.class_name}({', '.join(proto_arguments)}) {{",
-                    f"\tgodot_placement_{self.function_name}({', '.join(placement_call_arguments)});",
+                    f"\t{self.placement_new_name}({', '.join(placement_call_arguments)});",
                 f"}}",
             ]),
         )
@@ -112,25 +115,25 @@ class BuiltinClassConstructorFromString(BuiltinClassConstructor):
             size_arg = "godot_int p_size"
             code.prototype += "\n".join([
                 "",
-                f"GDEXTENSION_LITE_DECL void godot_placement_new_{self.class_name}_from_{extra_name}_chars(godot_{self.class_name} *self, {contents_arg});",
-                f"GDEXTENSION_LITE_DECL void godot_placement_new_{self.class_name}_from_{extra_name}_chars_and_len(godot_{self.class_name} *self, {contents_arg}, {size_arg});",
-                f"GDEXTENSION_LITE_DECL godot_{self.class_name} godot_new_{self.class_name}_from_{extra_name}_chars({contents_arg});",
-                f"GDEXTENSION_LITE_DECL godot_{self.class_name} godot_new_{self.class_name}_from_{extra_name}_chars_and_len({contents_arg}, {size_arg});",
+                f"GDEXTENSION_LITE_DECL void godot_{self.class_name}_placement_new_with_{extra_name}_chars(godot_{self.class_name} *self, {contents_arg});",
+                f"GDEXTENSION_LITE_DECL void godot_{self.class_name}_placement_new_with_{extra_name}_chars_and_len(godot_{self.class_name} *self, {contents_arg}, {size_arg});",
+                f"GDEXTENSION_LITE_DECL godot_{self.class_name} godot_{self.class_name}_new_with_{extra_name}_chars({contents_arg});",
+                f"GDEXTENSION_LITE_DECL godot_{self.class_name} godot_{self.class_name}_new_with_{extra_name}_chars_and_len({contents_arg}, {size_arg});",
             ])
             impl_macro = "GDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL_FROM_CHARS" if self.class_name == "String" else "GDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL_FROM_STRING"
             code.implementation += "\n".join([
                 "",
-                f"void godot_placement_new_{self.class_name}_from_{extra_name}_chars(godot_{self.class_name} *self, {contents_arg}) {{",
+                f"void godot_{self.class_name}_placement_new_with_{extra_name}_chars(godot_{self.class_name} *self, {contents_arg}) {{",
                     f"\t{impl_macro}({self.class_name}, {extra_name}_chars, p_contents);",
                 f"}}",
-                f"void godot_placement_new_{self.class_name}_from_{extra_name}_chars_and_len(godot_{self.class_name} *self, {contents_arg}, {size_arg}) {{",
+                f"void godot_{self.class_name}_placement_new_with_{extra_name}_chars_and_len(godot_{self.class_name} *self, {contents_arg}, {size_arg}) {{",
                     f"\t{impl_macro}({self.class_name}, {extra_name}_chars_and_len, p_contents, p_size);",
                 f"}}",
-                f"godot_{self.class_name} godot_new_{self.class_name}_from_{extra_name}_chars({contents_arg}) {{",
-                    f"\tGDEXTENSION_LITE_RETURN_PLACEMENT_NEW(godot_{self.class_name}, godot_placement_new_{self.class_name}_from_{extra_name}_chars, p_contents);",
+                f"godot_{self.class_name} godot_{self.class_name}_new_with_{extra_name}_chars({contents_arg}) {{",
+                    f"\tGDEXTENSION_LITE_RETURN_PLACEMENT_NEW(godot_{self.class_name}, godot_{self.class_name}_placement_new_with_{extra_name}_chars, p_contents);",
                 f"}}",
-                f"godot_{self.class_name} godot_new_{self.class_name}_from_{extra_name}_chars_and_len({contents_arg}, {size_arg}) {{",
-                    f"\tGDEXTENSION_LITE_RETURN_PLACEMENT_NEW(godot_{self.class_name}, godot_placement_new_{self.class_name}_from_{extra_name}_chars_and_len, p_contents, p_size);",
+                f"godot_{self.class_name} godot_{self.class_name}_new_with_{extra_name}_chars_and_len({contents_arg}, {size_arg}) {{",
+                    f"\tGDEXTENSION_LITE_RETURN_PLACEMENT_NEW(godot_{self.class_name}, godot_{self.class_name}_placement_new_with_{extra_name}_chars_and_len, p_contents, p_size);",
                 f"}}",
             ])
         return code

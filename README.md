@@ -12,6 +12,7 @@ Warning: C++ specific bindings are not ready to use, please use C bindings in C+
 - Easily embeddable in any project: include `gdextension-lite.h`, compile and link `gdextension-lite-one.c` and you're good to go
 - Automatically generated from `extension_api.json` file, so new Godot APIs are added in a matter of regenerating the bindings
 - Bindings for all Godot classes, variant types, methods, operators, utility functions, enums, GDExtension interface functions
+- Extra constructors with C strings for `String`, `StringName` and `NodePath`
 - Supports Godot 4.1+
 - Fast compilation times (much faster than godot-cpp project)
 
@@ -47,7 +48,7 @@ void initialize(void *userdata, GDExtensionInitializationLevel p_level) {
         return;
     }
 
-    godot_String msg = godot_new_String_from_latin1_chars("Hello from GDExtension Lite!");
+    godot_String msg = godot_String_new_with_latin1_chars("Hello from GDExtension Lite!");
     godot_Variant msg_var = godot_new_Variant_from_String(&msg);
     godot_print(&msg_var, NULL, 0);
     // As always in C, you are responsible for freeing objects
@@ -79,7 +80,7 @@ Sample code is also available at the [sample](sample) folder.
 ## Naming conventions
 1. Every type and function binding from Godot have the prefix `godot_`
 2. Every GDExtension Lite function have the prefix `gdextension_lite_`
-3. Constructors have the format `godot_new_<type name>` or `godot_new_<type name>_from_<arg1 type>_<arg2 type>...`
+3. Constructors have the format `godot_<type name>_new` or `godot_<type name>_new_with_<arg1 type>_<arg2 type>...`
 4. Destructors have the format `godot_<type name>_destroy`
 5. Member getters have the format `godot_<type name>_get_<member name>`
 6. Member setters have the format `godot_<type name>_set_<member name>`

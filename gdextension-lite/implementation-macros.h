@@ -83,8 +83,8 @@ extern "C" {
 	godot_string_new_with_##string_ctor(self, __VA_ARGS__);
 
 #define GDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL_FROM_STRING(type, string_ctor, ...) \
-	godot_String _str = godot_new_String_from_##string_ctor(__VA_ARGS__); \
-	godot_placement_new_##type##_from_String(self, &_str); \
+	godot_String _str = godot_String_new_with_##string_ctor(__VA_ARGS__); \
+	godot_##type##_placement_new_with_String(self, &_str); \
 	godot_String_destroy(&_str);
 
 #define GDEXTENSION_LITE_VARIANT_DESTRUCTOR_IMPL(type) \
@@ -116,7 +116,7 @@ extern "C" {
 #define GDEXTENSION_LITE_VARIANT_MEMBER_SET_IMPL(variant_type_enum, type, member, value) \
 	static GDExtensionPtrSetter _setter = NULL; \
 	if (_setter == NULL) { \
-		GDCLEANUP(godot_StringName) _member = godot_new_StringName_from_latin1_chars(#member); \
+		GDCLEANUP(godot_StringName) _member = godot_StringName_new_with_latin1_chars(#member); \
 		_setter = godot_variant_get_ptr_setter(variant_type_enum, &_member); \
 	} \
 	_setter(self, value);
@@ -124,7 +124,7 @@ extern "C" {
 #define GDEXTENSION_LITE_VARIANT_MEMBER_GET_IMPL(variant_type_enum, type, member) \
 	static GDExtensionPtrGetter _getter = NULL; \
 	if (_getter == NULL) { \
-		GDCLEANUP(godot_StringName) _member = godot_new_StringName_from_latin1_chars(#member); \
+		GDCLEANUP(godot_StringName) _member = godot_StringName_new_with_latin1_chars(#member); \
 		_getter = godot_variant_get_ptr_getter(variant_type_enum, &_member); \
 	} \
 	godot_##type _value = { 0 }; \
@@ -187,7 +187,7 @@ extern "C" {
 #define GDEXTENSION_LITE_DECLARE_VARIANT_METHOD(method, hash, variant_type_enum) \
 	static GDExtensionPtrBuiltInMethod _method = NULL; \
 	if (_method == NULL) { \
-		GDCLEANUP(godot_StringName) _method_name = godot_new_StringName_from_latin1_chars(#method); \
+		GDCLEANUP(godot_StringName) _method_name = godot_StringName_new_with_latin1_chars(#method); \
 		_method = godot_variant_get_ptr_builtin_method(variant_type_enum, &_method_name, hash); \
 	}
 
@@ -219,8 +219,8 @@ extern "C" {
 #define GDEXTENSION_LITE_DEFINE_CLASS_METHOD_BIND(cls, method, hash) \
 	static GDExtensionMethodBindPtr _method = NULL; \
 	if (_method == NULL) { \
-		GDCLEANUP(godot_StringName) _class = godot_new_StringName_from_latin1_chars(#cls); \
-		GDCLEANUP(godot_StringName) _method_name = godot_new_StringName_from_latin1_chars(#method); \
+		GDCLEANUP(godot_StringName) _class = godot_StringName_new_with_latin1_chars(#cls); \
+		GDCLEANUP(godot_StringName) _method_name = godot_StringName_new_with_latin1_chars(#method); \
 		_method = godot_classdb_get_method_bind(&_class, &_method_name, hash); \
 	}
 
@@ -261,7 +261,7 @@ extern "C" {
 #define GDEXTENSION_LITE_DECLARE_UTILITY_FUNCTION(name, hash) \
 	static GDExtensionPtrUtilityFunction _func = NULL; \
 	if (_func == NULL) { \
-		GDCLEANUP(godot_StringName) _func_name = godot_new_StringName_from_latin1_chars(#name); \
+		GDCLEANUP(godot_StringName) _func_name = godot_StringName_new_with_latin1_chars(#name); \
 		_func = godot_variant_get_ptr_utility_function(&_func_name, hash); \
 	}
 
