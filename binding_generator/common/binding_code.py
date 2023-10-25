@@ -16,31 +16,35 @@ class BindingCode:
     def __bool__(self) -> bool:
         return bool(self.prototype) or bool(self.implementation) or bool(self.extras)
 
-    def add_extras(self, **extras: list[str]) -> None:
+    def add_extras(self, **extras: list[str]) -> "BindingCode":
         for k, v in extras.items():
             lst = self.extras.get(k, [])
             lst.extend(v)
             self.extras[k] = lst
+        return self
 
-    def surround_prototype(self, prefix: str, suffix: str, add_indent: bool = True) -> None:
+    def surround_prototype(self, prefix: str, suffix: str, add_indent: bool = True) -> "BindingCode":
         if self.prototype:
             self.prototype = "\n".join([
                 prefix,
                 indent(self.prototype, "\t") if add_indent else self.prototype,
                 suffix,
             ])
+        return self
 
-    def surround_implementation(self, prefix: str, suffix: str, add_indent: bool = True) -> None:
+    def surround_implementation(self, prefix: str, suffix: str, add_indent: bool = True) -> "BindingCode":
         if self.implementation:
             self.implementation = "\n".join([
                 prefix,
                 indent(self.implementation, "\t") if add_indent else self.implementation,
                 suffix,
             ])
+        return self
 
-    def format_as_section(self, comment: str):
+    def format_as_section(self, comment: str) -> "BindingCode":
         self.surround_prototype(f"// {comment}", "", add_indent=False)
         self.surround_implementation(f"// {comment}", "", add_indent=False)
+        return self
 
     @classmethod
     def merge(cls, bindings: Iterable["BindingCode"], extra_newline=False, **kwargs: list[str]) -> "BindingCode":

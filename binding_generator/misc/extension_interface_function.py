@@ -11,7 +11,7 @@ class ExtensionInterfaceFunction(CodeGenerator):
     SPLIT_ARGUMENTS_RE = re.compile(r"(?<=[\w)]),")
     ARGUMENT_NAME_RE = re.compile(r"(\w+)($|\))")
 
-    def __init__(self, symbol: str, typedef_name: str, return_type: str, arguments: str):
+    def __init__(self, symbol: str, typedef_name: str, return_type: str, arguments: str, since: str):
         self.symbol = symbol
         self.typedef_name = typedef_name
         self.return_type = return_type.strip()
@@ -19,11 +19,13 @@ class ExtensionInterfaceFunction(CodeGenerator):
         self.arguments = arguments
         self.argument_list = self.SPLIT_ARGUMENTS_RE.split(arguments)
 
+        self.since = since
+
     def get_c_code(self) -> BindingCode:
         prototype = f"{self.return_type} godot_{self.symbol}({self.arguments})"
         call_args = ", ".join(self.ARGUMENT_NAME_RE.search(arg).group(1) for arg in self.argument_list)
         return BindingCode(
-            f"GDEXTENSION_LITE_DECL {prototype};",
+            f"GDEXTENSION_LITE_DECL {prototype};  // @since {self.since}",
             "\n".join([
                 f"{prototype} {{",
                     f"\tGDEXTENSION_LITE_EXTENSION_INTERFACE_IMPL({self.typedef_name}, {self.symbol}, {call_args});",

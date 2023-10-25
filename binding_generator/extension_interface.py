@@ -27,35 +27,43 @@ def generate_all_extension_bindings(
 
     functions: list[ExtensionInterfaceFunction] = []
     symbol = None
+    since = None
     for line in lines:
         line = line.rstrip()
         if symbol is None:
             _, _, n = line.partition("@name ")
             if n:
                 symbol = n
+        if since is None:
+            _, _, s = line.partition("@since ")
+            if s:
+                since = s
         else:
             match = FUNCTION_POINTER_TYPE_RE.match(line)
             if match:
-                functions.append(ExtensionInterfaceFunction(symbol, match.group(2), match.group(1), match.group(3)))
+                functions.append(ExtensionInterfaceFunction(symbol, match.group(2), match.group(1), match.group(3), since))
                 symbol = None
+                since = None
 
-    return BindingCode.merge([
-        BindingCode(
-            "",
-            "GDExtensionInterfaceGetProcAddress gdextension_lite_get_proc_address;\n",
-        ),
-        *(f.get_code(is_cpp) for f in functions),
-        BindingCode(
-            "\nGDEXTENSION_LITE_DECL void gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddress get_proc_address);",
-            "\n".join([
+    return BindingCode.merge(
+        [
+            BindingCode(
                 "",
-                "void gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddress get_proc_address) {",
-                "\tgdextension_lite_get_proc_address = get_proc_address;",
-                "}",
-            ]),
-            includes=[
-                "../gdextension/gdextension_interface.h",
-                "../definition-macros.h",
-            ],
-        )
-    ])
+                "GDExtensionInterfaceGetProcAddress gdextension_lite_get_proc_address;",
+            ),
+            BindingCode.merge(f.get_code(is_cpp) for f in functions),
+            BindingCode(
+                "GDEXTENSION_LITE_DECL void gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddress get_proc_address);",
+                "\n".join([
+                    "void gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddress get_proc_address) {",
+                        "\tgdextension_lite_get_proc_address = get_proc_address;",
+                    "}",
+                ]),
+            )
+        ],
+        extra_newline=True,
+        includes=[
+            "../gdextension/gdextension_interface.h",
+            "../definition-macros.h",
+        ],
+    )
