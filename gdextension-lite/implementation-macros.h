@@ -13,9 +13,6 @@
 extern "C" {
 #endif
 
-struct godot_StringName;
-GDEXTENSION_LITE_DECL void godot_StringName_destroy(struct godot_StringName *string_name);
-
 // Macro magic to get the number of variable arguments
 // Ref: https://groups.google.com/g/comp.std.c/c/d-6Mj5Lko_s
 #define GDEXTENSION_LITE_NARG(...)  GDEXTENSION_LITE_NARG_(__VA_ARGS__, GDEXTENSION_LITE_NARG_RSEQ_N())
@@ -81,6 +78,14 @@ GDEXTENSION_LITE_DECL void godot_StringName_destroy(struct godot_StringName *str
 	} \
 	GDEXTENSION_LITE_DEFINE_ARGS(__VA_ARGS__) \
 	_ctor(self, _args);
+
+#define GDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL_FROM_CHARS(type, string_ctor, ...) \
+	godot_string_new_with_##string_ctor(self, __VA_ARGS__);
+
+#define GDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL_FROM_STRING(type, string_ctor, ...) \
+	godot_String _str = godot_new_String_from_##string_ctor(__VA_ARGS__); \
+	godot_placement_new_##type##_from_String(self, &_str); \
+	godot_String_destroy(&_str);
 
 #define GDEXTENSION_LITE_VARIANT_DESTRUCTOR_IMPL(type) \
 	static GDExtensionPtrDestructor _dtor = NULL; \

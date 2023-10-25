@@ -78,8 +78,59 @@ class BuiltinClassConstructor(CodeGenerator):
     ) -> list['BuiltinClassConstructor']:
         type_name = builtin_class["name"]
         return [
-            cls(type_name, ctor)
+            (
+                BuiltinClassConstructorFromString(type_name, ctor)
+                if BuiltinClassConstructorFromString.is_constructor_from_string(ctor)
+                else cls(type_name, ctor)
+            )
             for ctor in builtin_class["constructors"]
             if should_generate_constructor(type_name, ctor)
         ]
 
+
+class BuiltinClassConstructorFromString(BuiltinClassConstructor):
+    """
+    Special handling of constructors that receive a single String parameter
+    """
+    EXTRA_CONSTRUCTORS = {
+        'latin1': 'const char *',
+        'utf8': 'const char *',
+        'utf16': 'const char16_t *',
+        'utf32': 'const char32_t *',
+        'wide': 'const wchar_t *',
+    }
+
+    @classmethod
+    def is_constructor_from_string(cls, ctor: Constructor) -> bool:
+        arguments = ctor.get('arguments', [])
+        return len(arguments) == 1 and arguments[0]['type'] == 'String'
+
+    def get_c_code(self) -> BindingCode:
+        code = super().get_c_code()
+        for extra_name, extra_arg in self.EXTRA_CONSTRUCTORS.items():
+            contents_arg = f"{extra_arg}p_contents"
+            size_arg = "godot_int p_size"
+            code.prototype += "\n".join([
+                "",
+                f"GDEXTENSION_LITE_DECL void godot_placement_new_{self.class_name}_from_{extra_name}_chars(godot_{self.class_name} *self, {contents_arg});",
+                f"GDEXTENSION_LITE_DECL void godot_placement_new_{self.class_name}_from_{extra_name}_chars_and_len(godot_{self.class_name} *self, {contents_arg}, {size_arg});",
+                f"GDEXTENSION_LITE_DECL godot_{self.class_name} godot_new_{self.class_name}_from_{extra_name}_chars({contents_arg});",
+                f"GDEXTENSION_LITE_DECL godot_{self.class_name} godot_new_{self.class_name}_from_{extra_name}_chars_and_len({contents_arg}, {size_arg});",
+            ])
+            impl_macro = "GDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL_FROM_CHARS" if self.class_name == "String" else "GDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL_FROM_STRING"
+            code.implementation += "\n".join([
+                "",
+                f"void godot_placement_new_{self.class_name}_from_{extra_name}_chars(godot_{self.class_name} *self, {contents_arg}) {{",
+                    f"\t{impl_macro}({self.class_name}, {extra_name}_chars, p_contents);",
+                f"}}",
+                f"void godot_placement_new_{self.class_name}_from_{extra_name}_chars_and_len(godot_{self.class_name} *self, {contents_arg}, {size_arg}) {{",
+                    f"\t{impl_macro}({self.class_name}, {extra_name}_chars_and_len, p_contents, p_size);",
+                f"}}",
+                f"godot_{self.class_name} godot_new_{self.class_name}_from_{extra_name}_chars({contents_arg}) {{",
+                    f"\tGDEXTENSION_LITE_RETURN_PLACEMENT_NEW(godot_{self.class_name}, godot_placement_new_{self.class_name}_from_{extra_name}_chars, p_contents);",
+                f"}}",
+                f"godot_{self.class_name} godot_new_{self.class_name}_from_{extra_name}_chars_and_len({contents_arg}, {size_arg}) {{",
+                    f"\tGDEXTENSION_LITE_RETURN_PLACEMENT_NEW(godot_{self.class_name}, godot_placement_new_{self.class_name}_from_{extra_name}_chars_and_len, p_contents, p_size);",
+                f"}}",
+            ])
+        return code
