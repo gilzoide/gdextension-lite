@@ -5,11 +5,14 @@
 #define __GDEXTENSION_LITE_STRING_H__
 
 #include "int.h"
+#include "sizes.h"
 #include "../definition-macros.h"
 
 typedef struct godot_String {
-	uint8_t _[sizeof(void *)];
+	uint8_t _[GDEXTENSION_LITE_SIZE_String];
 } godot_String;
+
+GDEXTENSION_LITE_ASSERT_SIZE(String)
 
 #ifdef __cplusplus
 extern "C" {

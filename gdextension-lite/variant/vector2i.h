@@ -5,6 +5,7 @@
 #define __GDEXTENSION_LITE_VECTOR2I_H__
 
 #include <stdint.h>
+#include "sizes.h"
 
 typedef struct godot_Vector2i {
 	union {
@@ -15,5 +16,7 @@ typedef struct godot_Vector2i {
 		struct { int32_t width, height; };
 	};
 } godot_Vector2i;
+
+GDEXTENSION_LITE_ASSERT_SIZE(Vector2i)
 
 #endif  // __GDEXTENSION_LITE_VECTOR2I_H__

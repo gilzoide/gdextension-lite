@@ -5,6 +5,7 @@
 #define __GDEXTENSION_LITE_VECTOR4_H__
 
 #include "float.h"
+#include "sizes.h"
 #include "vector2.h"
 #include "vector3.h"
 
@@ -28,5 +29,7 @@ typedef struct godot_Vector4 {
 		struct { godot_real_t _7; godot_Vector3 tpq; };
 	};
 } godot_Vector4;
+
+GDEXTENSION_LITE_ASSERT_SIZE(Vector4)
 
 #endif  // __GDEXTENSION_LITE_VECTOR4_H__

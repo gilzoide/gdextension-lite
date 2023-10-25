@@ -5,9 +5,12 @@
 #define __GDEXTENSION_LITE_PACKED_STRING_ARRAY_H__
 
 #include <stdint.h>
+#include "sizes.h"
 
 typedef struct godot_PackedStringArray {
-	uint8_t _[2 * sizeof(void *)];
+	uint8_t _[GDEXTENSION_LITE_SIZE_PackedStringArray];
 } godot_PackedStringArray;
+
+GDEXTENSION_LITE_ASSERT_SIZE(PackedStringArray)
 
 #endif  // __GDEXTENSION_LITE_PACKED_STRING_ARRAY_H__

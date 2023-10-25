@@ -5,17 +5,14 @@
 #define __GDEXTENSION_LITE_VARIANT_H__
 
 #include <stdint.h>
+#include "sizes.h"
 #include "../definition-macros.h"
 
-#ifdef REAL_T_IS_DOUBLE
-	#define GODOT_VARIANT_SIZE 40
-#else
-	#define GODOT_VARIANT_SIZE 24
-#endif
-
 typedef struct godot_Variant {
-	uint8_t _[GODOT_VARIANT_SIZE];
+	uint8_t _[GDEXTENSION_LITE_SIZE_Variant];
 } godot_Variant;
+
+GDEXTENSION_LITE_ASSERT_SIZE(Variant)
 
 
 #ifdef __cplusplus

@@ -5,6 +5,7 @@
 #define __GDEXTENSION_LITE_VECTOR2_H__
 
 #include "float.h"
+#include "sizes.h"
 
 typedef struct godot_Vector2 {
 	union {
@@ -21,5 +22,7 @@ typedef struct godot_Vector2 {
 		struct { godot_real_t width, height; };
 	};
 } godot_Vector2;
+
+GDEXTENSION_LITE_ASSERT_SIZE(Vector2)
 
 #endif  // __GDEXTENSION_LITE_VECTOR2_H__

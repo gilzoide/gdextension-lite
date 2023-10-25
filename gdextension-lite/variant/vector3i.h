@@ -5,7 +5,7 @@
 #define __GDEXTENSION_LITE_VECTOR3I_H__
 
 #include <stdint.h>
-
+#include "sizes.h"
 #include "vector2i.h"
 
 typedef struct godot_Vector3i {
@@ -19,5 +19,7 @@ typedef struct godot_Vector3i {
 		struct { int32_t width, height, depth; };
 	};
 } godot_Vector3i;
+
+GDEXTENSION_LITE_ASSERT_SIZE(Vector3i)
 
 #endif  // __GDEXTENSION_LITE_VECTOR3I_H__

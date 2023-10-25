@@ -5,6 +5,7 @@
 #define __GDEXTENSION_LITE_QUATERNION_H__
 
 #include "float.h"
+#include "sizes.h"
 #include "vector2.h"
 #include "vector3.h"
 
@@ -17,5 +18,7 @@ typedef struct godot_Quaternion {
 		struct { godot_real_t _1; godot_Vector3 yzw; };
 	};
 } godot_Quaternion;
+
+GDEXTENSION_LITE_ASSERT_SIZE(Quaternion)
 
 #endif  // __GDEXTENSION_LITE_QUATERNION_H__

@@ -5,6 +5,7 @@
 #define __GDEXTENSION_LITE_TRANSFORM2D_H__
 
 #include "float.h"
+#include "sizes.h"
 #include "vector2.h"
 
 typedef struct godot_Transform2D {
@@ -13,5 +14,7 @@ typedef struct godot_Transform2D {
 		struct { godot_Vector2 x, y, origin; };
 	};
 } godot_Transform2D;
+
+GDEXTENSION_LITE_ASSERT_SIZE(Transform2D)
 
 #endif  // __GDEXTENSION_LITE_TRANSFORM2D_H__
