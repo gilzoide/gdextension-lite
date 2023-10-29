@@ -10,7 +10,8 @@ for example for creating bindings for other programming languages.
 - Easily embeddable in any project: include `gdextension-lite.h`, compile and link `gdextension-lite-one.c` and you're good to go
 - Automatically generated from `extension_api.json` file, so new Godot APIs are added in a matter of regenerating the bindings
 - Bindings for all Godot classes, variant types, methods, operators, utility functions, enums, GDExtension interface functions
-- Extra constructors with C strings for `String`, `StringName` and `NodePath`
+- Extra constructors with C strings for `String`, `StringName`, `NodePath`, `Color`, `godot_int` and `godot_float`
+- `GDCLEANUP` macro for declaring variables with automatic cleanup in C (compiler needs to support `__attribute__((cleanup(...)))`, like GCC and clang)
 - Supports Godot 4.1+
 - Fast compilation times (much faster than godot-cpp project)
 
@@ -58,9 +59,8 @@ void initialize(void *userdata, GDExtensionInitializationLevel p_level) {
 
     // prints("OS.get_name() ==", OS.get_name())
     {
-        // If compiling with GCC/clang, use "GDCLEANUP(godot_TYPE)" for
-        // automatic variable cleanup at the end of scope
-        // (uses `__attribute__((cleanup(...)))`)
+        // Use "GDCLEANUP(godot_TYPE)" for automatic variable cleanup at the end of scope
+        // (compiler needs to support `__attribute__((cleanup(...)))`, like GCC and clang)
         GDCLEANUP(godot_StringName) singleton_name = godot_StringName_new_with_latin1_chars("OS");
 
         // Objects are always used via pointers, no need for cleanup

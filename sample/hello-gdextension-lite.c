@@ -36,9 +36,8 @@ void initialize(void *userdata, GDExtensionInitializationLevel p_level) {
 
 	// prints("OS.get_name() ==", OS.get_name())
 	{
-		// If compiling with GCC/clang, use "GDCLEANUP(godot_TYPE)" for
-		// automatic variable cleanup at the end of scope
-		// (uses `__attribute__((cleanup(...)))`)
+		// Use "GDCLEANUP(godot_TYPE)" for automatic variable cleanup at the end of scope
+		// (compiler needs to support `__attribute__((cleanup(...)))`, like GCC and clang)
 		GDCLEANUP(godot_StringName) singleton_name = godot_StringName_new_with_latin1_chars("OS");
 
 		// Objects are always used via pointers, no need for cleanup
