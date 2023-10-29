@@ -20,9 +20,7 @@ extern "C" {
 #endif
 
 // Constructors
-GDEXTENSION_LITE_DECL void godot_placement_Variant_new_nil(godot_Variant *self);
 GDEXTENSION_LITE_DECL godot_Variant godot_Variant_new_nil();
-GDEXTENSION_LITE_DECL void godot_placement_Variant_new_with_Variant(godot_Variant *self, const godot_Variant *other);
 GDEXTENSION_LITE_DECL godot_Variant godot_Variant_new_with_Variant(const godot_Variant *other);
 
 // Destructor

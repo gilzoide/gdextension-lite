@@ -66,26 +66,26 @@ extern "C" {
 	}
 
 // Variant constructor/destructor
-#define GDEXTENSION_LITE_RETURN_PLACEMENT_NEW(return_type, placement_new, ...) \
-	return_type self; \
-	placement_new(&self, ##__VA_ARGS__); \
-	return self;
-
-#define GDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL(type, index, ...) \
+#define GDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL(type, variant_type_enum, index, ...) \
 	static GDExtensionPtrConstructor _ctor = NULL; \
 	if (_ctor == NULL) { \
-		_ctor = godot_variant_get_ptr_constructor(type, index); \
+		_ctor = godot_variant_get_ptr_constructor(variant_type_enum, index); \
 	} \
 	GDEXTENSION_LITE_DEFINE_ARGS(__VA_ARGS__) \
-	_ctor(self, _args);
+	godot_##type self; \
+	_ctor(&self, _args); \
+	return self;
 
 #define GDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL_FROM_CHARS(type, string_ctor, ...) \
-	godot_string_new_with_##string_ctor(self, __VA_ARGS__);
+	godot_##type self; \
+	godot_string_new_with_##string_ctor(&self, __VA_ARGS__); \
+	return self;
 
 #define GDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL_FROM_STRING(type, string_ctor, ...) \
 	godot_String _str = godot_String_new_with_##string_ctor(__VA_ARGS__); \
-	godot_##type##_placement_new_with_String(self, &_str); \
-	godot_String_destroy(&_str);
+	godot_##type self = godot_##type##_new_with_String(&_str); \
+	godot_String_destroy(&_str); \
+	return self;
 
 #define GDEXTENSION_LITE_VARIANT_DESTRUCTOR_IMPL(type) \
 	static GDExtensionPtrDestructor _dtor = NULL; \
