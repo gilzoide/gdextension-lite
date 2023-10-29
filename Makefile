@@ -26,7 +26,7 @@ python-check-codestyle:
 
 # Distribution
 build/gdextension-lite.zip: generate-bindings | build
-	zip $@ $(shell find gdextension-lite -type f -name '*.h' -or -name '*.hpp' -or -name '*.c' -or -name '*.cpp')
+	zip $@ $(shell find gdextension-lite -type f -name '*.h' -or -name '*.c')
 dist: build/gdextension-lite.zip
 
 # Sample

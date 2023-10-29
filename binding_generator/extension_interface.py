@@ -19,9 +19,7 @@ FUNCTION_POINTER_TYPE_RE = re.compile(r"""
 """, re.VERBOSE)
 
 
-def generate_all_extension_bindings(
-    is_cpp: bool = False,
-) -> BindingCode:
+def generate_all_extension_bindings() -> BindingCode:
     with open("gdextension-lite/gdextension/gdextension_interface.h") as header_file:
         lines = header_file.readlines()
 
@@ -51,7 +49,7 @@ def generate_all_extension_bindings(
                 "",
                 "GDExtensionInterfaceGetProcAddress gdextension_lite_get_proc_address;",
             ),
-            BindingCode.merge(f.get_code(is_cpp) for f in functions),
+            BindingCode.merge(f.get_code() for f in functions),
             BindingCode(
                 "GDEXTENSION_LITE_DECL void gdextension_lite_initialize_interface(const GDExtensionInterfaceGetProcAddress get_proc_address);",
                 "\n".join([

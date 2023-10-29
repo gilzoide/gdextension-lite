@@ -2,10 +2,7 @@ from textwrap import indent
 
 from common.binding_code import BindingCode
 from common.code_generator import CodeGenerator
-from format_utils import (NON_STRUCT_TYPES,
-                          format_cpp_argument_forward,
-                          format_parameter,
-                          format_parameter_const,
+from format_utils import (format_parameter_const,
                           format_type_to_variant_enum,
                           format_value_to_ptr,
                           should_generate_constructor)
@@ -48,26 +45,6 @@ class BuiltinClassConstructor(CodeGenerator):
             "\n".join([
                 f"{self.prototype} {{",
                     f"\tGDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL({', '.join(macro_args)});",
-                f"}}",
-            ]),
-        )
-
-    def get_cpp_code(self) -> BindingCode:
-        if self.class_name in NON_STRUCT_TYPES:
-            return BindingCode("", "")
-        proto_arguments = [
-            format_parameter(arg['type'], arg['name'], is_const=True, is_cpp=True, default_value=arg.get('default_value'))
-            for arg in self.arguments
-        ]
-        placement_call_arguments = [
-            format_cpp_argument_forward(arg['type'], arg['name'])
-            for arg in self.arguments
-        ]
-        return BindingCode(
-            f"{self.class_name}({', '.join(proto_arguments)});",
-            "\n".join([
-                f"{self.class_name}::{self.class_name}({', '.join(proto_arguments)}) {{",
-                    f"\t*((godot_{self.class_name} *) this) = {self.new_name}({', '.join(placement_call_arguments)});",
                 f"}}",
             ]),
         )

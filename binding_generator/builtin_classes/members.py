@@ -1,7 +1,6 @@
 from common.binding_code import BindingCode
 from common.code_generator import CodeGenerator
-from format_utils import (format_cpp_argument_forward,
-                          format_parameter,
+from format_utils import (format_parameter,
                           format_parameter_const,
                           format_type_to_variant_enum,
                           format_value_to_ptr)
@@ -62,20 +61,6 @@ class BuiltinClassMemberSetter(BuiltinClassMember):
             ]),
         )
 
-    def get_cpp_code(self) -> BindingCode:
-        arg_name = 'value'
-        prototype_argument = format_parameter_const(self.member_type, arg_name, is_cpp=True)
-        return BindingCode(
-            "\n".join([
-                f"void set_{self.member_name}({prototype_argument});",
-            ]),
-            "\n".join([
-                f"void {self.class_name}::set_{self.member_name}({prototype_argument}) {{",
-                    f"\t{self.function_name}(this, {format_cpp_argument_forward(self.member_type,  arg_name)});",
-                f"}}",
-            ]),
-        )
-
 
 class BuiltinClassMemberGetter(BuiltinClassMember):
     """
@@ -103,18 +88,6 @@ class BuiltinClassMemberGetter(BuiltinClassMember):
             "\n".join([
                 f"{self.prototype} {{",
                     f"\tGDEXTENSION_LITE_VARIANT_MEMBER_GET_IMPL({', '.join(macro_args)});",
-                f"}}",
-            ]),
-        )
-
-    def get_cpp_code(self) -> BindingCode:
-        return BindingCode(
-            "\n".join([
-                f"{self.member_type} get_{self.member_name}() const;",
-            ]),
-            "\n".join([
-                f"{self.member_type} {self.class_name}::get_{self.member_name}() const {{",
-                    f"\treturn {self.function_name}(this);",
                 f"}}",
             ]),
         )

@@ -24,13 +24,3 @@ class BuiltinClassDestructor(CodeGenerator):
                 f"}}",
             ]),
         )
-
-    def get_cpp_code(self) -> BindingCode:
-        return BindingCode(
-            f"~{self.class_name}();",
-            "\n".join([
-                f"{self.class_name}::~{self.class_name}() {{",
-                    f"\t{self.function_name}(this);",
-                f"}}",
-            ]),
-        )

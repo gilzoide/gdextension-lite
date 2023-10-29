@@ -16,53 +16,40 @@ class CodeWriter:
 
     def write_file(self,
                    contents: BindingCode,
-                   *pathsegments: str,
-                   is_cpp: bool = False):
+                   *pathsegments: str):
         header_path = Path(*pathsegments)
-        h_or_hpp = "hpp" if is_cpp else "h"
         guard_name = re.sub("[^a-zA-Z0-9_]", "_", str(header_path)).upper()
-        define = f"__GDEXTENSION_LITE_GENERATED_{guard_name}_{h_or_hpp.upper()}__"
-        if is_cpp:
-            contents.surround_prototype(
-                "namespace godot {",
+        define = f"__GDEXTENSION_LITE_GENERATED_{guard_name}_H__"
+        contents.surround_prototype(
+            "\n".join([
+                "#ifdef __cplusplus",
+                'extern "C" {',
+                "#endif",
+                "",
+            ]),
+            "\n".join([
+                "",
+                "#ifdef __cplusplus",
                 "}",
-            )
-            contents.surround_implementation(
-                "namespace godot {",
+                "#endif",
+            ]),
+            add_indent=False,
+        )
+        contents.surround_implementation(
+            "\n".join([
+                "#ifdef __cplusplus",
+                'extern "C" {',
+                "#endif",
+                "",
+            ]),
+            "\n".join([
+                "",
+                "#ifdef __cplusplus",
                 "}",
-            )
-        else:
-            if not contents["cpp_in_h"]:
-                contents.surround_prototype(
-                    "\n".join([
-                        "#ifdef __cplusplus",
-                        'extern "C" {',
-                        "#endif",
-                        "",
-                    ]),
-                    "\n".join([
-                        "",
-                        "#ifdef __cplusplus",
-                        "}",
-                        "#endif",
-                    ]),
-                    add_indent=False,
-                )
-            contents.surround_implementation(
-                "\n".join([
-                    "#ifdef __cplusplus",
-                    'extern "C" {',
-                    "#endif",
-                    "",
-                ]),
-                "\n".join([
-                    "",
-                    "#ifdef __cplusplus",
-                    "}",
-                    "#endif",
-                ]),
-                add_indent=False,
-            )
+                "#endif",
+            ]),
+            add_indent=False,
+        )
         lines = [
             "// This file was automatically generated",
             "// Do not modify this file",
@@ -84,20 +71,19 @@ class CodeWriter:
             f"#endif  // {define}",
             "",
         ])
-        header_filename = self.base_dir.joinpath(header_path).with_suffix("." + h_or_hpp)
+        header_filename = self.base_dir.joinpath(header_path).with_suffix(".h")
         header_filename.parent.mkdir(exist_ok=True, parents=True)
         with open(header_filename, 'w') as file:
             file.write('\n'.join(lines))
 
-        c_or_cpp = "cpp" if is_cpp else "c"
         impl_lines = [
             "// This file was automatically generated",
             "// Do not modify this file",
         ]
         if contents.implementation:
-            implementation_macros_h = self.process_include(header_path, f"../implementation-macros.{h_or_hpp}")
+            implementation_macros_h = self.process_include(header_path, f"../implementation-macros.h")
             impl_lines.extend([
-                f'#include "{pathsegments[-1]}.{h_or_hpp}"',
+                f'#include "{pathsegments[-1]}.h"',
                 "",
                 implementation_macros_h,
             ])
@@ -110,7 +96,7 @@ class CodeWriter:
                 "",
             ])
 
-        impl_filename = header_filename.with_suffix("." + c_or_cpp)
+        impl_filename = header_filename.with_suffix(".c")
         with open(impl_filename, 'w') as file:
             file.write('\n'.join(impl_lines))
 

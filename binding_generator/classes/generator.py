@@ -72,10 +72,9 @@ def generate_all_class_stubs(
 
 def generate_class_methods(
     cls: Class,
-    is_cpp: bool,
 ) -> BindingCode:
     methods = BindingCode.merge([
-        method.get_code(is_cpp)
+        method.get_code()
         for method in ClassMethod.get_all_methods(cls)
     ])
     if methods:
@@ -85,7 +84,6 @@ def generate_class_methods(
 
 def generate_class_method_header(
     cls: Class,
-    is_cpp: bool = False,
 ) -> BindingCode:
     includes = [
         "class-stubs/all.h",
@@ -95,9 +93,7 @@ def generate_class_method_header(
         "../gdextension/gdextension_interface.h",
         "../variant/all.h",
     ]
-    definitions = generate_class_methods(cls, is_cpp=is_cpp)
-    definitions.add_extras(includes=includes)
-    return definitions
+    return generate_class_methods(cls).add_extras(includes=includes)
 
 
 def generate_initialize_all_classes(

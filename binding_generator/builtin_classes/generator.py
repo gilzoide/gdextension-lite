@@ -19,10 +19,9 @@ from json_types import BuiltinClass, BuiltinClassSize
 
 def generate_constants(
     builtin_class: BuiltinClass,
-    is_cpp: bool,
 ) -> BindingCode:
     constants = BindingCode.merge([
-        constant.get_code(is_cpp)
+        constant.get_code()
         for constant in Constant.get_all_constants(builtin_class)
     ])
     if constants:
@@ -32,10 +31,9 @@ def generate_constants(
 
 def generate_enums(
     builtin_class: BuiltinClass,
-    is_cpp: bool,
 ) -> BindingCode:
     enums = BindingCode.merge([
-        enum.get_code(is_cpp)
+        enum.get_code()
         for enum in ScopedEnum.get_all_scoped_enums(builtin_class)
     ])
     if enums:
@@ -45,10 +43,9 @@ def generate_enums(
 
 def generate_operators(
     builtin_class: BuiltinClass,
-    is_cpp: bool,
 ) -> BindingCode:
     operators = BindingCode.merge([
-        op.get_code(is_cpp)
+        op.get_code()
         for op in BuiltinClassOperator.get_all_operators(builtin_class)
     ])
     if operators:
@@ -58,10 +55,9 @@ def generate_operators(
 
 def generate_constructors(
     builtin_class: BuiltinClass,
-    is_cpp: bool,
 ) -> BindingCode:
     ctors = BindingCode.merge([
-        ctor.get_code(is_cpp)
+        ctor.get_code()
         for ctor in BuiltinClassConstructor.get_all_constructors(builtin_class)
     ])
     if ctors:
@@ -71,10 +67,9 @@ def generate_constructors(
 
 def generate_destructor(
     builtin_class: BuiltinClass,
-    is_cpp: bool,
 ) -> BindingCode:
     if builtin_class["has_destructor"]:
-        dtor = BuiltinClassDestructor(builtin_class["name"]).get_code(is_cpp)
+        dtor = BuiltinClassDestructor(builtin_class["name"]).get_code()
         dtor.format_as_section("Destructor")
         return dtor
     else:
@@ -83,10 +78,9 @@ def generate_destructor(
 
 def generate_members(
     builtin_class: BuiltinClass,
-    is_cpp: bool,
 ) -> BindingCode:
     members = BindingCode.merge([
-        member.get_code(is_cpp)
+        member.get_code()
         for member in BuiltinClassMember.get_all_members(builtin_class)
     ])
     if members:
@@ -96,10 +90,9 @@ def generate_members(
 
 def generate_indexing(
     builtin_class: BuiltinClass,
-    is_cpp: bool,
 ) -> BindingCode:
     indexers = BindingCode.merge([
-        indexer.get_code(is_cpp)
+        indexer.get_code()
         for indexer
         in BuiltinClassIndexing.get_all_indexers(builtin_class)
     ])
@@ -110,10 +103,9 @@ def generate_indexing(
 
 def generate_methods(
     builtin_class: BuiltinClass,
-    is_cpp: bool,
 ) -> BindingCode:
     methods = BindingCode.merge([
-        method.get_code(is_cpp)
+        method.get_code()
         for method in BuiltinClassMethod.get_all_methods(builtin_class)
     ])
     if methods:
@@ -123,41 +115,29 @@ def generate_methods(
 
 def generate_builtin_class(
     builtin_class: BuiltinClass,
-    is_cpp: bool = False,
 ) -> BindingCode:
     definitions = [
-        generate_constants(builtin_class, is_cpp),
-        generate_enums(builtin_class, is_cpp),
-        generate_constructors(builtin_class, is_cpp),
-        generate_destructor(builtin_class, is_cpp),
-        generate_members(builtin_class, is_cpp),
-        generate_indexing(builtin_class, is_cpp),
-        generate_operators(builtin_class, is_cpp),
-        generate_methods(builtin_class, is_cpp),
+        generate_constants(builtin_class),
+        generate_enums(builtin_class),
+        generate_constructors(builtin_class),
+        generate_destructor(builtin_class),
+        generate_members(builtin_class),
+        generate_indexing(builtin_class),
+        generate_operators(builtin_class),
+        generate_methods(builtin_class),
     ]
 
     includes = [
         "../gdextension/gdextension_interface.h",
         "../variant/all.h",
     ]
-    merged = BindingCode.merge(definitions, includes=includes)
-    type_name = builtin_class['name']
-    if is_cpp:
-        merged.add_extras(implementation_includes=[f"variant/{format_type_snake_case(type_name)}.h", "cpp/variant/all.hpp"],
-                          includes=["cpp/variant/all-stubs.hpp"])
-        if type_name not in NON_STRUCT_TYPES:
-            merged.surround_prototype(
-                f"struct {type_name} : public godot_{type_name} {{",
-                "};",
-            )
-    return merged
+    return BindingCode.merge(definitions, includes=includes)
 
 
 def generate_variant(
     builtin_classes: list[BuiltinClass],
-    is_cpp: bool = False,
 ) -> BindingCode:
-    return VariantCode(builtin_classes).get_code(is_cpp=is_cpp)
+    return VariantCode(builtin_classes).get_code()
 
 
 def generate_variant_sizes(
@@ -168,31 +148,15 @@ def generate_variant_sizes(
 
 def generate_initialize_all_builtin_classes(
     builtin_classes: list[BuiltinClass],
-    is_cpp: bool = False,
 ) -> BindingCode:
     class_names = [cls["name"] for cls in builtin_classes] + ["Variant"]
-    h_or_hpp = "hpp" if is_cpp else "h"
     includes = [
-        f'#include "{format_type_snake_case(name)}.{h_or_hpp}"'
+        f'#include "{format_type_snake_case(name)}.h"'
         for name in class_names
     ]
-    c_or_cpp = "cpp" if is_cpp else "c"
     return BindingCode(
         "",
         "",
         includes=includes,
-        implementation_includes=[line.replace(f".{h_or_hpp}", f".{c_or_cpp}") for line in includes],
-    )
-
-
-def generate_initialize_all_builtin_classes_cpp_stub(
-    builtin_classes: list[BuiltinClass],
-) -> BindingCode:
-    forward_declarations = [
-        f"struct {cls['name']};"
-        for cls in builtin_classes
-        if cls['name'] not in NON_STRUCT_TYPES
-    ] + ["struct Object;", "struct Variant;"]
-    return BindingCode(
-        "\n".join(forward_declarations),
+        implementation_includes=[line.replace(".h", ".c") for line in includes],
     )
