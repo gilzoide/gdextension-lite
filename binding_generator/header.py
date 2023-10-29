@@ -76,6 +76,11 @@ class CodeWriter:
         lines.extend([
             contents.prototype,
             "",
+        ])
+        if contents["prototype_outside_ifcpp"]:
+            lines.extend(contents["prototype_outside_ifcpp"])
+            lines.append("")
+        lines.extend([
             f"#endif  // {define}",
             "",
         ])

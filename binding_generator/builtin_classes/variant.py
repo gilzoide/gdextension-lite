@@ -1,8 +1,9 @@
+from .variant_conversion import (BuiltinClassToVariantConversion,
+                                 BuiltinClassFromVariantConversion)
 from common.binding_code import BindingCode
 from common.code_generator import CodeGenerator
 from format_utils import (format_parameter,
-                          format_parameter_const,
-                          format_value_to_ptr)
+                          format_parameter_const)
 from json_types import *
 
 
@@ -36,14 +37,18 @@ class VariantCode(CodeGenerator):
         ])
 
     def get_c_code(self) -> BindingCode:
-        return BindingCode(
-            "\n".join([
+        return BindingCode.merge(
+            [
+                BindingCode.merge(BuiltinClassToVariantConversion(t).get_c_code() for t in self.types),
+                BindingCode.merge(BuiltinClassFromVariantConversion(t).get_c_code() for t in self.types),
+            ],
+            prototype_outside_ifcpp=[
                 "#ifdef __cplusplus",
                 self._get_cpp_overloads(),
                 "#else",
                 self._get_c11_generic(),
                 "#endif",
-            ]),
-            includes=["variant/all.h"],
-            cpp_in_h=["true"],
+            ],
+            includes=["../variant/all.h"],
+            extra_newline=True,
         )

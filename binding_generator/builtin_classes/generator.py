@@ -8,8 +8,6 @@ from .indexing import BuiltinClassIndexing
 from .members import BuiltinClassMember
 from .method import BuiltinClassMethod
 from .operator import BuiltinClassOperator
-from .variant_conversion import (BuiltinClassFromVariantConversion,
-                                 BuiltinClassToVariantConversion)
 from .variant import VariantCode
 from .variant_size import VariantSizeCode
 from common.binding_code import BindingCode
@@ -69,16 +67,6 @@ def generate_constructors(
     if ctors:
         ctors.format_as_section("Constructors")
     return ctors
-
-
-def generate_variant_from_to(
-    builtin_class: BuiltinClass,
-    is_cpp: bool,
-) -> BindingCode:
-    return BindingCode.merge([
-        BuiltinClassToVariantConversion(builtin_class["name"]).get_code(is_cpp),
-        BuiltinClassFromVariantConversion(builtin_class["name"]).get_code(is_cpp),
-    ])
 
 
 def generate_destructor(
@@ -141,7 +129,6 @@ def generate_builtin_class(
         generate_constants(builtin_class, is_cpp),
         generate_enums(builtin_class, is_cpp),
         generate_constructors(builtin_class, is_cpp),
-        generate_variant_from_to(builtin_class, is_cpp),
         generate_destructor(builtin_class, is_cpp),
         generate_members(builtin_class, is_cpp),
         generate_indexing(builtin_class, is_cpp),
