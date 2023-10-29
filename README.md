@@ -7,13 +7,13 @@ for example for creating bindings for other programming languages.
 
 
 ## Features
-- Easily embeddable in any project: include `gdextension-lite.h`, compile and link `gdextension-lite-one.c` and you're good to go
+- Easily embeddable in any project: include [gdextension-lite.h](gdextension-lite/gdextension-lite.h), compile and link [gdextension-lite-one.c](gdextension-lite/gdextension-lite-one.c) and you're good to go
 - Automatically generated from `extension_api.json` file, so new Godot APIs are added in a matter of regenerating the bindings
 - Bindings for all Godot classes, variant types, methods, operators, utility functions, enums, GDExtension interface functions
 - Extra constructors with C strings for `String`, `StringName`, `NodePath`, `Color`, `godot_int` and `godot_float`
 - `GDCLEANUP` macro for declaring variables with automatic cleanup in C (compiler needs to support `__attribute__((cleanup(...)))`, like GCC and clang)
 - Supports Godot 4.1+
-- Fast compilation times (much faster than godot-cpp project)
+- Faster compilation time than godot-cpp project
 
 
 ## How to use
@@ -27,16 +27,18 @@ Implement your extension in C/C++:
 void initialize(void *userdata, GDExtensionInitializationLevel p_level);
 void deinitialize(void *userdata, GDExtensionInitializationLevel p_level);
 
+// 2. In your GDExtension entrypoint, call `gdextension_lite_initialize`
 GDExtensionBool gdextension_entry(
     const GDExtensionInterfaceGetProcAddress p_get_proc_address,
     GDExtensionClassLibraryPtr p_library,
     GDExtensionInitialization *r_initialization
 ) {
-    // 2. In your GDExtension entrypoint, call `gdextension_lite_initialize`
     gdextension_lite_initialize(p_get_proc_address);
+
     // setup initialize/deinitialize as usual
     r_initialization->initialize = &initialize;
     r_initialization->deinitialize = &deinitialize;
+    
     // return success as usual
     return 1;
 }

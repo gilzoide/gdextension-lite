@@ -4,16 +4,18 @@
 void initialize(void *userdata, GDExtensionInitializationLevel p_level);
 void deinitialize(void *userdata, GDExtensionInitializationLevel p_level);
 
+// 2. In your GDExtension entrypoint, call `gdextension_lite_initialize`
 GDExtensionBool gdextension_entry(
 	const GDExtensionInterfaceGetProcAddress p_get_proc_address,
 	GDExtensionClassLibraryPtr p_library,
 	GDExtensionInitialization *r_initialization
 ) {
-	// 2. In your GDExtension entrypoint, call `gdextension_lite_initialize`
 	gdextension_lite_initialize(p_get_proc_address);
+
 	// setup initialize/deinitialize as usual
 	r_initialization->initialize = &initialize;
 	r_initialization->deinitialize = &deinitialize;
+	
 	// return success as usual
 	return 1;
 }
