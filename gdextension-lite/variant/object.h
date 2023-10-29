@@ -9,7 +9,7 @@
 #include "variant.h"
 #include "../definition-macros.h"
 
-typedef struct godot_Object godot_Object;
+GDEXTENSION_LITE_OPAQUE_STRUCT(godot_Object);
 
 #ifdef __cplusplus
 extern "C" {

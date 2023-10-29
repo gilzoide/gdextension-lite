@@ -19,4 +19,7 @@
 		__attribute__((__visibility__(GDEXTENSION_LITE_VISIBILITY)))
 #endif
 
+#define GDEXTENSION_LITE_OPAQUE_STRUCT(name) \
+	typedef struct name name;
+
 #endif
