@@ -9,10 +9,6 @@
 #include "generated/variant/all.h"
 #include "variant/all.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 // Macro magic to get the number of variable arguments
 // Ref: https://groups.google.com/g/comp.std.c/c/d-6Mj5Lko_s
 #define GDEXTENSION_LITE_NARG(...)  GDEXTENSION_LITE_NARG_(__VA_ARGS__, GDEXTENSION_LITE_NARG_RSEQ_N())
@@ -296,9 +292,5 @@ extern "C" {
 		_func = (symbol_type) gdextension_lite_get_proc_address(#symbol); \
 	} \
 	return _func(__VA_ARGS__);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif  // __GDEXTENSION_LITE_IMPLEMENTATION_MACROS_H__
