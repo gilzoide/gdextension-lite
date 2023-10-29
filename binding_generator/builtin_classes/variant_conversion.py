@@ -14,7 +14,7 @@ class BuiltinClassFromVariantConversion(CodeGenerator):
         self.class_name = type_name
         self.variant_type_enum = format_type_to_variant_enum(type_name)
         parameter = format_parameter_const('Variant', 'value')
-        self.prototype = f"godot_{type_name} godot_new_{type_name}_from_Variant({parameter})"
+        self.prototype = f"godot_{type_name} godot_{type_name}_new_with_Variant({parameter})"
 
     def get_c_code(self) -> BindingCode:
         macro_args = [
@@ -40,7 +40,7 @@ class BuiltinClassToVariantConversion(CodeGenerator):
         self.class_name = type_name
         self.variant_type_enum = format_type_to_variant_enum(type_name)
         parameter = format_parameter_const(type_name, 'value')
-        self.prototype = f"godot_Variant godot_new_Variant_from_{type_name}({parameter})"
+        self.prototype = f"godot_Variant godot_Variant_new_with_{type_name}({parameter})"
 
     def get_c_code(self) -> BindingCode:
         macro_args = [

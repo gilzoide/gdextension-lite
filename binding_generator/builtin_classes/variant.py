@@ -15,25 +15,25 @@ class VariantCode(CodeGenerator):
         self.types = [t["name"] for t in types]
     
     def _format_new(self, t: str):
-        return f"{format_parameter(t, '')}: godot_new_Variant_from_{t}, const {format_parameter(t, '')}: godot_new_Variant_from_{t}"
+        return f"{format_parameter(t, '')}: godot_Variant_new_with_{t}, const {format_parameter(t, '')}: godot_Variant_new_with_{t}"
 
     def _get_c11_generic(self):
         return "\n".join([
-            f"#define godot_new_Variant(x) \\",
+            f"#define godot_Variant_new(x) \\",
             f"\t_Generic((x), \\",
             *(f"\t\t{self._format_new(t)}, \\" for t in self.types),
-            f"\t\tgodot_Object *: godot_new_Variant_from_Object, const godot_Object *: godot_new_Variant_from_Object \\",
+            f"\t\tgodot_Object *: godot_Variant_new_with_Object, const godot_Object *: godot_Variant_new_with_Object \\",
             f"\t)(x)"
         ])
 
     def _get_cpp_overload(self, t: str):
-        prototype = f"GDEXTENSION_LITE_INLINE godot_Variant godot_new_Variant({format_parameter_const(t, 'value')})"
-        return f"{prototype} {{ return godot_new_Variant_from_{t}(value); }}"
+        prototype = f"GDEXTENSION_LITE_INLINE godot_Variant godot_Variant_new({format_parameter_const(t, 'value')})"
+        return f"{prototype} {{ return godot_Variant_new_with_{t}(value); }}"
 
     def _get_cpp_overloads(self):
         return "\n".join([
             *(self._get_cpp_overload(t) for t in self.types),
-            f"GDEXTENSION_LITE_INLINE godot_Variant godot_new_Variant(const godot_Object *value) {{ return godot_new_Variant_from_Object(value); }}",
+            f"GDEXTENSION_LITE_INLINE godot_Variant godot_Variant_new(const godot_Object *value) {{ return godot_Variant_new_with_Object(value); }}",
         ])
 
     def get_c_code(self) -> BindingCode:

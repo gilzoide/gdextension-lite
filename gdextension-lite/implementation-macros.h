@@ -38,7 +38,7 @@ extern "C" {
 	_args[_args_i++] = a;
 
 #define GDEXTENSION_LITE_SET_VARIANT_ARG(a) \
-	GDCLEANUP(godot_Variant) _var_##a = godot_new_Variant(a); \
+	GDCLEANUP(godot_Variant) _var_##a = godot_Variant_new(a); \
 	_args[_args_i++] = &_var_##a;
 
 #define GDEXTENSION_LITE_DEFINE_ARGS(...) \

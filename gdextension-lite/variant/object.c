@@ -8,11 +8,11 @@ typedef struct godot_Object godot_Object;
 extern "C" {
 #endif
 
-godot_Variant godot_new_Variant_from_Object(const godot_Object *value) {
+godot_Variant godot_Variant_new_with_Object(const godot_Object *value) {
 	GDEXTENSION_LITE_VARIANT_FROM_TYPE_IMPL(Object*, GDEXTENSION_VARIANT_TYPE_OBJECT, &value);
 }
 
-godot_Object *godot_new_Object_from_Variant(const godot_Variant *value) {
+godot_Object *godot_Object_new_with_Variant(const godot_Variant *value) {
 	GDEXTENSION_LITE_TYPE_FROM_VARIANT_IMPL(Object*, GDEXTENSION_VARIANT_TYPE_OBJECT, value);
 }
 
