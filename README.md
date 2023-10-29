@@ -116,8 +116,7 @@ Sample code is also available at the [sample](sample) folder.
 12. Methods have the format `godot_<type name>_<method name>`
 13. Enumerators defined by classes have the format `godot_<type name>_<enum name>`
 14. Godot utility functions have the format `godot_<function name>`
-15. Variadic methods and utility functions expect argc/argv parameters.
-    Variadic macros with the format `godot_<function name>_v` are declared so that C developers can call them more easily.
+15. Variadic methods and utility functions expect argv/argc parameters.
 
 
 ## Generating bindings
