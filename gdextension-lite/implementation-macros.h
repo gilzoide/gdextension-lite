@@ -241,10 +241,12 @@
 #define GDEXTENSION_LITE_CLASS_METHOD_IMPL_VARIADIC(cls, method, hash, return_type, self, ...) \
 	GDEXTENSION_LITE_DEFINE_CLASS_METHOD_BIND(cls, method, hash) \
 	GDEXTENSION_LITE_DEFINE_VARIANT_ARGS_VARIADIC(__VA_ARGS__) \
-	return_type _ret = { 0 }; \
+	godot_Variant _ret; \
 	GDExtensionCallError _error; \
 	godot_object_method_bind_call(_method, (GDExtensionObjectPtr) self, _args, _final_argc, &_ret, &_error); \
-	return _ret;
+	return_type _typed_ret; \
+	godot_Variant_extract(&_typed_ret, &_ret); \
+	return _typed_ret;
 
 #define GDEXTENSION_LITE_CLASS_METHOD_IMPL_VARIADIC_VOID(cls, method, hash, return_type, self, ...) \
 	GDEXTENSION_LITE_DEFINE_CLASS_METHOD_BIND(cls, method, hash) \
