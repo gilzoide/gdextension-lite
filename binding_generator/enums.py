@@ -9,7 +9,7 @@ from json_types import GlobalEnumOrEnum
 def generate_enum(enum: GlobalEnumOrEnum) -> BindingCode:
     lines = [
         "typedef enum {",
-        *(f"\t{value['name']} = {value['value']}," for value in enum['values']),
+        *(f"\tgodot_{value['name']} = {value['value']}," for value in enum['values']),
         f"}} godot_{enum['name'].replace('.', '_')};",
     ]
     return BindingCode("\n".join(lines), "")
