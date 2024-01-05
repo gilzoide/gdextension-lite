@@ -211,6 +211,11 @@
 	GDEXTENSION_LITE_DEFINE_ARGS_VARIADIC(__VA_ARGS__) \
 	_method((GDExtensionTypePtr) self, _args, NULL, _final_argc);
 
+// Class constructor
+#define GDEXTENSION_LITE_CLASS_CONSTRUCTOR_IMPL(cls) \
+	GDCLEANUP(godot_StringName) _class = godot_StringName_new_with_latin1_chars(#cls); \
+	return (godot_##cls *) godot_classdb_construct_object(&_class);
+
 // Class methods
 #define GDEXTENSION_LITE_DEFINE_CLASS_METHOD_BIND(cls, method, hash) \
 	static GDExtensionMethodBindPtr _method = NULL; \

@@ -2,6 +2,7 @@
 Generates bindings for Godot classes
 """
 
+from .constructor import ClassConstructor
 from .method import ClassMethod
 from common.binding_code import BindingCode
 from common.constant import Constant
@@ -70,6 +71,15 @@ def generate_all_class_stubs(
     )
 
 
+def generate_class_constructor(
+    cls: Class,
+) -> BindingCode:
+    if cls.get("is_instantiable", True):
+        return ClassConstructor(cls["name"]).get_c_code().format_as_section("Constructor")
+    else:
+        return BindingCode()
+
+
 def generate_class_methods(
     cls: Class,
 ) -> BindingCode:
@@ -93,7 +103,10 @@ def generate_class_method_header(
         "../gdextension/gdextension_interface.h",
         "../variant/all.h",
     ]
-    return generate_class_methods(cls).add_extras(includes=includes)
+    return BindingCode.merge([
+        generate_class_constructor(cls),
+        generate_class_methods(cls),
+    ], includes=includes)
 
 
 def generate_initialize_all_classes(
