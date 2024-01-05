@@ -54,6 +54,17 @@ void initialize(void *userdata, GDExtensionInitializationLevel p_level) {
 		const godot_Variant *args[] = { &os_name_var };
 		godot_prints(&msg_var, args, 1);
 	}
+
+	// var node = Node()
+	// print(node)
+	// node.free()
+	{
+		godot_Node *node = godot_new_Node();
+		GDCLEANUP(godot_String) node_name = godot_Object_to_string((godot_Object *) node);
+		GDCLEANUP(godot_Variant) node_name_var = godot_new_Variant_with_String(&node_name);
+		godot_print(&node_name_var, NULL, 0);
+		godot_object_destroy(node);
+	}
 }
 
 void deinitialize(void *userdata, GDExtensionInitializationLevel p_level) {
