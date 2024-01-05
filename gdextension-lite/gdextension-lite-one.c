@@ -4,4 +4,5 @@
 #include "generated/class-stubs/all.c"
 #include "generated/extension_interface.c"
 #include "generated/utility_functions.c"
+#include "generated/singletons.c"
 #include "generated/variant/all.c"

@@ -295,4 +295,13 @@
 	} \
 	return _func(__VA_ARGS__);
 
+// Singleton getters
+#define GDEXTENSION_LITE_GET_SINGLETON_IMPL(type, name) \
+	static godot_##type *_singleton; \
+	if (_singleton == NULL) { \
+		GDCLEANUP(godot_StringName) _singleton_name = godot_StringName_new_with_latin1_chars(name); \
+		_singleton = (godot_##type *) godot_global_get_singleton(&_singleton_name); \
+	} \
+	return _singleton;
+
 #endif  // __GDEXTENSION_LITE_IMPLEMENTATION_MACROS_H__

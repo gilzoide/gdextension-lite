@@ -20,6 +20,7 @@ from format_utils import format_type_snake_case
 from header import CodeWriter
 from json_types import ExtensionApi
 from native_structures import generate_all_native_structures
+from singleton_getters import generate_singleton_getters
 from utility_functions import generate_utility_functions
 
 
@@ -99,6 +100,12 @@ def main():
     code_writer.write_file(
         generate_initialize_all_classes(extension_api["classes"]),
         "class-methods", "all",
+    )
+
+    # Singleton getters
+    code_writer.write_file(
+        generate_singleton_getters(extension_api["singletons"]),
+        "singletons",
     )
 
 
