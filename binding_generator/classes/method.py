@@ -14,6 +14,11 @@ class ClassMethod(CodeGenerator):
     def __init__(self, type_name: str, method: Method):
         self.class_name = type_name
 
+        method_name = method['name']
+        if method_name == 'new':
+            method_name = 'call_new'
+        self.method_name = method_name
+
         self.method = method
         return_value = method.get('return_value')
         return_type = return_value["type"] if return_value else None
@@ -39,7 +44,7 @@ class ClassMethod(CodeGenerator):
             proto_arguments.append("godot_int argc")
 
         self.arguments = arguments
-        self.function_name = f"{type_name}_{method['name']}"
+        self.function_name = f"{type_name}_{method_name}"
         self.prototype = f"""{self.return_type} godot_{self.function_name}({
                                 ', '.join(proto_arguments)
                             })"""
@@ -52,7 +57,7 @@ class ClassMethod(CodeGenerator):
             impl_macro += "_VOID"
         macro_args = [
             self.class_name,
-            self.method['name'],
+            self.method_name,
             str(self.method.get('hash', 0)),
             self.return_type,
             "NULL" if self.is_static else "self",
