@@ -15,8 +15,8 @@ GDEXTENSION_LITE_OPAQUE_STRUCT(godot_Object);
 extern "C" {
 #endif
 
-GDEXTENSION_LITE_DECL godot_Variant godot_Variant_new_with_Object(const godot_Object *value);
-GDEXTENSION_LITE_DECL godot_Object *godot_Object_new_with_Variant(const godot_Variant *value);
+GDEXTENSION_LITE_DECL godot_Variant godot_new_Variant_with_Object(const godot_Object *value);
+GDEXTENSION_LITE_DECL godot_Object *godot_new_Object_with_Variant(const godot_Variant *value);
 
 #ifdef __cplusplus
 }

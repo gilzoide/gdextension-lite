@@ -8,7 +8,7 @@ class ClassConstructor(CodeGenerator):
         self.class_name = type_name
 
     def get_c_code(self) -> BindingCode:
-        prototype = f"godot_{self.class_name} *godot_{self.class_name}_new()"
+        prototype = f"godot_{self.class_name} *godot_new_{self.class_name}()"
         return BindingCode(
             f"GDEXTENSION_LITE_DECL {prototype};",
             '\n'.join([

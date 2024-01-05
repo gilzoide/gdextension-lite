@@ -28,7 +28,7 @@ class BuiltinClassConstructor(CodeGenerator):
             format_parameter_const(arg["type"], arg["name"])
             for arg in self.arguments
         ]
-        self.new_name = f"godot_{type_name}_new{function_suffix}"
+        self.new_name = f"godot_new_{type_name}{function_suffix}"
         self.prototype = f"godot_{type_name} {self.new_name}({', '.join(proto_arguments)})"
 
     def get_c_code(self) -> BindingCode:
@@ -90,16 +90,16 @@ class BuiltinClassConstructorFromString(BuiltinClassConstructor):
             size_arg = "godot_int p_size"
             code.prototype += "\n".join([
                 "",
-                f"GDEXTENSION_LITE_DECL godot_{self.class_name} godot_{self.class_name}_new_with_{extra_name}_chars({contents_arg});",
-                f"GDEXTENSION_LITE_DECL godot_{self.class_name} godot_{self.class_name}_new_with_{extra_name}_chars_and_len({contents_arg}, {size_arg});",
+                f"GDEXTENSION_LITE_DECL godot_{self.class_name} godot_new_{self.class_name}_with_{extra_name}_chars({contents_arg});",
+                f"GDEXTENSION_LITE_DECL godot_{self.class_name} godot_new_{self.class_name}_with_{extra_name}_chars_and_len({contents_arg}, {size_arg});",
             ])
             impl_macro = "GDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL_FROM_CHARS" if self.class_name == "String" else "GDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL_FROM_STRING"
             code.implementation += "\n".join([
                 "",
-                f"godot_{self.class_name} godot_{self.class_name}_new_with_{extra_name}_chars({contents_arg}) {{",
+                f"godot_{self.class_name} godot_new_{self.class_name}_with_{extra_name}_chars({contents_arg}) {{",
                     f"\t{impl_macro}({self.class_name}, {extra_name}_chars, p_contents);",
                 f"}}",
-                f"godot_{self.class_name} godot_{self.class_name}_new_with_{extra_name}_chars_and_len({contents_arg}, {size_arg}) {{",
+                f"godot_{self.class_name} godot_new_{self.class_name}_with_{extra_name}_chars_and_len({contents_arg}, {size_arg}) {{",
                     f"\t{impl_macro}({self.class_name}, {extra_name}_chars_and_len, p_contents, p_size);",
                 f"}}",
             ])

@@ -51,8 +51,8 @@ void initialize(void *userdata, GDExtensionInitializationLevel p_level) {
 
     // print("Hello from GDExtension Lite!")
     {
-        godot_String msg = godot_String_new_with_latin1_chars("Hello from GDExtension Lite!");
-        godot_Variant msg_var = godot_Variant_new_with_String(&msg);
+        godot_String msg = godot_new_String_with_latin1_chars("Hello from GDExtension Lite!");
+        godot_Variant msg_var = godot_new_Variant_with_String(&msg);
         godot_print(&msg_var, NULL, 0);
         // As always in C, you are responsible for freeing objects
         godot_Variant_destroy(&msg_var);
@@ -63,15 +63,15 @@ void initialize(void *userdata, GDExtensionInitializationLevel p_level) {
     {
         // Use "GDCLEANUP(godot_TYPE)" for automatic variable cleanup at the end of scope
         // (compiler needs to support `__attribute__((cleanup(...)))`, like GCC and clang)
-        GDCLEANUP(godot_String) msg = godot_String_new_with_latin1_chars("OS.get_name() ==");
-        GDCLEANUP(godot_Variant) msg_var = godot_Variant_new_with_String(&msg);
+        GDCLEANUP(godot_String) msg = godot_new_String_with_latin1_chars("OS.get_name() ==");
+        GDCLEANUP(godot_Variant) msg_var = godot_new_Variant_with_String(&msg);
 
         // Objects are always used via pointers, no need for cleanup
         // You may need to reference/unreference RefCounted instances, though
         godot_OS *os = godot_OS_singleton();
 
         GDCLEANUP(godot_String) os_name = godot_OS_get_name(os);
-        GDCLEANUP(godot_Variant) os_name_var = godot_Variant_new_with_String(&os_name);
+        GDCLEANUP(godot_Variant) os_name_var = godot_new_Variant_with_String(&os_name);
 
         const godot_Variant *args[] = { &os_name_var };
         godot_prints(&msg_var, args, 1);
@@ -102,7 +102,7 @@ Sample code is also available at the [sample](sample) folder.
 ## Naming conventions
 1. Every type and function binding from Godot have the prefix `godot_`
 2. Every GDExtension Lite function have the prefix `gdextension_lite_`
-3. Constructors have the format `godot_<type name>_new` or `godot_<type name>_new_with_<arg1 type>_<arg2 type>...`
+3. Constructors have the format `godot_new_<type name>` or `godot_new_<type name>_with_<arg1 type>_<arg2 type>...`
 4. Destructors have the format `godot_<type name>_destroy`
 5. Member getters have the format `godot_<type name>_get_<member name>`
 6. Member setters have the format `godot_<type name>_set_<member name>`

@@ -14,11 +14,7 @@ class ClassMethod(CodeGenerator):
     def __init__(self, type_name: str, method: Method):
         self.class_name = type_name
         self.method = method
-
-        method_name = method['name']
-        if method_name == 'new':
-            method_name = 'call_new'
-        self.method_name = method_name
+        self.method_name = method['name']
 
         return_value = method.get('return_value')
         return_type = return_value["type"] if return_value else None
@@ -44,7 +40,7 @@ class ClassMethod(CodeGenerator):
             proto_arguments.append("godot_int argc")
 
         self.arguments = arguments
-        self.function_name = f"{type_name}_{method_name}"
+        self.function_name = f"{type_name}_{self.method_name}"
         self.prototype = f"""{self.return_type} godot_{self.function_name}({
                                 ', '.join(proto_arguments)
                             })"""

@@ -7,13 +7,13 @@
 extern "C" {
 #endif
 
-godot_Variant godot_Variant_new_nil() {
+godot_Variant godot_new_Variant_nil() {
 	godot_Variant self;
 	godot_variant_new_nil(&self);
 	return self;
 }
 
-godot_Variant godot_Variant_new_with_Variant(const godot_Variant *other) {
+godot_Variant godot_new_Variant_with_Variant(const godot_Variant *other) {
 	godot_Variant self;
 	godot_variant_new_copy(&self, other);
 	return self;
