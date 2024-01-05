@@ -1,5 +1,3 @@
-from textwrap import indent
-
 from common.binding_code import BindingCode
 from common.code_generator import CodeGenerator
 from format_utils import (format_parameter,
@@ -80,6 +78,3 @@ class ClassMethod(CodeGenerator):
             cls(type_name, method)
             for method in target_class.get('methods', [])
         ]
-
-
-
