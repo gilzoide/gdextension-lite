@@ -29,7 +29,7 @@ void deinitialize(void *userdata, GDExtensionInitializationLevel p_level);
 
 // 2. In your GDExtension entrypoint, call `gdextension_lite_initialize`
 GDExtensionBool gdextension_entry(
-    const GDExtensionInterfaceGetProcAddress p_get_proc_address,
+    GDExtensionInterfaceGetProcAddress p_get_proc_address,
     GDExtensionClassLibraryPtr p_library,
     GDExtensionInitialization *r_initialization
 ) {
@@ -63,17 +63,15 @@ void initialize(void *userdata, GDExtensionInitializationLevel p_level) {
     {
         // Use "GDCLEANUP(godot_TYPE)" for automatic variable cleanup at the end of scope
         // (compiler needs to support `__attribute__((cleanup(...)))`, like GCC and clang)
-        GDCLEANUP(godot_StringName) singleton_name = godot_StringName_new_with_latin1_chars("OS");
+        GDCLEANUP(godot_String) msg = godot_String_new_with_latin1_chars("OS.get_name() ==");
+        GDCLEANUP(godot_Variant) msg_var = godot_Variant_new_with_String(&msg);
 
         // Objects are always used via pointers, no need for cleanup
         // You may need to reference/unreference RefCounted instances, though
-        godot_OS *os = (godot_OS *) godot_global_get_singleton(&singleton_name);
-        
+        godot_OS *os = godot_OS_singleton();
+
         GDCLEANUP(godot_String) os_name = godot_OS_get_name(os);
         GDCLEANUP(godot_Variant) os_name_var = godot_Variant_new_with_String(&os_name);
-
-        GDCLEANUP(godot_String) msg = godot_String_new_with_latin1_chars("OS.get_name() ==");
-        GDCLEANUP(godot_Variant) msg_var = godot_Variant_new_with_String(&msg);
 
         const godot_Variant *args[] = { &os_name_var };
         godot_prints(&msg_var, args, 1);
@@ -116,7 +114,8 @@ Sample code is also available at the [sample](sample) folder.
 12. Methods have the format `godot_<type name>_<method name>`
 13. Enumerators defined by classes have the format `godot_<type name>_<enum name>`
 14. Godot utility functions have the format `godot_<function name>`
-15. Variadic methods and utility functions expect argv/argc parameters.
+15. Variadic methods and utility functions expect argv/argc parameters
+16. Singleton getters have the format `godot_<type name>_singleton`
 
 
 ## Generating bindings
