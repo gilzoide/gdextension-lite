@@ -24,6 +24,7 @@
 #include "packed_string_array.h"
 #include "packed_vector2_array.h"
 #include "packed_vector3_array.h"
+#include "packed_vector4_array.h"
 #include "plane.h"
 #include "projection.h"
 #include "quaternion.h"
