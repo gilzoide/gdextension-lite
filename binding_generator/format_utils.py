@@ -215,7 +215,7 @@ def format_value_to_ptr(
     if type_name is None:
         return "NULL"
 
-    parameter_name = IDENTIFIER_OVERRIDES.get(parameter_name, parameter_name)
+    parameter_name = format_identifier(parameter_name)
     if type_name in NON_STRUCT_TYPES or type_name.startswith("enum::"):
         return "&" + parameter_name
     else:

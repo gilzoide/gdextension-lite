@@ -1,6 +1,7 @@
 from common.binding_code import BindingCode
 from common.code_generator import CodeGenerator
-from format_utils import (format_parameter,
+from format_utils import (format_identifier,
+                          format_parameter,
                           format_parameter_const,
                           format_return_type,
                           format_value_to_ptr)
@@ -57,7 +58,7 @@ class ClassMethod(CodeGenerator):
             str(self.method.get('hash', 0)),
             self.return_type,
             "NULL" if self.is_static else "self",
-            *(arg['name'] if self.is_vararg else format_value_to_ptr(arg['type'], arg['name'])
+            *(format_identifier(arg['name']) if self.is_vararg else format_value_to_ptr(arg['type'], arg['name'])
               for arg in self.arguments),
         ]
         return BindingCode(
