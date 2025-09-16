@@ -15,7 +15,11 @@ class VariantCode(CodeGenerator):
         self.types = [t["name"] for t in types]
     
     def _format_new_variant(self, t: str):
-        return f"{format_parameter(t, '')}: godot_new_Variant_with_{t}, const {format_parameter(t, '')}: godot_new_Variant_with_{t}"
+        formatted_type = format_parameter(t, '')
+        if formatted_type.endswith('*'):
+            return f"{formatted_type}: godot_new_Variant_with_{t}, const {formatted_type}: godot_new_Variant_with_{t}"
+        else:
+            return f"{formatted_type}: godot_new_Variant_with_{t}"
     
     def _format_new_type(self, t: str):
         return f"godot_{t} *: godot_new_{t}_with_Variant"
