@@ -4,7 +4,6 @@
 #ifndef __GDEXTENSION_LITE_TRANSFORM2D_H__
 #define __GDEXTENSION_LITE_TRANSFORM2D_H__
 
-#include "float.h"
 #include "sizes.h"
 #include "vector2.h"
 

@@ -4,7 +4,7 @@
 #ifndef __GDEXTENSION_LITE_STRING_NAME_H__
 #define __GDEXTENSION_LITE_STRING_NAME_H__
 
-#include "int.h"
+#include <stdint.h>
 #include "sizes.h"
 
 typedef struct godot_StringName {
