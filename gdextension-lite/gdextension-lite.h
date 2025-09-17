@@ -11,7 +11,6 @@
 #include "generated/utility_functions.h"
 #include "generated/class-stubs/all.h"
 #include "generated/class-methods/all.h"
-#include "generated/singletons.h"
 #include "generated/variant/all.h"
 #include "variant/all.h"
 

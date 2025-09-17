@@ -1,5 +1,4 @@
 // 1. Include gdextension-lite.h: the whole API is accessible through it
-#include "gdextension-lite/generated/singletons.h"
 #include <gdextension-lite/gdextension-lite.h>
 
 void initialize(void *userdata, GDExtensionInitializationLevel p_level);

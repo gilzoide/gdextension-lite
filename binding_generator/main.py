@@ -18,10 +18,19 @@ from enums import generate_all_enums
 from extension_interface import generate_all_extension_bindings
 from format_utils import format_type_snake_case
 from header import CodeWriter
-from json_types import ExtensionApi
+from json_types import ArgumentOrSingletonOrMember, Class, ExtensionApi
 from native_structures import generate_all_native_structures
-from singleton_getters import generate_singleton_getters
 from utility_functions import generate_utility_functions
+
+
+def _get_class_singleton_name(
+    cls: Class,
+    singletons: list[ArgumentOrSingletonOrMember],
+) -> ArgumentOrSingletonOrMember | None:
+    for singleton in singletons:
+        if singleton["type"] == cls["name"]:
+            return singleton
+    return None
 
 
 def main():
@@ -90,7 +99,7 @@ def main():
             "class-stubs", format_type_snake_case(cls["name"]),
         )
         code_writer.write_file(
-            generate_class_method_header(cls),
+            generate_class_method_header(cls, _get_class_singleton_name(cls, extension_api["singletons"])),
             "class-methods", format_type_snake_case(cls["name"]),
         )
     code_writer.write_file(
@@ -100,12 +109,6 @@ def main():
     code_writer.write_file(
         generate_initialize_all_classes(extension_api["classes"]),
         "class-methods", "all",
-    )
-
-    # Singleton getters
-    code_writer.write_file(
-        generate_singleton_getters(extension_api["singletons"]),
-        "singletons",
     )
 
 

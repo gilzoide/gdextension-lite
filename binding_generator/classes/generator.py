@@ -4,12 +4,13 @@ Generates bindings for Godot classes
 
 from .constructor import ClassConstructor
 from .method import ClassMethod
+from .singleton_getter import SingletonGetterCode
 from common.binding_code import BindingCode
 from common.constant import Constant
 from common.opaque_struct import OpaqueStruct
 from common.scoped_enum import ScopedEnum
 from format_utils import format_type_snake_case
-from json_types import Class
+from json_types import ArgumentOrSingletonOrMember, Class
 
 
 def generate_class_constants(
@@ -73,8 +74,11 @@ def generate_all_class_stubs(
 
 def generate_class_constructor(
     cls: Class,
+    singleton: ArgumentOrSingletonOrMember | None,
 ) -> BindingCode:
-    if cls.get("is_instantiable", True):
+    if singleton:
+        return SingletonGetterCode(singleton).get_c_code().format_as_section("Singleton")
+    elif cls.get("is_instantiable", True):
         return ClassConstructor(cls["name"]).get_c_code().format_as_section("Constructor")
     else:
         return BindingCode()
@@ -94,6 +98,7 @@ def generate_class_methods(
 
 def generate_class_method_header(
     cls: Class,
+    singleton: ArgumentOrSingletonOrMember | None,
 ) -> BindingCode:
     includes = [
         "class-stubs/all.h",
@@ -104,7 +109,7 @@ def generate_class_method_header(
         "../variant/all.h",
     ]
     return BindingCode.merge([
-        generate_class_constructor(cls),
+        generate_class_constructor(cls, singleton),
         generate_class_methods(cls),
     ], includes=includes)
 
