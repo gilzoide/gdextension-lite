@@ -1,5 +1,5 @@
 #include "object.h"
-#include "../generated/extension_interface.h"
+#include "../gdextension/gdextension_interface.h"
 #include "../implementation-macros.h"
 
 typedef struct godot_Object godot_Object;

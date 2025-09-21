@@ -1,6 +1,5 @@
 #include "variant.h"
 
-#include "../implementation-macros.h"
 #include "../generated/extension_interface.h"
 
 #ifdef __cplusplus
