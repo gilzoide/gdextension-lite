@@ -30,15 +30,14 @@ class VariantCode(CodeGenerator):
             f"\t_Generic((x), \\",
             *(f"\t\t{self._format_new_variant(t)}, \\" for t in self.types),
             f"\t\tgodot_Object *: godot_new_Variant_with_Object, const godot_Object *: godot_new_Variant_with_Object \\",
+            f"\t\tgodot_Variant *: godot_new_Variant_with_Variant, const godot_Variant *: godot_new_Variant_with_Variant \\",
             f"\t)(x)",
-            "",
-            "GDEXTENSION_LITE_INLINE godot_Variant gdextension_lite_variant_deref(godot_Variant *value) { return *value; }",
             "",
             f"#define godot_Variant_extract(dest, variant) \\",
             f"\t(*dest = _Generic((dest), \\",
             *(f"\t\t{self._format_new_type(t)}, \\" for t in self.types),
             f"\t\tgodot_Object **: godot_new_Object_with_Variant, \\",
-            f"\t\tgodot_Variant *: gdextension_lite_variant_deref, \\",
+            f"\t\tgodot_Variant *: godot_new_Variant_with_Variant, \\",
             f"\t\tgodot_Error *: godot_new_int_with_Variant \\",
             f"\t)(variant))",
         ])
@@ -55,9 +54,10 @@ class VariantCode(CodeGenerator):
         return "\n".join([
             *(self._get_cpp_overload_variant(t) for t in self.types),
             f"GDEXTENSION_LITE_INLINE godot_Variant godot_new_Variant(const godot_Object *value) {{ return godot_new_Variant_with_Object(value); }}",
+            f"GDEXTENSION_LITE_INLINE godot_Variant godot_new_Variant(const godot_Variant *value) {{ return godot_new_Variant_with_Variant(value); }}",
             "",
             *(self._get_cpp_overload_type(t) for t in self.types),
-            f"GDEXTENSION_LITE_INLINE void godot_Variant_extract(godot_Variant *dest, godot_Variant *value) {{ *dest = *value; }}",
+            f"GDEXTENSION_LITE_INLINE void godot_Variant_extract(godot_Variant *dest, godot_Variant *value) {{ *dest = godot_new_Variant_with_Variant(value); }}",
         ])
 
     def get_c_code(self) -> BindingCode:
