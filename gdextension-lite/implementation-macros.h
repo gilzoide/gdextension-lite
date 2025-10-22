@@ -9,6 +9,13 @@
 #include "generated/variant/all.h"
 #include "variant/all.h"
 
+#ifdef _MSC_VER
+	#include <malloc.h>
+	#define alloca(size) _alloca(size)
+#else
+	#include <alloca.h>
+#endif
+
 // Macro magic to get the number of variable arguments
 // Ref: https://groups.google.com/g/comp.std.c/c/d-6Mj5Lko_s
 #define GDEXTENSION_LITE_NARG(...)  GDEXTENSION_LITE_NARG_N(__VA_ARGS__, 63,62,61,60,59,58,57,56,55,54,53,52,51,50,49,48,47,46,45,44,43,42,41,40,39,38,37,36,35,34,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
@@ -45,9 +52,7 @@
 #define GDEXTENSION_LITE_DEFINE_ARGS_VARIADIC(...) \
 	const int _fixed_argc = GDEXTENSION_LITE_NARG(__VA_ARGS__); \
 	const int _final_argc = _fixed_argc + argc; \
-	GDExtensionConstTypePtr *_args = NULL; \
-	__VA_OPT__(GDExtensionConstTypePtr _args_array[_final_argc];) \
-	__VA_OPT__(_args = _args_array;) \
+	GDExtensionConstTypePtr *_args = (GDExtensionConstTypePtr *) alloca(_final_argc * sizeof(GDExtensionConstTypePtr)); \
 	__VA_OPT__(int _args_i = 0;) \
 	GDEXTENSION_LITE_MAP(GDEXTENSION_LITE_SET_ARG, ##__VA_ARGS__) \
 	for (int _i = 0; _i < argc; _i++) { \
@@ -57,9 +62,7 @@
 #define GDEXTENSION_LITE_DEFINE_VARIANT_ARGS_VARIADIC(...) \
 	const int _fixed_argc = GDEXTENSION_LITE_NARG(__VA_ARGS__); \
 	const int _final_argc = _fixed_argc + argc; \
-	GDExtensionConstVariantPtr *_args = NULL; \
-	__VA_OPT__(GDExtensionConstVariantPtr _args_array[_final_argc];) \
-	__VA_OPT__(_args = _args_array;) \
+	GDExtensionConstVariantPtr *_args = (GDExtensionConstVariantPtr *) alloca(_final_argc * sizeof(GDExtensionConstVariantPtr)); \
 	__VA_OPT__(int _args_i = 0;) \
 	GDEXTENSION_LITE_MAP(GDEXTENSION_LITE_SET_VARIANT_ARG, ##__VA_ARGS__) \
 	for (int _i = 0; _i < argc; _i++) { \
