@@ -57,8 +57,8 @@
 #define GDEXTENSION_LITE_DEFINE_VARIANT_ARGS_VARIADIC(...) \
 	const int _fixed_argc = GDEXTENSION_LITE_NARG(__VA_ARGS__); \
 	const int _final_argc = _fixed_argc + argc; \
-	GDExtensionConstTypePtr *_args = NULL; \
-	__VA_OPT__(GDExtensionConstTypePtr _args_array[_final_argc];) \
+	GDExtensionConstVariantPtr *_args = NULL; \
+	__VA_OPT__(GDExtensionConstVariantPtr _args_array[_final_argc];) \
 	__VA_OPT__(_args = _args_array;) \
 	__VA_OPT__(int _args_i = 0;) \
 	GDEXTENSION_LITE_MAP(GDEXTENSION_LITE_SET_VARIANT_ARG, ##__VA_ARGS__) \
