@@ -29,7 +29,7 @@ class VariantCode(CodeGenerator):
             f"#define godot_new_Variant(x) \\",
             f"\t_Generic((x), \\",
             *(f"\t\t{self._format_new_variant(t)}, \\" for t in self.types),
-            f"\t\tgodot_Object *: godot_new_Variant_with_Object, const godot_Object *: godot_new_Variant_with_Object \\",
+            f"\t\tgodot_Object *: godot_new_Variant_with_Object, const godot_Object *: godot_new_Variant_with_Object, \\",
             f"\t\tgodot_Variant *: godot_new_Variant_with_Variant, const godot_Variant *: godot_new_Variant_with_Variant \\",
             f"\t)(x)",
             "",
