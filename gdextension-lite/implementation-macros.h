@@ -34,8 +34,11 @@
 	_args[_args_i++] = a;
 
 #define GDEXTENSION_LITE_SET_VARIANT_ARG(a) \
-	GDCLEANUP(godot_Variant) _var_##a = godot_new_Variant(a); \
+	godot_Variant _var_##a = godot_new_Variant(a); \
 	_args[_args_i++] = &_var_##a;
+
+#define GDEXTENSION_LITE_DESTROY_VARIANT_ARG(a) \
+	godot_Variant_destroy(&_var_##a);
 
 #define GDEXTENSION_LITE_DEFINE_ARGS(...) \
 	const int _final_argc = GDEXTENSION_LITE_NARG(__VA_ARGS__); \
@@ -60,6 +63,9 @@
 	for (int _i = 0; _i < argc; _i++) { \
 		_args[_fixed_argc + _i] = argv[_i]; \
 	}
+
+#define GDEXTENSION_LITE_DESTROY_VARIANT_ARGS(...) \
+	GDEXTENSION_LITE_MAP(GDEXTENSION_LITE_DESTROY_VARIANT_ARG, ##__VA_ARGS__)
 
 // Variant constructor/destructor
 #define GDEXTENSION_LITE_VARIANT_CONSTRUCTOR_IMPL(type, variant_type_enum, index, ...) \
@@ -112,16 +118,18 @@
 #define GDEXTENSION_LITE_VARIANT_MEMBER_SET_IMPL(variant_type_enum, type, member, value) \
 	static GDExtensionPtrSetter _setter = NULL; \
 	if (_setter == NULL) { \
-		GDCLEANUP(godot_StringName) _member = godot_new_StringName_with_latin1_chars(#member); \
+		godot_StringName _member = godot_new_StringName_with_latin1_chars(#member); \
 		_setter = godot_variant_get_ptr_setter(variant_type_enum, &_member); \
+		godot_StringName_destroy(&_member); \
 	} \
 	_setter(self, value);
 
 #define GDEXTENSION_LITE_VARIANT_MEMBER_GET_IMPL(variant_type_enum, type, member) \
 	static GDExtensionPtrGetter _getter = NULL; \
 	if (_getter == NULL) { \
-		GDCLEANUP(godot_StringName) _member = godot_new_StringName_with_latin1_chars(#member); \
+		godot_StringName _member = godot_new_StringName_with_latin1_chars(#member); \
 		_getter = godot_variant_get_ptr_getter(variant_type_enum, &_member); \
+		godot_StringName_destroy(&_member); \
 	} \
 	godot_##type _value = { 0 }; \
 	_getter(self, &_value); \
@@ -183,8 +191,9 @@
 #define GDEXTENSION_LITE_DECLARE_VARIANT_METHOD(method, hash, variant_type_enum) \
 	static GDExtensionPtrBuiltInMethod _method = NULL; \
 	if (_method == NULL) { \
-		GDCLEANUP(godot_StringName) _method_name = godot_new_StringName_with_latin1_chars(#method); \
+		godot_StringName _method_name = godot_new_StringName_with_latin1_chars(#method); \
 		_method = godot_variant_get_ptr_builtin_method(variant_type_enum, &_method_name, hash); \
+		godot_StringName_destroy(&_method_name); \
 	}
 
 #define GDEXTENSION_LITE_VARIANT_METHOD_IMPL(method, hash, variant_type_enum, return_type, self, ...) \
@@ -213,16 +222,20 @@
 
 // Class constructor
 #define GDEXTENSION_LITE_CLASS_CONSTRUCTOR_IMPL(cls) \
-	GDCLEANUP(godot_StringName) _class = godot_new_StringName_with_latin1_chars(#cls); \
-	return (godot_##cls *) godot_classdb_construct_object(&_class);
+	godot_StringName _class = godot_new_StringName_with_latin1_chars(#cls); \
+	godot_##cls *_obj = (godot_##cls *) godot_classdb_construct_object(&_class); \
+	godot_StringName_destroy(&_class); \
+	return _obj;
 
 // Class methods
 #define GDEXTENSION_LITE_DEFINE_CLASS_METHOD_BIND(cls, method, hash) \
 	static GDExtensionMethodBindPtr _method = NULL; \
 	if (_method == NULL) { \
-		GDCLEANUP(godot_StringName) _class = godot_new_StringName_with_latin1_chars(#cls); \
-		GDCLEANUP(godot_StringName) _method_name = godot_new_StringName_with_latin1_chars(#method); \
+		godot_StringName _class = godot_new_StringName_with_latin1_chars(#cls); \
+		godot_StringName _method_name = godot_new_StringName_with_latin1_chars(#method); \
 		_method = godot_classdb_get_method_bind(&_class, &_method_name, hash); \
+		godot_StringName_destroy(&_method_name); \
+		godot_StringName_destroy(&_class); \
 	}
 
 #define GDEXTENSION_LITE_METHOD_BIND_CALL_VARIADIC(cls, method, return_type, self) \
@@ -249,8 +262,10 @@
 	godot_Variant _ret; \
 	GDExtensionCallError _error; \
 	godot_object_method_bind_call(_method, (GDExtensionObjectPtr) self, _args, _final_argc, &_ret, &_error); \
+	GDEXTENSION_LITE_DESTROY_VARIANT_ARGS(__VA_ARGS__) \
 	return_type _typed_ret; \
 	godot_Variant_extract(&_typed_ret, &_ret); \
+	godot_Variant_destroy(&_ret); \
 	return _typed_ret;
 
 #define GDEXTENSION_LITE_CLASS_METHOD_IMPL_VARIADIC_VOID(cls, method, hash, return_type, self, ...) \
@@ -258,14 +273,16 @@
 	GDEXTENSION_LITE_DEFINE_VARIANT_ARGS_VARIADIC(__VA_ARGS__) \
 	GDExtensionCallError _error; \
 	godot_object_method_bind_call(_method, (GDExtensionObjectPtr) self, _args, _final_argc, NULL, &_error); \
+	GDEXTENSION_LITE_DESTROY_VARIANT_ARGS(__VA_ARGS__)
 
 
 // Utility functions
 #define GDEXTENSION_LITE_DECLARE_UTILITY_FUNCTION(name, hash) \
 	static GDExtensionPtrUtilityFunction _func = NULL; \
 	if (_func == NULL) { \
-		GDCLEANUP(godot_StringName) _func_name = godot_new_StringName_with_latin1_chars(#name); \
+		godot_StringName _func_name = godot_new_StringName_with_latin1_chars(#name); \
 		_func = godot_variant_get_ptr_utility_function(&_func_name, hash); \
+		godot_StringName_destroy(&_func_name); \
 	}
 
 #define GDEXTENSION_LITE_UTILITY_FUNCTION_IMPL(name, hash, return_type, ...) \
@@ -304,8 +321,9 @@
 #define GDEXTENSION_LITE_GET_SINGLETON_IMPL(type, name) \
 	static godot_##type *_singleton; \
 	if (_singleton == NULL) { \
-		GDCLEANUP(godot_StringName) _singleton_name = godot_new_StringName_with_latin1_chars(name); \
+		godot_StringName _singleton_name = godot_new_StringName_with_latin1_chars(name); \
 		_singleton = (godot_##type *) godot_global_get_singleton(&_singleton_name); \
+		godot_StringName_destroy(&_singleton_name); \
 	} \
 	return _singleton;
 
