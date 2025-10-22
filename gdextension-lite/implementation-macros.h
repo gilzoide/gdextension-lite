@@ -322,6 +322,13 @@
 	} \
 	return _func(__VA_ARGS__);
 
+#define GDEXTENSION_LITE_EXTENSION_INTERFACE_IMPL_VOID(symbol_type, symbol, ...) \
+	static symbol_type _func = NULL; \
+	if (_func == NULL) { \
+		_func = (symbol_type) gdextension_lite_get_proc_address(#symbol); \
+	} \
+	_func(__VA_ARGS__);
+
 // Singleton getters
 #define GDEXTENSION_LITE_GET_SINGLETON_IMPL(type, name) \
 	static godot_##type *_singleton; \
